@@ -12,6 +12,18 @@ import java.util.Map;
 
 public class LoginApi {
 
+    public static void inputRestrictions(Context ctx, String username, String password) {
+        if (username.length() < 3 || username.length() > 16) {
+            ctx.status(400).result("Username must be between 3 and 16 characters.");
+            return;
+        }
+
+        if (password.length() < 6 || password.length() > 32) {
+            ctx.status(400).result("Password must be between 6 and 32 characters.");
+            return;
+        }
+    }
+
     /**
      * HTTP POST Request to /api/v1/auth/login
      * Logs in a user.
@@ -27,6 +39,8 @@ public class LoginApi {
 
         String username = body.getString("username");
         String password = body.getString("password");
+
+        inputRestrictions(ctx, username, password);
 
         String storedPasswordHash = Database.getJdbi().withHandle(handle ->
                 handle.createQuery("SELECT password FROM users WHERE username = :username")
@@ -72,8 +86,10 @@ public class LoginApi {
         String username = body.getString("username");
         String password = body.getString("password");
 
+        inputRestrictions(ctx, username, password);
+
         if (Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT COUNT(*) FROM users WHERE username = :username")
+                handle.createQuery("SELECT COUNT(*) FROM users WHERE LOWER(username) = LOWER(:username)")
                         .bind("username", username)
                         .mapTo(Integer.class)
                         .one()) > 0) {
