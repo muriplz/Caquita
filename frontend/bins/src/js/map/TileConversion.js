@@ -21,7 +21,6 @@ export function setWorldOrigin(lat, lon) {
         WORLD_ORIGIN.lat = lat;
         WORLD_ORIGIN.lon = lon;
         WORLD_ORIGIN.isCustom = true;
-        console.log("World origin set to GPS position:", WORLD_ORIGIN);
     }
     return WORLD_ORIGIN;
 }

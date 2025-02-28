@@ -126,14 +126,11 @@ public class InventoryApi {
     }
 
     public static void moveItem(@NotNull Context context) {
-        System.out.println("moveItem");
         long user = AuthUtils.getUser(context);
         GridInventory inventory = getInventory(user);
-        System.out.println("moveItem2");
 
         MoveItemRequest request = context.bodyAsClass(MoveItemRequest.class);
         Item itemToMove = findItemById(inventory, request.itemId());
-        System.out.println(request.itemId());
 
         if (itemToMove == null) {
             throw new NotFoundResponse("Item not found");

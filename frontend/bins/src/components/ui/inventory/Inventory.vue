@@ -93,18 +93,6 @@ export default {
     onMounted(() => {
       inventoryStore.openInventory();
       window.addEventListener('beforeunload', handleBeforeUnload);
-
-      console.log('Inventory opened, current data:',
-          JSON.stringify(inventoryStore.state.inventoryManager, (k, v) => {
-            if (k === 'items' && v instanceof Map) {
-              return Array.from(v.entries()).reduce((obj, [key, value]) => {
-                obj[key] = value;
-                return obj;
-              }, {});
-            }
-            return v;
-          }, 2)
-      );
     });
 
     onBeforeUnmount(() => {
@@ -121,7 +109,6 @@ export default {
     };
 
     const onItemDropped = ({ itemId, position }) => {
-      console.log(`Dropping item ${itemId} at position (${position.x}, ${position.y})`);
       inventoryStore.moveItem(itemId, position);
     };
 
@@ -141,9 +128,7 @@ export default {
     };
 
     const onTouchDragMove = ({ itemId, deltaX, deltaY }) => {
-      // You might want to add visual feedback here
-      // For now, we'll just track the movement
-      console.log('Touch drag move', { itemId, deltaX, deltaY });
+
     };
 
     const onTouchDragEnd = ({ itemId, deltaX, deltaY, position }) => {
@@ -169,7 +154,6 @@ export default {
 
       // Only move if the position actually changed
       if (newPosition.x !== position.x || newPosition.y !== position.y) {
-        console.log(`Moving item ${itemId} from (${position.x}, ${position.y}) to (${newPosition.x}, ${newPosition.y})`);
         inventoryStore.moveItem(itemId, newPosition);
       }
 

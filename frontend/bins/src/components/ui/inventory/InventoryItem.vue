@@ -70,7 +70,6 @@ export default {
       if (!this.item) return;
 
       this.isDragging = true;
-      console.log('Started dragging item:', this.item.id);
 
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('application/json', JSON.stringify(this.item));
@@ -97,9 +96,6 @@ export default {
 
     onDragEnd() {
       this.isDragging = false;
-      if (this.item) {
-        console.log('Finished dragging item:', this.item.id);
-      }
     },
 
     onTouchStart(event) {
@@ -165,7 +161,6 @@ export default {
 
     onClick() {
       if (!this.item) return;
-      console.log('Clicked on item:', this.item.id);
       this.$emit('item-clicked', {
         itemId: this.item.id,
         position: this.position

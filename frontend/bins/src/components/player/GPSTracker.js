@@ -63,7 +63,6 @@ function setOriginPoint() {
         // Also set the world origin (this will only happen once if not already set)
         setWorldOrigin(coords.value.latitude, coords.value.longitude);
 
-        console.log("Origin set:", originPoint);
         updateWorldPosition();
         return true;
     }

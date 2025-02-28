@@ -58,25 +58,21 @@ async function fetchInventory(force = false) {
 
     try {
         const inventoryData = await inventoryService.getInventory(force);
-        console.log('[Inventory Store] Loaded inventory data:', inventoryData);
         state.inventoryManager = new InventoryManager(inventoryData);
         state.lastSyncTime = Date.now();
     } catch (error) {
         state.error = error.message || 'Failed to fetch inventory';
-        console.error('[Inventory Store] Error fetching inventory:', error);
     } finally {
         state.loading = false;
     }
 }
 
 async function openInventory() {
-    console.log('[Inventory Store] Opening inventory');
     state.isOpen = true;
     await fetchInventory();
 }
 
 function closeInventory() {
-    console.log('[Inventory Store] Closing inventory');
     state.isOpen = false;
 }
 
@@ -85,7 +81,6 @@ async function addItem(item, position) {
     const posObj = position instanceof Position ? position : new Position(position.x, position.y);
 
     if (!state.inventoryManager.canPlaceItem(itemObj, posObj)) {
-        console.log('[Inventory Store] Cannot place item at the specified position');
         return false;
     }
 
@@ -96,13 +91,11 @@ async function addItem(item, position) {
 
         const success = state.inventoryManager.addItem(itemObj, posObj);
         if (success) {
-            console.log('[Inventory Store] Item added successfully');
             state.lastSyncTime = Date.now();
         }
         return success;
     } catch (error) {
         state.error = error.message || 'Failed to add item';
-        console.error('[Inventory Store] Error adding item:', error);
         return false;
     } finally {
         state.loading = false;
@@ -111,7 +104,6 @@ async function addItem(item, position) {
 
 async function removeItem(itemId) {
     if (!state.inventoryManager.getItem(itemId)) {
-        console.log('[Inventory Store] Item not found:', itemId);
         return false;
     }
 
@@ -122,13 +114,11 @@ async function removeItem(itemId) {
 
         const success = state.inventoryManager.removeItem(itemId);
         if (success) {
-            console.log('[Inventory Store] Item removed successfully');
             state.lastSyncTime = Date.now();
         }
         return success;
     } catch (error) {
         state.error = error.message || 'Failed to remove item';
-        console.error('[Inventory Store] Error removing item:', error);
         return false;
     } finally {
         state.loading = false;
@@ -141,14 +131,11 @@ async function moveItem(itemId, newPosition) {
 
     const item = state.inventoryManager.getItem(itemId);
     if (!item) {
-        console.log('[Inventory Store] Item not found:', itemId);
         return false;
     }
 
-    console.log('[Inventory Store] Attempting to move item:', itemId, 'to position:', posObj);
 
     if (!state.inventoryManager.canPlaceItem(item, posObj, itemId)) {
-        console.log('[Inventory Store] Cannot place item at the specified position');
         return false;
     }
 
@@ -158,7 +145,6 @@ async function moveItem(itemId, newPosition) {
     // Apply change locally first
     const tempSuccess = state.inventoryManager.moveItem(itemId, posObj);
     if (!tempSuccess) {
-        console.log('[Inventory Store] Failed to move item temporarily');
         return false;
     }
 
@@ -166,15 +152,12 @@ async function moveItem(itemId, newPosition) {
 
     try {
         // Make API call to server
-        console.log('[Inventory Store] Sending move request to server for item:', itemId);
         const response = await inventoryService.moveItem(itemId, posObj);
 
         if (response.success) {
-            console.log('[Inventory Store] Item moved successfully on server');
             state.lastSyncTime = Date.now();
             return true;
         } else {
-            console.log('[Inventory Store] Server rejected move operation');
             // Revert local change if server rejected
             if (originalPosition) {
                 state.inventoryManager.moveItem(itemId, originalPosition);
@@ -183,7 +166,6 @@ async function moveItem(itemId, newPosition) {
         }
     } catch (error) {
         state.error = error.message || 'Failed to move item';
-        console.error('[Inventory Store] Error moving item:', error);
 
         // Revert local change on error
         if (originalPosition) {
@@ -199,7 +181,6 @@ async function moveItem(itemId, newPosition) {
 
 // Initialize store
 function initStore() {
-    console.log('[Inventory Store] Initializing store');
     fetchInventory();
 }
 

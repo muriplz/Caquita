@@ -49,13 +49,11 @@ export default {
 
         fetchingPromise = fetchJSON(API_URL)
             .then(data => {
-                console.log('[Inventory Service] Received inventory data:', data);
                 cachedInventory = data;
                 fetchingPromise = null;
                 return cachedInventory;
             })
             .catch(error => {
-                console.error('[Inventory Service] Error fetching inventory:', error);
                 fetchingPromise = null;
                 throw error;
             });
@@ -64,8 +62,6 @@ export default {
     },
 
     async addItem(item, position) {
-        console.log('[Inventory Service] Adding item:', item, 'at position:', position);
-
         const requestPayload = {
             item: {
                 id: item.id,
@@ -85,7 +81,6 @@ export default {
         });
 
         if (response.success) {
-            console.log('[Inventory Service] Item added successfully');
             cachedInventory = null;
         }
 
@@ -93,15 +88,12 @@ export default {
     },
 
     async removeItem(itemId) {
-        console.log('[Inventory Service] Removing item:', itemId);
-
         const response = await fetchJSON(API_URL, {
             method: 'DELETE',
             body: JSON.stringify({ itemId })
         });
 
         if (response.success) {
-            console.log('[Inventory Service] Item removed successfully');
             cachedInventory = null;
         }
 
@@ -109,8 +101,6 @@ export default {
     },
 
     async moveItem(itemId, newPosition) {
-        console.log('[Inventory Service] Moving item:', itemId, 'to position:', newPosition);
-
         try {
             const requestBody = {
                 itemId,
@@ -120,23 +110,17 @@ export default {
                 }
             };
 
-            console.log('[Inventory Service] Request payload:', JSON.stringify(requestBody));
-
             const response = await fetchJSON(API_URL, {
                 method: 'PATCH',
                 body: JSON.stringify(requestBody)
             });
 
-            console.log('[Inventory Service] Move response:', response);
-
             if (response.success) {
-                console.log('[Inventory Service] Item moved successfully');
                 cachedInventory = null;
             }
 
             return response;
         } catch (error) {
-            console.error('[Inventory Service] Error moving item:', error);
             // If item can't be placed, the server returns 400 Bad Request
             if (error.status === 400) {
                 return { success: false, canPlace: false };
@@ -147,7 +131,6 @@ export default {
 
     async canPlaceItem(itemData, position) {
         const url = `${API_URL}/can-place`;
-        console.log('[Inventory Service] Checking if can place item at position:', position);
 
         const requestPayload = itemData.id
             ? { itemId: itemData.id, position }

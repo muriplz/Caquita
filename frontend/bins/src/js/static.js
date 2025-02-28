@@ -1,6 +1,6 @@
 const IP_ADDRESSES = {
     production: 'https://caquita.app',
-    development: 'http://localhost:6969'
+    development: 'http://localhost:6996'
 };
 
 function isProduction() {

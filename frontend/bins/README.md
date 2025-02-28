@@ -1,6 +1,13 @@
-# [Bins](https://bins.kryeit.com) Frontend Webapp
+# [Bins](https://caquita.app) Frontend Webapp
 
 Deno + Vue 3 + TresJS
 
+## Development
 
-[Check our backend, Streetlight](https://github.com/muriplz/streetlight)
+```bash
+deno install
+```
+
+```bash
+deno run dev
+```

@@ -2,7 +2,7 @@ package com.kryeit;
 
 public class Config {
     public static final int apiPort = 6996;
-    public static final boolean production = true;
+    public static final boolean production = false;
 
     public static final String dbUrl = production
             ? "jdbc:postgresql://kryeit.com:5432/caqui"
@@ -17,7 +17,7 @@ public class Config {
 
     public static final String stadiaKey = production
             ? System.getenv("STADIA_KEY")
-            : "AAAAAAAAAAAAAAAAAAAAAAAA";
+            : "83c37f17-a676-4f7d-9d40-464265551808";
 
     public static final String jwtSecret = production
             ? System.getenv("JWT_SECRET")
