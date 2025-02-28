@@ -1,0 +1,23 @@
+{
+  "name": "bins",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vueuse/core": "^12.7.0",
+    "vue": "^3.5.13",
+    "vue-router": "^4.2.5",
+    "@tresjs/core": "^4.3.3",
+    "@tresjs/cientos": "^4.1.0",
+    "three": "^0.153.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "vite": "^6.0.5"
+  }
+}

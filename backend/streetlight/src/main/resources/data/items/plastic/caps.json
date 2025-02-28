@@ -1,0 +1,18 @@
+[
+  {
+    "c": "Id of the item",
+    "id": "sorales",
+    "c2": "Type of plastic of the item",
+    "plastic": "5",
+    "c3": "Type of landmarks that best suits the item's recycling (TODO: add caps)",
+    "right": [
+      "plastic"
+    ],
+    "c4": "Experience given by recycling the item",
+    "exp": {
+      "wrong": "-10",
+      "cans": "1",
+      "right": "5"
+    }
+  }
+]
