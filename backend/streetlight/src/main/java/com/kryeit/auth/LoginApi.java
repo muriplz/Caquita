@@ -13,19 +13,17 @@ import java.util.Map;
 public class LoginApi {
 
     public static boolean inputRestrictions(Context ctx, String username, String password) {
-        boolean valid = true;
-
         if (username.length() < 3 || username.length() > 16) {
             ctx.status(400).result("Username must be between 3 and 16 characters.");
-            valid = false;
+            return false;
         }
 
         if (password.length() < 6 || password.length() > 32) {
             ctx.status(400).result("Password must be between 6 and 32 characters.");
-            valid = false;
+            return false;
         }
 
-        return valid;
+        return true;
     }
 
     /**
@@ -88,14 +86,13 @@ public class LoginApi {
      */
     public static void register(Context ctx) {
         JSONObject body = new JSONObject(ctx.body());
-
         String username = body.getString("username");
         String password = body.getString("password");
 
         if (!inputRestrictions(ctx, username, password)) {
             return;
         }
-        
+
         if (Database.getJdbi().withHandle(handle ->
                 handle.createQuery("SELECT COUNT(*) FROM users WHERE LOWER(username) = LOWER(:username)")
                         .bind("username", username)
@@ -105,20 +102,25 @@ public class LoginApi {
             return;
         }
 
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        try {
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-        long id = Database.getJdbi().withHandle(handle ->
-                handle.createUpdate("INSERT INTO users (username, password, creation, trust) VALUES (:username, :password, NOW(), 'DEFAULT')")
-                        .bind("username", username)
-                        .bind("password", hashedPassword)
-                        .executeAndReturnGeneratedKeys("id")
-                        .mapTo(Long.class)
-                        .one()
-        );
+            long id = Database.getJdbi().withHandle(handle ->
+                    handle.createUpdate("INSERT INTO users (username, password, creation, trust) VALUES (:username, :password, NOW(), 'DEFAULT')")
+                            .bind("username", username)
+                            .bind("password", hashedPassword)
+                            .executeAndReturnGeneratedKeys("id")
+                            .mapTo(Long.class)
+                            .one()
+            );
 
-        InventoryApi.initInventory(id);
+            InventoryApi.initInventory(id);
 
-        ctx.status(201).result("User registered successfully.");
+            ctx.status(201).result("User registered successfully.");
+
+        } catch (Exception e) {
+            ctx.status(500).result("Registration failed due to internal error.");
+        }
     }
 
     /**

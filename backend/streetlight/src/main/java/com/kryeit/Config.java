@@ -2,7 +2,7 @@ package com.kryeit;
 
 public class Config {
     public static final int apiPort = 6996;
-    public static final boolean production = false;
+    public static final boolean production = true;
 
     public static final String dbUrl = production
             ? "jdbc:postgresql://kryeit.com:5432/caqui"

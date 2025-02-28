@@ -43,7 +43,7 @@ public class Main {
             config.bundledPlugins.enableCors(cors -> {
                 cors.addRule(it -> {
                     it.allowCredentials = true;
-                    it.allowHost("https://servus.kryeit.com", "http://localhost:5173", "http://localhost:5174");
+                    it.allowHost("https://caquita.app", "http://localhost:5173", "http://localhost:5174");
                 });
             });
 
@@ -54,8 +54,9 @@ public class Main {
 
             config.router.apiBuilder(() -> {
                 path("api", () -> {
-                    get(ctx -> ctx.result("Hello World!"));
                     path("v1", () -> {
+                        get(ctx -> ctx.result("Hello World!"));
+
                         path("landmarks", () -> {
                             get(LandmarkApi::getLandmarks);
 

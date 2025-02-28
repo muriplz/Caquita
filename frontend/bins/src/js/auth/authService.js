@@ -10,12 +10,10 @@ class AuthService {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON. stringify(
-                    {
-                        username: username,
-                        password: password
-                    }
-                )
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
             });
 
             if (response.status === 200) {
@@ -25,6 +23,11 @@ class AuthService {
                 inventoryStore.initStore();
 
                 return true;
+            } else if (response.status === 400) {
+                const error = await response.text();
+
+                window.alert(error || 'Login failed: Invalid request');
+                return false;
             } else {
                 return false;
             }
@@ -40,17 +43,19 @@ class AuthService {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(
-                    {
-                        username: username,
-                        password: password
-                    }
-                )
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
             });
 
             if (response.status === 201) {
                 await this.login(username, password);
                 return true;
+            } else if (response.status === 400) {
+                const error = await response.text();
+                window.alert(error || 'Registration failed: Invalid request');
+                return false;
             } else {
                 return false;
             }
@@ -81,19 +86,17 @@ class AuthService {
         } catch (error) {
             return false;
         }
-
     }
 
     saveToken(token) {
-        // domain=kryeit.com; Secure; SameSite=None
         document.cookie = `auth=${token}; path=/;`;
     }
 
     getToken() {
-        const cookies = document.cookie.split('; ')
+        const cookies = document.cookie.split('; ');
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i];
-            const [name, value] = cookie.split('=')
+            const [name, value] = cookie.split('=');
             if (name === 'auth') {
                 return value;
             }
@@ -102,9 +105,9 @@ class AuthService {
     }
 
     logout() {
-        Store.removeUser()
-        document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+        Store.removeUser();
+        document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     }
 }
 
-export default new AuthService()
+export default new AuthService();
