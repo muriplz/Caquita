@@ -45,6 +45,8 @@ const onReady = (instance) => {
   controlsRef.value = instance
   currentDistance.value = instance.distance
 
+  currentDistance.value = 20
+  
   if (instance) {
     instance.setTarget(positionData.x, positionData.y, positionData.z)
     instance.distance = currentDistance.value
