@@ -13,12 +13,12 @@
       </div>
     </div>
 
-    <div
-        class="inventory-grid"
-        :style="gridStyle"
-        @dragover.prevent
-        @drop.prevent
-        @touchmove.prevent
+    <div v-if="isGridReady"
+         class="inventory-grid"
+         :style="gridStyle"
+         @dragover.prevent
+         @drop.prevent
+         @touchmove.prevent
     >
       <template v-for="(row, y) in grid" :key="`row-${y}`">
         <grid-cell
@@ -46,6 +46,10 @@
       </template>
     </div>
 
+    <div v-if="!isGridReady && !loading" class="empty-grid-message">
+      Loading inventory...
+    </div>
+
     <div v-if="loading" class="loading-overlay">
       <div class="loading-spinner"></div>
     </div>
@@ -54,7 +58,7 @@
 </template>
 
 <script>
-import { computed, onMounted, onBeforeUnmount, toRefs, ref } from 'vue';
+import { computed, onMounted, onBeforeUnmount, toRefs, ref, watch } from 'vue';
 import GridCell from './GridCell.vue';
 import InventoryItem from './InventoryItem.vue';
 import inventoryStore from './store/inventoryStore';
@@ -77,12 +81,15 @@ export default {
   setup(props) {
     const { loading, error } = toRefs(inventoryStore.state);
     const grid = inventoryStore.grid;
+    const isGridReady = ref(false);
 
     // Track current dragging item
     const currentDragItem = ref(null);
     const dragStartPosition = ref(null);
 
     const gridStyle = computed(() => {
+      if (!inventoryStore.state.inventoryManager) return {};
+
       const { width, height } = inventoryStore.state.inventoryManager;
       return {
         gridTemplateColumns: `repeat(${width}, ${props.cellSize}px)`,
@@ -90,8 +97,20 @@ export default {
       };
     });
 
+    // Watch for when the inventory manager is ready
+    watch(() => inventoryStore.state.inventoryManager, (newVal) => {
+      isGridReady.value = newVal && grid.value && grid.value.length > 0;
+    }, { immediate: true });
+
+    // Also watch the grid to update readiness
+    watch(() => grid.value, (newVal) => {
+      isGridReady.value = inventoryStore.state.inventoryManager && newVal && newVal.length > 0;
+    }, { immediate: true });
+
     onMounted(() => {
-      inventoryStore.openInventory();
+      inventoryStore.openInventory().then(() => {
+        isGridReady.value = inventoryStore.state.inventoryManager && grid.value && grid.value.length > 0;
+      });
       window.addEventListener('beforeunload', handleBeforeUnload);
     });
 
@@ -101,14 +120,35 @@ export default {
     });
 
     const refreshInventory = () => {
-      inventoryStore.fetchInventory(true);
+      inventoryStore.fetchInventory(true).then(() => {
+        isGridReady.value = true;
+      });
     };
 
     const getItemById = (itemId) => {
+      if (!inventoryStore.state.inventoryManager) return null;
       return inventoryStore.state.inventoryManager.getItem(itemId);
     };
 
-    const onItemDropped = ({ itemId, position }) => {
+    const onItemDropped = ({ itemId, position, clickedCell }) => {
+      // If we have clicked cell info (from desktop drag), adjust the position
+      if (clickedCell) {
+        const item = getItemById(itemId);
+        if (item) {
+          // Adjust the position based on which cell within the item was clicked
+          position = {
+            x: Math.max(0, Math.min(
+                inventoryStore.state.inventoryManager.width - item.width,
+                position.x - clickedCell.x
+            )),
+            y: Math.max(0, Math.min(
+                inventoryStore.state.inventoryManager.height - item.height,
+                position.y - clickedCell.y
+            ))
+          };
+        }
+      }
+
       inventoryStore.moveItem(itemId, position);
     };
 
@@ -128,7 +168,7 @@ export default {
     };
 
     const onTouchDragMove = ({ itemId, deltaX, deltaY }) => {
-
+      // Touch drag move is now handled with a visual ghost element
     };
 
     const onTouchDragEnd = ({ itemId, deltaX, deltaY, position }) => {
@@ -176,6 +216,7 @@ export default {
       error,
       gridStyle,
       grid,
+      isGridReady,
       refreshInventory,
       getItemById,
       onItemDropped,
@@ -243,6 +284,14 @@ export default {
   border: 1px solid #555;
   border-radius: 8px;
   overflow: hidden;
+}
+
+.empty-grid-message {
+  padding: 40px;
+  text-align: center;
+  background-color: #333;
+  border-radius: 8px;
+  color: #ccc;
 }
 
 .loading-overlay {

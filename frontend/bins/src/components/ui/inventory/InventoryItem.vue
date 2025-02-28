@@ -47,7 +47,8 @@ export default {
       touchStartX: 0,
       touchStartY: 0,
       touchCurrentX: 0,
-      touchCurrentY: 0
+      touchCurrentY: 0,
+      touchGhostElement: null
     };
   },
 
@@ -71,15 +72,34 @@ export default {
 
       this.isDragging = true;
 
+      // Calculate which part of the item was clicked
+      const rect = event.currentTarget.getBoundingClientRect();
+      const clickOffsetX = event.clientX - rect.left;
+      const clickOffsetY = event.clientY - rect.top;
+
+      // Calculate clicked cell within the item
+      const cellX = Math.floor(clickOffsetX / this.cellSize);
+      const cellY = Math.floor(clickOffsetY / this.cellSize);
+
+      // Create position data with clicked cell info
+      const dragData = {
+        itemId: this.item.id,
+        clickedCell: { x: cellX, y: cellY }
+      };
+
       event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('application/json', JSON.stringify(this.item));
+      event.dataTransfer.setData('application/json', JSON.stringify(dragData));
 
       const dragPreview = document.createElement('div');
       dragPreview.className = 'drag-preview';
-      dragPreview.style.width = `${(this.item.width || 1) * this.cellSize}px`;
-      dragPreview.style.height = `${(this.item.height || 1) * this.cellSize}px`;
+
+      const width = (this.item.width || 1) * this.cellSize;
+      const height = (this.item.height || 1) * this.cellSize;
+
+      dragPreview.style.width = `${width}px`;
+      dragPreview.style.height = `${height}px`;
       dragPreview.style.backgroundColor = this.generateItemColor(this.item.id || '0', 0.6);
-      dragPreview.style.border = '2px dashed #666';
+      dragPreview.style.border = '2px dashed #fff';
       dragPreview.style.borderRadius = '4px';
       dragPreview.style.display = 'flex';
       dragPreview.style.alignItems = 'center';
@@ -87,7 +107,13 @@ export default {
       dragPreview.textContent = this.item.name || 'Item';
 
       document.body.appendChild(dragPreview);
-      event.dataTransfer.setDragImage(dragPreview, this.cellSize / 2, this.cellSize / 2);
+
+      // Center the ghost by using half of the full item width and height
+      event.dataTransfer.setDragImage(
+          dragPreview,
+          width / 2,   // Center horizontally
+          height / 2   // Center vertically
+      );
 
       setTimeout(() => {
         document.body.removeChild(dragPreview);
@@ -101,36 +127,56 @@ export default {
     onTouchStart(event) {
       if (!this.item) return;
 
-      // Prevent default to stop scrolling
       event.preventDefault();
 
-      // Store initial touch coordinates
       const touch = event.touches[0];
       this.touchStartX = touch.clientX;
       this.touchStartY = touch.clientY;
       this.touchCurrentX = touch.clientX;
       this.touchCurrentY = touch.clientY;
 
-      // Simulate drag start
       this.isDragging = true;
+
+      this.createTouchGhost();
+
       this.$emit('touch-drag-start', {
         itemId: this.item.id,
         position: this.position
       });
     },
 
+    createTouchGhost() {
+      this.touchGhostElement = document.createElement('div');
+      const ghost = this.touchGhostElement;
+
+      ghost.className = 'touch-drag-ghost';
+      ghost.style.width = `${(this.item.width || 1) * this.cellSize}px`;
+      ghost.style.height = `${(this.item.height || 1) * this.cellSize}px`;
+      ghost.style.backgroundColor = this.generateItemColor(this.item.id || '0', 0.6);
+      ghost.style.border = '2px dashed #fff';
+      ghost.style.borderRadius = '4px';
+      ghost.style.position = 'fixed';
+      ghost.style.zIndex = '9999';
+      ghost.style.pointerEvents = 'none';
+      ghost.style.opacity = '0.7';
+      ghost.style.transform = 'translate(-50%, -50%)';
+      ghost.style.left = `${this.touchCurrentX}px`;
+      ghost.style.top = `${this.touchCurrentY}px`;
+
+      document.body.appendChild(ghost);
+    },
+
     onTouchMove(event) {
       if (!this.item || !this.isDragging) return;
 
-      // Prevent default to stop scrolling
       event.preventDefault();
 
-      // Get current touch position
       const touch = event.touches[0];
       this.touchCurrentX = touch.clientX;
       this.touchCurrentY = touch.clientY;
 
-      // Emit touch drag event with movement details
+      this.updateTouchGhostPosition();
+
       this.$emit('touch-drag-move', {
         itemId: this.item.id,
         deltaX: this.touchCurrentX - this.touchStartX,
@@ -139,24 +185,37 @@ export default {
       });
     },
 
+    updateTouchGhostPosition() {
+      if (this.touchGhostElement) {
+        this.touchGhostElement.style.left = `${this.touchCurrentX}px`;
+        this.touchGhostElement.style.top = `${this.touchCurrentY}px`;
+      }
+    },
+
     onTouchEnd(event) {
       if (!this.item || !this.isDragging) return;
 
-      // Prevent default
       event.preventDefault();
 
-      // Calculate final movement
       const deltaX = this.touchCurrentX - this.touchStartX;
       const deltaY = this.touchCurrentY - this.touchStartY;
 
-      // Simulate drag end
+      this.removeTouchGhost();
       this.isDragging = false;
+
       this.$emit('touch-drag-end', {
         itemId: this.item.id,
         deltaX,
         deltaY,
         position: this.position
       });
+    },
+
+    removeTouchGhost() {
+      if (this.touchGhostElement && this.touchGhostElement.parentNode) {
+        document.body.removeChild(this.touchGhostElement);
+        this.touchGhostElement = null;
+      }
     },
 
     onClick() {

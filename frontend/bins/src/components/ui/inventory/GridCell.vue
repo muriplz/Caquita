@@ -24,11 +24,11 @@ export default {
   props: {
     x: {
       type: Number,
-      required: true
+      default: 0
     },
     y: {
       type: Number,
-      required: true
+      default: 0
     },
     isOccupied: {
       type: Boolean,
@@ -44,7 +44,9 @@ export default {
     },
     inventoryManager: {
       type: Object,
-      required: true
+      default: () => ({
+        canPlaceItem: () => false
+      })
     }
   },
 
@@ -60,17 +62,23 @@ export default {
       this.isDropTarget = true;
 
       try {
-        const itemData = JSON.parse(event.dataTransfer.getData('application/json') || '{}');
+        const dataText = event.dataTransfer.getData('application/json');
+        if (!dataText) {
+          this.isDropValid = false;
+          return;
+        }
 
-        if (!itemData.id) {
+        const itemData = JSON.parse(dataText);
+
+        if (!itemData.itemId) {
           this.isDropValid = false;
           return;
         }
 
         this.isDropValid = this.inventoryManager.canPlaceItem(
-            itemData,
+            { id: itemData.itemId },
             { x: this.x, y: this.y },
-            itemData.id
+            itemData.itemId
         );
 
         event.dataTransfer.dropEffect = this.isDropValid ? 'move' : 'none';
@@ -90,13 +98,16 @@ export default {
       this.isDropValid = false;
 
       try {
-        const itemData = JSON.parse(event.dataTransfer.getData('application/json') || '{}');
+        const dataText = event.dataTransfer.getData('application/json');
+        if (!dataText) return;
 
-        if (!itemData.id) return;
+        const itemData = JSON.parse(dataText);
 
+        // Pass all data to the parent component for processing
         this.$emit('item-dropped', {
-          itemId: itemData.id,
-          position: { x: this.x, y: this.y }
+          itemId: itemData.itemId || itemData.id,
+          position: { x: this.x, y: this.y },
+          clickedCell: itemData.clickedCell
         });
       } catch (error) {
         console.error('Error in drop:', error);
