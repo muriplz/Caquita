@@ -3,12 +3,14 @@
     "c": "Id of the item",
     "id": "sorales",
     "c2": "Type of plastic of the item",
-    "plastic": "5",
-    "c3": "Type of landmarks that best suits the item's recycling (TODO: add caps)",
+    "type": "5",
+    "c3": "The rarity of the item (junk, common, uncommon, rare, legendary)",
+    "rarity": "common",
+    "c4": "Type of landmarks that best suits the item's recycling (TODO: add caps)",
     "right": [
       "plastic"
     ],
-    "c4": "Experience given by recycling the item",
+    "c5": "Experience given by recycling the item",
     "exp": {
       "wrong": "-10",
       "cans": "1",

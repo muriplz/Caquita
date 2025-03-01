@@ -1,33 +1,20 @@
 [
   {
     "c": "Id of the item",
-    "id": "sorales",
-    "c2": "Type of plastic of the item",
-    "type": "1",
+    "id": "newspaper",
+    "c2": "Type of paper of the item (premium, newsprint, cardboard, mixed, non-recyclable)",
+    "type": "non-recyclable",
     "c3": "The rarity of the item (junk, common, uncommon, rare, legendary)",
-    "rarity": "common",
+    "rarity": "junk",
     "c4": "Type of landmarks that best suits the item's recycling",
     "right": [
-      "plastic"
+      "paper"
     ],
     "c5": "Experience given by recycling the item",
     "exp": {
       "wrong": "-10",
       "cans": "1",
       "right": "5"
-    }
-  },
-  {
-    "id": "actimiel",
-    "type": "1",
-    "rarity": "common",
-    "right": [
-      "plastic"
-    ],
-    "exp": {
-      "wrong": "-8",
-      "cans": "1",
-      "right": "4"
     }
   }
 ]

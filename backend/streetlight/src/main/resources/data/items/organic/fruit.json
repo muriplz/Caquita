@@ -1,33 +1,20 @@
 [
   {
     "c": "Id of the item",
-    "id": "sorales",
-    "c2": "Type of plastic of the item",
-    "type": "1",
+    "id": "apple",
+    "c2": "Type of organic of the item (food, meat, garden, paper, waste)",
+    "type": "food",
     "c3": "The rarity of the item (junk, common, uncommon, rare, legendary)",
     "rarity": "common",
     "c4": "Type of landmarks that best suits the item's recycling",
     "right": [
-      "plastic"
+      "organic"
     ],
     "c5": "Experience given by recycling the item",
     "exp": {
       "wrong": "-10",
-      "cans": "1",
+      "cans": "2",
       "right": "5"
-    }
-  },
-  {
-    "id": "actimiel",
-    "type": "1",
-    "rarity": "common",
-    "right": [
-      "plastic"
-    ],
-    "exp": {
-      "wrong": "-8",
-      "cans": "1",
-      "right": "4"
     }
   }
 ]

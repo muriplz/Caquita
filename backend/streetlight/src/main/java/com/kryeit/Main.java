@@ -2,6 +2,8 @@ package com.kryeit;
 
 import com.kryeit.auth.LoginApi;
 import com.kryeit.auth.inventory.InventoryApi;
+import com.kryeit.items.ItemConfigReader;
+import com.kryeit.items.ItemsApi;
 import com.kryeit.landmark.LandmarkApi;
 import com.kryeit.landmark.can.TrashCanApi;
 import com.kryeit.map.MapTileApi;
@@ -22,6 +24,7 @@ public class Main {
     public static void main(String[] args) {
 
         DatabaseUtils.createTables();
+        new ItemConfigReader();
 
         SslPlugin sslPlugin = new SslPlugin(sslConfig -> {
             sslConfig.http2 = true;
@@ -56,6 +59,11 @@ public class Main {
                 path("api", () -> {
                     path("v1", () -> {
                         get(ctx -> ctx.result("Hello World!"));
+
+                        path("items", () -> {
+                            get(ItemsApi::getItems);
+                            get("{id}", ItemsApi::getItem);
+                        });
 
                         path("landmarks", () -> {
                             get(LandmarkApi::getLandmarks);

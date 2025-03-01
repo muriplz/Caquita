@@ -2,8 +2,8 @@
   {
     "c": "Id of the item",
     "id": "miguel",
-    "c2": "Type of glass of the item",
-    "glass": "1",
+    "c2": "Type of glass of the item, for glass the type is its color",
+    "type": "brown",
     "c3": "Type of landmarks that best suits the item's recycling",
     "right": [
       "glass"
@@ -17,7 +17,7 @@
   },
   {
     "id": "anis-astur",
-    "glass": "1",
+    "type": "transparent",
     "right": [
       "glass"
     ],
