@@ -1,9 +1,11 @@
 package com.kryeit.auth;
 
 import com.kryeit.Database;
+import com.kryeit.Utils;
 import com.kryeit.auth.inventory.InventoryApi;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -65,9 +67,11 @@ public class LoginApi {
             String token = Jwt.generateToken(user.id());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
+            response.put("id", String.valueOf(user.id()));
             response.put("username", username);
             response.put("creation", user.creation().toString());
             response.put("trust", user.trust().toString());
+            response.put("experience", String.valueOf(user.experience()));
             ctx.status(200).json(response);
         } else {
             ctx.status(401).result("Invalid username or password.");
@@ -106,7 +110,7 @@ public class LoginApi {
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
             long id = Database.getJdbi().withHandle(handle ->
-                    handle.createUpdate("INSERT INTO users (username, password, creation, trust) VALUES (:username, :password, NOW(), 'DEFAULT')")
+                    handle.createUpdate("INSERT INTO users (username, password, creation, trust, experience) VALUES (:username, :password, NOW(), 'DEFAULT', 0)")
                             .bind("username", username)
                             .bind("password", hashedPassword)
                             .executeAndReturnGeneratedKeys("id")
@@ -143,7 +147,7 @@ public class LoginApi {
         }
 
         Map<String, Object> data = Database.getJdbi().withHandle(handle -> handle.createQuery("""
-            SELECT id, username, creation, trust
+            SELECT id, username, creation, trust, experience
             FROM users
             WHERE id = :id
             """)
@@ -155,7 +159,9 @@ public class LoginApi {
                 "id", data.get("id"),
                 "username", data.get("username"),
                 "creation", data.get("creation"),
-                "trust", data.get("trust")
+                "trust", data.get("trust"),
+                "experience", data.get("experience")
         ));
     }
+
 }

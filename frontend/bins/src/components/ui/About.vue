@@ -7,11 +7,9 @@
     <div class="about-content">
       <p>Welcome to Caquita. A game about inventory management with real world recycling landmarks.</p>
 
-      <h3>Our Mission</h3>
-      <p>Long story short: Open sourcing and public statistics.</p>
-
-      <h3>Privacy</h3>
-      <p>We respect your privacy and only collect data necessary for the functioning of our services. Location data is only used when explicitly enabled by you in Settings.</p>
+      <p>Find our monorepo on
+      <a href="https://github.com/muriplz/Caquita">Github</a>
+      </p>
     </div>
   </div>
 </template>

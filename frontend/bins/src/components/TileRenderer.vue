@@ -3,13 +3,13 @@ import {computed, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
 import {positionData} from './player/playerControls.js';
 import {tileLoader} from '../js/map/TileLoader.js';
 import {WORLD_ORIGIN} from "../js/map/TileConversion.js";
+import settingsManager from '@/components/ui/settings/settings.js';
 import * as THREE from 'three';
 
 // Configuration
 const config = {
   tileSize: 180,
   zoomLevel: 15,
-  viewDistance: 4,
   centerLat: WORLD_ORIGIN.lat,
   centerLon: WORLD_ORIGIN.lon,
 };
@@ -29,6 +29,11 @@ let isComponentMounted = false;
 const materials = reactive(new Map());
 const textures = reactive(new Map());
 
+// Get render distance from settings
+const renderDistance = computed(() => {
+  return settingsManager.settings.graphics.renderDistance;
+});
+
 // Compute current player tile position
 const playerTilePosition = computed(() => {
   return {
@@ -42,7 +47,14 @@ watch(playerTilePosition, () => {
   if (isComponentMounted) {
     updateTiles();
   }
-}, { immediate: false });
+}, {immediate: false});
+
+// Watch for render distance changes
+watch(renderDistance, () => {
+  if (isComponentMounted) {
+    updateTiles();
+  }
+}, {immediate: false});
 
 onMounted(() => {
   isComponentMounted = true;
@@ -71,7 +83,7 @@ function createMaterial(tile) {
   const tileId = tile.id;
 
   // Create a basic material
-  const material = new THREE.MeshBasicMaterial({ transparent: true });
+  const material = new THREE.MeshBasicMaterial({transparent: true});
   materials.set(tileId, material);
 
   // Load the texture directly
@@ -95,7 +107,7 @@ function updateTiles() {
 
   const playerX = playerTilePosition.value.x;
   const playerZ = playerTilePosition.value.z;
-  const viewDist = config.viewDistance;
+  const viewDist = renderDistance.value;
   const newTiles = [];
 
   // Generate tiles around player
@@ -159,17 +171,17 @@ function cleanupUnusedResources(activeTileIds) {
       :position="tile.position"
       :rotation="[-Math.PI / 2, 0, 0]"
   >
-    <TresPlaneGeometry :args="[config.tileSize, config.tileSize]" />
+    <TresPlaneGeometry :args="[config.tileSize, config.tileSize]"/>
     <!-- Use direct materials instead of MaterialManager -->
-    <primitive :object="materials.get(tile.id) || createMaterial(tile)" />
+    <primitive :object="materials.get(tile.id) || createMaterial(tile)"/>
 
     <!-- Debug tile overlay -->
     <TresMesh
         v-if="debugMode"
         :position="[0, 0.01, 0]"
     >
-      <TresPlaneGeometry :args="[config.tileSize - 1, config.tileSize - 1]" />
-      <TresMeshBasicMaterial wireframe color="red" transparent :opacity="0.5" />
+      <TresPlaneGeometry :args="[config.tileSize - 1, config.tileSize - 1]"/>
+      <TresMeshBasicMaterial wireframe color="red" transparent :opacity="0.5"/>
     </TresMesh>
   </TresMesh>
 
@@ -178,6 +190,7 @@ function cleanupUnusedResources(activeTileIds) {
     <div>Player Position: {{ positionData.x.toFixed(0) }}, {{ positionData.z.toFixed(0) }}</div>
     <div>Player Tile: {{ playerTilePosition.x }}, {{ playerTilePosition.z }}</div>
     <div>Zoom: {{ config.zoomLevel }}</div>
+    <div>Render Distance: {{ renderDistance }}</div>
     <div>Tiles: {{ tiles.length }}</div>
   </div>
 </template>

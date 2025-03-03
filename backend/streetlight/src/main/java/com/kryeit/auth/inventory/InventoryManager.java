@@ -4,12 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class InventoryManager {
-    private final GridInventory inventory;
-
-    public InventoryManager(GridInventory inventory) {
-        this.inventory = inventory;
-    }
+public record InventoryManager(GridInventory inventory) {
 
     public boolean addItem(Item item, Position position) {
         if (!canPlaceItem(item, position)) {
@@ -18,6 +13,21 @@ public class InventoryManager {
 
         inventory.itemPositions().put(item, position);
         return true;
+    }
+
+    public Item findItemByIdAndPosition(String itemId, Position position) {
+        for (Map.Entry<Item, Position> entry : inventory.itemPositions().entrySet()) {
+            Item item = entry.getKey();
+            Position itemPos = entry.getValue();
+
+            if (item.getId().equals(itemId) &&
+                    itemPos.x() == position.x() &&
+                    itemPos.y() == position.y()) {
+                return item;
+            }
+        }
+
+        return null;
     }
 
     public boolean removeItem(Item item) {
@@ -106,9 +116,5 @@ public class InventoryManager {
 
     public Position getItemPosition(Item item) {
         return inventory.itemPositions().get(item);
-    }
-
-    public GridInventory getInventory() {
-        return inventory;
     }
 }

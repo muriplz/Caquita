@@ -13,7 +13,7 @@ export let WORLD_ORIGIN = {
 };
 
 // Fixed zoom level for stability
-export const DEFAULT_ZOOM = 16;
+export const DEFAULT_ZOOM = 15;
 
 // Set the world origin using GPS coordinates (called only once when GPS is first activated)
 export function setWorldOrigin(lat, lon) {

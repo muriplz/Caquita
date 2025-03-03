@@ -106,17 +106,16 @@ public class InventoryApi {
     public static void removeItem(@NotNull Context context) {
         long user = AuthUtils.getUser(context);
         GridInventory inventory = getInventory(user);
-
         RemoveItemRequest request = context.bodyAsClass(RemoveItemRequest.class);
-        Item itemToRemove = findItemById(inventory, request.itemId());
-
-        if (itemToRemove == null) {
-            throw new NotFoundResponse("Item not found");
-        }
 
         InventoryManager manager = new InventoryManager(inventory);
-        boolean success = manager.removeItem(itemToRemove);
+        Item itemToRemove = manager.findItemByIdAndPosition(request.itemId(), request.position());
 
+        if (itemToRemove == null) {
+            throw new NotFoundResponse("Item not found at the specified position");
+        }
+
+        boolean success = manager.removeItem(itemToRemove);
         if (!success) {
             throw new BadRequestResponse("Failed to remove item");
         }
@@ -128,17 +127,16 @@ public class InventoryApi {
     public static void moveItem(@NotNull Context context) {
         long user = AuthUtils.getUser(context);
         GridInventory inventory = getInventory(user);
-
         MoveItemRequest request = context.bodyAsClass(MoveItemRequest.class);
-        Item itemToMove = findItemById(inventory, request.itemId());
-
-        if (itemToMove == null) {
-            throw new NotFoundResponse("Item not found");
-        }
 
         InventoryManager manager = new InventoryManager(inventory);
-        boolean success = manager.moveItem(itemToMove, request.newPosition());
+        Item itemToMove = manager.findItemByIdAndPosition(request.itemId(), request.currentPosition());
 
+        if (itemToMove == null) {
+            throw new NotFoundResponse("Item not found at the specified position");
+        }
+
+        boolean success = manager.moveItem(itemToMove, request.newPosition());
         if (!success) {
             throw new BadRequestResponse("Cannot move item to the specified position");
         }
@@ -152,7 +150,7 @@ public class InventoryApi {
         GridInventory inventory = getInventory(user);
 
         CanPlaceItemRequest request = context.bodyAsClass(CanPlaceItemRequest.class);
-        Item itemToCheck = null;
+        Item itemToCheck;
 
         if (request.itemId() != null) {
             itemToCheck = findItemById(inventory, request.itemId());
@@ -194,7 +192,7 @@ public class InventoryApi {
     }
 
     record AddItemRequest(Item item, Position position) {}
-    record RemoveItemRequest(String itemId) {}
-    record MoveItemRequest(String itemId, Position newPosition) {}
+    record RemoveItemRequest(String itemId, Position position) {}
+    record MoveItemRequest(String itemId, Position currentPosition, Position newPosition) {}
     record CanPlaceItemRequest(String itemId, Item item, Position position) {}
 }

@@ -1,5 +1,6 @@
 package com.kryeit;
 
+import com.kryeit.auth.Level;
 import com.kryeit.auth.LoginApi;
 import com.kryeit.auth.inventory.InventoryApi;
 import com.kryeit.items.ItemConfigReader;
@@ -89,6 +90,10 @@ public class Main {
                         });
 
                         path("auth", () -> {
+                            path("level", () -> {
+                                get("{id}", Level::getLevel);
+                                patch(Level::modifyLevel);
+                            });
                             post("login", LoginApi::login);
                             post("register", LoginApi::register);
                             post("validate", LoginApi::validate);

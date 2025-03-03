@@ -1,13 +1,12 @@
 <script setup>
 import {BaseCameraControls, CameraControls} from '@tresjs/cientos'
-import {onMounted, onUnmounted, reactive, ref, watch} from 'vue'
+import {computed, onMounted, onUnmounted, reactive, ref, watch} from 'vue'
 import {positionData, removeControls, setCameraInstance} from './playerControls.js'
+import settingsManager from '@/components/ui/settings/settings.js'
 import * as THREE from 'three'
 
-const DRAG_SENSITIVITY = 1.1
 const MIN_DISTANCE = 2
 const MAX_DISTANCE = 70
-const ZOOM_SPEED = 3
 const DEAD_ZONE_RADIUS = 20
 const MIN_POLAR_ANGLE = Math.PI * (25 / 180)
 const MAX_POLAR_ANGLE = Math.PI * (87 / 180)
@@ -20,6 +19,12 @@ const currentDistance = ref(10)
 const controlsRef = ref(null)
 const offsetPos = reactive({x: 0, y: 0, z: 0})
 const targetPosition = new THREE.Vector3()
+
+// Computed settings from user preferences
+const invertYAxis = computed(() => settingsManager.settings.controls.invertYAxis)
+const cameraSensitivityX = computed(() => settingsManager.settings.controls.cameraSensitivityX * 1.1 / 5)
+const cameraSensitivityY = computed(() => settingsManager.settings.controls.cameraSensitivityY * 1.1 / 5)
+const zoomSpeed = computed(() => settingsManager.settings.controls.zoomSpeed * 3)
 
 const updateCameraPosition = (position, offset, cameraControls, distance) => {
   if (!cameraControls) return
@@ -45,8 +50,8 @@ const onReady = (instance) => {
   controlsRef.value = instance
   currentDistance.value = instance.distance
 
-  currentDistance.value = 20
-  
+  currentDistance.value = 30
+
   if (instance) {
     instance.setTarget(positionData.x, positionData.y, positionData.z)
     instance.distance = currentDistance.value
@@ -108,14 +113,16 @@ onMounted(() => {
     const distanceScale = Math.min(1, (distanceFromCenter - DEAD_ZONE_RADIUS) / DEAD_ZONE_RADIUS)
 
     if (cameraControl.azimuthAngle !== undefined) {
-      cameraControl.azimuthAngle += deltaAngle * DRAG_SENSITIVITY * distanceScale
+      cameraControl.azimuthAngle += deltaAngle * cameraSensitivityX.value * distanceScale
     }
 
     const deltaY = (y - lastY.value) * 0.005 * distanceScale
     if (cameraControl.polarAngle !== undefined) {
+      // Apply invert Y-axis if enabled
+      const yFactor = invertYAxis.value ? -1 : 1
       const newPolarAngle = Math.min(MAX_POLAR_ANGLE,
           Math.max(MIN_POLAR_ANGLE,
-              cameraControl.polarAngle - deltaY))
+              cameraControl.polarAngle - (deltaY * cameraSensitivityY.value * yFactor)))
       cameraControl.polarAngle = newPolarAngle
     }
     setOffset()
@@ -181,7 +188,7 @@ onMounted(() => {
 
       const delta = lastTouchDistance - distance
       const cameraControl = controlsRef.value.instance
-      let newDistance = cameraControl.distance + (delta * 0.01)
+      let newDistance = cameraControl.distance + (delta * 0.01 * zoomSpeed.value)
 
       newDistance = Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, newDistance))
       cameraControl.distance = newDistance
@@ -201,9 +208,9 @@ onMounted(() => {
     let distance = cameraControl.distance
 
     if (e.deltaY > 0) {
-      distance = Math.min(distance + ZOOM_SPEED, MAX_DISTANCE)
+      distance = Math.min(distance + zoomSpeed.value, MAX_DISTANCE)
     } else {
-      distance = Math.max(distance - ZOOM_SPEED, MIN_DISTANCE)
+      distance = Math.max(distance - zoomSpeed.value, MIN_DISTANCE)
     }
 
     cameraControl.distance = distance

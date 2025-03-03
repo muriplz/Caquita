@@ -1,16 +1,28 @@
 import {getIpAddress} from "../static.js";
 import * as THREE from 'three';
+import settingsManager from '@/components/ui/settings/settings.js';
 
 export class TileLoader {
     constructor() {
         this.baseUrl = getIpAddress() + '/api/v1/map/tiles';
         this.textureLoader = new THREE.TextureLoader();
         this.cache = new Map();
-        this.maxCacheSize = 200; // Increased cache size
+        this.baseCacheSize = 200;
         this.lowPriQueue = [];
         this.highPriQueue = [];
         this.isLoading = false;
         this.maxConcurrentLoads = 4;
+    }
+
+    /**
+     * Calculate dynamic cache size based on render distance
+     */
+    get maxCacheSize() {
+        const renderDistance = settingsManager.settings.graphics.renderDistance;
+        // Calculate tiles in view (square of (2*renderDistance+1))
+        const tilesInView = Math.pow((2 * renderDistance + 1), 2);
+        // Add buffer for movement (4x current view is usually sufficient)
+        return Math.max(this.baseCacheSize, tilesInView * 4);
     }
 
     /**
@@ -23,7 +35,7 @@ export class TileLoader {
      */
     loadTile(zoom, x, y, options = {}) {
         const priority = options.priority || 'normal';
-        const cacheKey = `${zoom}/${x}/${y}}`;
+        const cacheKey = `${zoom}/${x}/${y}`;
 
         // Return cached tile if available
         if (this.cache.has(cacheKey)) {
@@ -145,7 +157,8 @@ export class TileLoader {
     }
 
     cleanCache() {
-        if (this.cache.size <= this.maxCacheSize) return;
+        const currentMaxSize = this.maxCacheSize;
+        if (this.cache.size <= currentMaxSize) return;
 
         // Remove oldest 20% of entries
         const keysToDelete = [...this.cache.keys()]

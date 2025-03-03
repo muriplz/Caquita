@@ -102,12 +102,26 @@ export default {
 
     async moveItem(itemId, newPosition) {
         try {
+            // Get current position first
+            const inventory = await this.getInventory(false);
+            let currentPosition = null;
+
+            // Find the current position of the item
+            for (const item of inventory.itemPositions) {
+                if (item.item.id === itemId) {
+                    currentPosition = item.position;
+                    break;
+                }
+            }
+
+            if (!currentPosition) {
+                throw new Error(`Item with ID ${itemId} not found in inventory`);
+            }
+
             const requestBody = {
                 itemId,
-                newPosition: {
-                    x: newPosition.x,
-                    y: newPosition.y
-                }
+                currentPosition,
+                newPosition
             };
 
             const response = await fetchJSON(API_URL, {

@@ -39,6 +39,14 @@ tasks {
     }
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDirs("src/main/resources")
+        }
+    }
+}
+
 tasks.jar {
     manifest {
         attributes("Main-Class" to "com.kryeit.Main")

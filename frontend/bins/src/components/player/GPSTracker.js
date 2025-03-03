@@ -1,7 +1,8 @@
 import { ref, reactive, watch } from 'vue';
 import { useGeolocation } from '@vueuse/core';
 import { latLonToWorld, setWorldOrigin, WORLD_ORIGIN } from '@/js/map/TileConversion.js';
-import {position, positionData} from "@/components/player/playerControls.js";
+import { position, positionData } from "@/components/player/playerControls.js";
+import settingsStore from '@/js/settings.js';
 
 // Origin point (first GPS position)
 const originPoint = reactive({
@@ -34,23 +35,6 @@ const {
     timeout: 15000,
     immediate: false
 });
-
-// Start tracking GPS position
-function startGPSTracking() {
-    if (!isSupported.value) {
-        return false;
-    }
-
-    gpsWorldPosition.isActive = true;
-    resume();
-    return true;
-}
-
-// Stop tracking GPS position
-function stopGPSTracking() {
-    pause();
-    gpsWorldPosition.isActive = false;
-}
 
 // Set the origin point to current GPS coordinates
 function setOriginPoint() {
@@ -101,6 +85,47 @@ watch(coords, (newCoords) => {
         }
     }
 }, { deep: true });
+
+// Watch settings to automatically start/stop GPS tracking
+watch(() => settingsStore.settings.general.gpsEnabled, (enabled) => {
+    if (enabled) {
+        startGPSTracking();
+    } else {
+        stopGPSTracking();
+    }
+}, { immediate: true });
+
+// Start tracking GPS position
+function startGPSTracking() {
+    if (!isSupported.value) {
+        settingsStore.settings.general.gpsEnabled = false;
+        return false;
+    }
+
+    gpsWorldPosition.isActive = true;
+    resume();
+
+    // Request permission
+    if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' })
+            .then(result => {
+                if (result.state === 'denied') {
+                    // If permission is denied, update UI accordingly
+                    settingsStore.settings.general.gpsEnabled = false;
+                    console.error('Geolocation permission denied');
+                }
+            })
+            .catch(err => console.error('Permission query error:', err));
+    }
+
+    return true;
+}
+
+// Stop tracking GPS position
+function stopGPSTracking() {
+    pause();
+    gpsWorldPosition.isActive = false;
+}
 
 // Get tracking status
 function getGPSStatus() {

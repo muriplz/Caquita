@@ -1,5 +1,11 @@
 <template>
   <div>
+    <div v-if="isMenuOpen" class="settings-container">
+      <a href="javascript:void(0)" class="settings-button" @click="showSettings">
+        <SettingsIcon class="settings-icon" />
+      </a>
+    </div>
+
     <div v-if="isMenuOpen" class="profile-container">
       <a href="javascript:void(0)" class="profile-button" @click="toggleProfileMenu">
         <span>Profile</span>
@@ -36,7 +42,6 @@
           <a v-if="isUserLoggedIn" key="inventory" href="javascript:void(0)" class="menu-button" style="transition-delay: 0.05s" @click="showInventory">Inventory</a>
           <a v-if="isUserLoggedIn" key="vitrine" href="javascript:void(0)" class="menu-button" style="transition-delay: 0.1s" @click="showVitrine">Vitrine</a>
           <a key="noidea" href="javascript:void(0)" class="menu-button" :style="{transitionDelay: isUserLoggedIn ? '0.15s' : '0.05s'}" @click="showNoIdea">NoIdea</a>
-          <a key="settings" href="javascript:void(0)" class="menu-button" :style="{transitionDelay: isUserLoggedIn ? '0.2s' : '0.1s'}" @click="showSettings">Settings</a>
         </TransitionGroup>
 
         <Transition name="component-slide">
@@ -58,7 +63,7 @@
         </Transition>
 
         <Transition name="component-slide">
-          <div v-if="activeComponent === 'settings'" class="component-container" @click.self="closeComponent">
+          <div v-if="activeComponent === 'settings'" class="component-container centered-container" @click.self="closeComponent">
             <Settings @close="closeComponent" />
           </div>
         </Transition>
@@ -111,9 +116,9 @@ import ProfileDropdown from "@/components/ui/auth/ProfileDropdown.vue"
 import Login from "@/components/ui/auth/Login.vue"
 import Register from "@/components/ui/auth/Register.vue"
 import Profile from "@/components/ui/auth/Profile.vue"
-import Settings from "@/components/ui/Settings.vue"
+import Settings from "@/components/ui/settings/Settings.vue"
 import Store from "@/js/auth/store.js"
-import About from "@/components/ui/About.vue";
+import About from "@/components/ui/About.vue"
 
 const isMenuOpen = ref(false)
 const activeComponent = ref(null)
@@ -226,6 +231,32 @@ function handleShowAbout() {
 </script>
 
 <style scoped>
+.settings-container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 300;
+}
+
+.settings-button {
+  color: white;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.2s;
+}
+
+.settings-button:hover {
+  opacity: 0.8;
+}
+
+.settings-icon {
+  fill: white;
+}
+
 .profile-container {
   position: fixed;
   top: 20px;
@@ -234,7 +265,7 @@ function handleShowAbout() {
 }
 
 .profile-button {
-  background-color: #333;
+  background-color: #4D8061;
   color: white;
   padding: 8px 16px;
   border-radius: 20px;
@@ -246,7 +277,7 @@ function handleShowAbout() {
 }
 
 .profile-button:hover {
-  background-color: #444;
+  background-color: #3F6A50;
 }
 
 .menu-toggle-button {
@@ -337,6 +368,12 @@ function handleShowAbout() {
   align-items: center;
   pointer-events: auto;
   cursor: pointer;
+}
+
+.centered-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .menu-fade-enter-active {

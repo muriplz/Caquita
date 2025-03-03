@@ -1,9 +1,10 @@
 <template>
   <div class="profile-card">
     <h2>User Profile</h2>
-    <div class="profile-avatar">
+    <div class="profile-avatar-container">
       <div class="avatar-circle">{{ Store.getUser().username.charAt(0).toUpperCase() }}</div>
     </div>
+    <LevelBar />
     <div class="profile-details">
       <div class="profile-item">
         <div class="label">Username</div>
@@ -22,7 +23,21 @@
 </template>
 
 <script setup>
-import Store from "@/js/auth/store.js"
+import { onMounted } from 'vue';
+import Store from "@/js/auth/store.js";
+import LevelBar from './LevelBar.vue';
+import Levels from '@/js/auth/levels.js';
+
+onMounted(async () => {
+  if (Store.getUser() && !Store.getLevel()) {
+    try {
+      console.log("User ID in Profile component:", Store.getUser().id);
+      await Levels.setup();
+    } catch (error) {
+      console.error("Failed to load user level:", error);
+    }
+  }
+});
 
 function formatDate(dateString) {
   if (!dateString) return 'N/A'
@@ -50,7 +65,8 @@ function formatDate(dateString) {
   font-weight: 600;
 }
 
-.profile-avatar {
+.profile-avatar-container {
+  position: relative;
   margin-bottom: 30px;
 }
 
@@ -65,11 +81,14 @@ function formatDate(dateString) {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
+
 
 .profile-details {
   width: 100%;
-  margin-bottom: 30px;
+  margin-top: 20px;
 }
 
 .profile-item {

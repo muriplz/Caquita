@@ -1,28 +1,11 @@
 import { watch } from 'vue';
 import { gpsWorldPosition } from './GPSTracker.js';
 import { position, positionData } from './playerControls.js';
+import settingsStore from '@/components/ui/settings/settings.js';
 
-let isGPSControlActive = false;
-
-function enableGPSControl() {
-    isGPSControlActive = true;
-}
-
-function disableGPSControl() {
-    isGPSControlActive = false;
-}
-
-function toggleGPSControl() {
-    isGPSControlActive = !isGPSControlActive;
-    return isGPSControlActive;
-}
-
-function getGPSControlStatus() {
-    return isGPSControlActive;
-}
-
-watch(gpsWorldPosition, (newPos) => {
-    if (isGPSControlActive && gpsWorldPosition.isActive) {
+// Watch for GPS position changes and update player position if GPS is enabled
+watch([gpsWorldPosition, () => settingsStore.settings.general.gpsEnabled], ([newPos, isEnabled]) => {
+    if (isEnabled && gpsWorldPosition.isActive) {
         positionData.x = newPos.x;
         positionData.z = newPos.z;
 
@@ -30,9 +13,5 @@ watch(gpsWorldPosition, (newPos) => {
     }
 }, { deep: true });
 
-export {
-    enableGPSControl,
-    disableGPSControl,
-    toggleGPSControl,
-    getGPSControlStatus
-};
+// Export module just for completeness
+export { };

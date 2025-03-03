@@ -1,6 +1,7 @@
 import Store from "./store.js";
 import {getIpAddress} from "../static.js";
 import inventoryStore from "@/components/ui/inventory/store/inventoryStore.js";
+import Levels from "@/js/auth/levels.js";
 
 class AuthService {
     async login(username, password) {
@@ -17,9 +18,9 @@ class AuthService {
             });
 
             if (response.status === 200) {
-                const { token, username, creation, trust } = await response.json();
+                const { token, id, username, creation, trust, experience } = await response.json();
                 this.saveToken(token);
-                Store.setUser(username, creation, trust);
+                await Store.setUser(id, username, creation, trust, experience);
                 inventoryStore.initStore();
 
                 return true;
@@ -65,25 +66,26 @@ class AuthService {
     }
 
     async validate() {
-        try {
-            const response = await fetch(getIpAddress() + '/api/v1/auth/validate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-            });
 
-            if (response.status === 200) {
-                const { username, creation, trust } = await response.json();
-                Store.setUser(username, creation, trust);
-                inventoryStore.initStore();
+        if (!this.getToken()) {
+            return false;
+        }
 
-                return true;
-            } else {
-                return false;
-            }
-        } catch (error) {
+        const response = await fetch(getIpAddress() + '/api/v1/auth/validate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+        });
+
+        if (response.status === 200) {
+            const { id, username, creation, trust, experience } = await response.json()
+            await Store.setUser(id, username, creation, trust, experience)
+            inventoryStore.initStore()
+
+            return true;
+        } else {
             return false;
         }
     }
