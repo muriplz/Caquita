@@ -41,6 +41,13 @@ button:hover {
   text-align: center;
 }
 
+* {
+  -webkit-tap-highlight-color: transparent;
+  -moz-tap-highlight-color: transparent;
+  -ms-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
