@@ -3,7 +3,7 @@
 ### [Bins](https://github.com/muriplz/Caquita/tree/main/frontend/bins)
 
 It's the Frontend/Webapp of the app, made with Vue3 + Vite.
-It's based in TresJs(ThreeJs wrapper).
+It's based in TresJS (ThreeJS wrapper).
 
 ### [Streetlight](https://github.com/muriplz/Caquita/tree/main/backend/streetlight)
 
