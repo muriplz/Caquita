@@ -3,6 +3,8 @@ package com.kryeit.auth.inventory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.kryeit.content.items.Item;
+
 import java.lang.reflect.Type;
 import java.util.Map;
 

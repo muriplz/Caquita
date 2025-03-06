@@ -7,18 +7,22 @@ import AuthService from './js/auth/authService.js';
 
 import {
     CarbonIconsVue,
-    LogoDiscord16,
-    LogoGithub16,
+    LogoDiscord32,
+    LogoGithub32,
     Settings32,
+    User32,
+    UserProfile32,
 } from '@carbon/icons-vue';
 
 import settingsStore from '@/components/ui/settings/settings.js';
+import {initGPSSystem} from "@/components/player/GPSTracker.js";
 
 settingsStore.init();
 
 export const inventoryState = createInventoryState();
 
 AuthService.validate();
+initGPSSystem();
 
 createApp(App)
     .use(router)
@@ -26,9 +30,11 @@ createApp(App)
         CarbonIconsVue,
         {
             components: {
-                DiscordLogo: LogoDiscord16,
-                GithubLogo: LogoGithub16,
+                DiscordLogo: LogoDiscord32,
+                GithubLogo: LogoGithub32,
                 SettingsIcon: Settings32,
+                UserIcon: User32,
+                UserProfileIcon: UserProfile32,
             }
         }
     )

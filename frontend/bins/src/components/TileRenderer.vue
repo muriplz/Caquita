@@ -2,13 +2,13 @@
 import {computed, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
 import {positionData} from './player/playerControls.js';
 import {tileLoader} from '../js/map/TileLoader.js';
-import {WORLD_ORIGIN} from "../js/map/TileConversion.js";
+import {TILE_SIZE, WORLD_ORIGIN} from "../js/map/TileConversion.js";
 import settingsManager from '@/components/ui/settings/settings.js';
 import * as THREE from 'three';
 
 // Configuration
 const config = {
-  tileSize: 180,
+  tileSize: TILE_SIZE,
   zoomLevel: 15,
   centerLat: WORLD_ORIGIN.lat,
   centerLon: WORLD_ORIGIN.lon,

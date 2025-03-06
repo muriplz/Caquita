@@ -1,5 +1,7 @@
 package com.kryeit.auth.inventory;
 
+import com.kryeit.content.items.Item;
+
 import java.beans.ConstructorProperties;
 import java.util.HashMap;
 import java.util.Map;

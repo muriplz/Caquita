@@ -1,6 +1,6 @@
 # [Bins](https://caquita.app) Frontend Webapp
 
-Deno + Vue 3 + TresJS
+[Deno](https://deno.com) + [Vue 3](https://vuejs.org) + [TresJS](https://tresjs.org) (ThreeJS wrapper)
 
 ## Development
 
@@ -10,4 +10,10 @@ deno install
 
 ```bash
 deno run dev
+```
+
+#### Cleaning:
+
+```bash
+deno clean
 ```

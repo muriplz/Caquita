@@ -1,14 +1,18 @@
 <template>
   <div>
     <div v-if="isMenuOpen" class="settings-container">
-      <a href="javascript:void(0)" class="settings-button" @click="showSettings">
+      <a href="javascript:void(0)"
+         class="settings-button"
+         :class="{ 'spin': isSettingsSpinning }"
+         @click="showSettings">
         <SettingsIcon class="settings-icon" />
       </a>
     </div>
 
     <div v-if="isMenuOpen" class="profile-container">
       <a href="javascript:void(0)" class="profile-button" @click="toggleProfileMenu">
-        <span>Profile</span>
+        <UserProfileIcon v-if="isUserLoggedIn" class="profile-icon" />
+        <UserIcon v-else class="profile-icon" />
       </a>
       <ProfileDropdown
           :isVisible="isProfileMenuOpen"
@@ -52,7 +56,7 @@
 
         <Transition name="component-slide">
           <div v-if="activeComponent === 'vitrine'" class="component-container" @click.self="closeComponent">
-            <h2>Vitrine Component</h2>
+            <Vitrine/>
           </div>
         </Transition>
 
@@ -109,7 +113,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import Inventory from "./inventory/Inventory.vue"
 import AuthService from "@/js/auth/authService.js"
 import ProfileDropdown from "@/components/ui/auth/ProfileDropdown.vue"
@@ -119,18 +123,19 @@ import Profile from "@/components/ui/auth/Profile.vue"
 import Settings from "@/components/ui/settings/Settings.vue"
 import Store from "@/js/auth/store.js"
 import About from "@/components/ui/About.vue"
+import Vitrine from "@/components/ui/vitrine/Vitrine.vue"
 
 const isMenuOpen = ref(false)
 const activeComponent = ref(null)
+const previousComponent = ref(null)
 const isProfileMenuOpen = ref(false)
 const isUserLoggedIn = ref(Store.getUser() !== null)
+const isSettingsSpinning = ref(false)
 
-// Watch for auth changes
 function checkUserStatus() {
   isUserLoggedIn.value = Store.getUser() !== null
 }
 
-// Check authentication status when menu opens
 watch(isMenuOpen, (newVal) => {
   if (newVal === true) {
     checkUserStatus()
@@ -180,7 +185,40 @@ function showNoIdea() {
 }
 
 function showSettings() {
-  activeComponent.value = 'settings'
+  // Cancel any ongoing spin animation timeout
+  if (spinTimeout) {
+    clearTimeout(spinTimeout);
+  }
+
+  // Start spinning animation
+  triggerSpinAnimation();
+
+  if (activeComponent.value === 'settings') {
+    // If settings are already open, close and return to previous screen
+    if (previousComponent.value) {
+      activeComponent.value = previousComponent.value;
+      previousComponent.value = null;
+    } else {
+      closeComponent();
+    }
+  } else {
+    // Store current component before opening settings
+    if (activeComponent.value) {
+      previousComponent.value = activeComponent.value;
+    }
+    activeComponent.value = 'settings';
+  }
+}
+
+// Store the timeout reference
+let spinTimeout;
+
+function triggerSpinAnimation() {
+  isSettingsSpinning.value = true;
+  spinTimeout = setTimeout(() => {
+    isSettingsSpinning.value = false;
+    spinTimeout = null;
+  }, 500);
 }
 
 function showAbout() {
@@ -204,6 +242,7 @@ function showProfile() {
 
 function closeComponent() {
   activeComponent.value = null
+  previousComponent.value = null
 }
 
 function closeAuth() {
@@ -238,7 +277,7 @@ function handleShowAbout() {
   z-index: 300;
 }
 
-.settings-button {
+.settings-button, .profile-button{
   color: white;
   cursor: pointer;
   user-select: none;
@@ -249,12 +288,25 @@ function handleShowAbout() {
   transition: opacity 0.2s;
 }
 
-.settings-button:hover {
+.settings-button:hover, .profile-button:hover {
   opacity: 0.8;
 }
 
-.settings-icon {
+.settings-icon, .profile-icon {
   fill: white;
+}
+
+.settings-button.spin .settings-icon {
+  animation: spin 0.5s linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(120deg);
+  }
 }
 
 .profile-container {
@@ -262,22 +314,6 @@ function handleShowAbout() {
   top: 20px;
   right: 20px;
   z-index: 300;
-}
-
-.profile-button {
-  background-color: #4D8061;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  user-select: none;
-  text-decoration: none;
-  display: inline-block;
-  transition: background-color 0.2s;
-}
-
-.profile-button:hover {
-  background-color: #3F6A50;
 }
 
 .menu-toggle-button {

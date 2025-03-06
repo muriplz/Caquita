@@ -2,6 +2,8 @@ package com.kryeit.auth.inventory;
 
 import com.kryeit.Database;
 import com.kryeit.auth.AuthUtils;
+import com.kryeit.content.items.Item;
+import com.kryeit.registry.CaquitaItems;
 import io.javalin.http.Context;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.NotFoundResponse;
@@ -40,13 +42,9 @@ public class InventoryApi {
         GridInventory inventory = getInventory(user);
         InventoryManager manager = new InventoryManager(inventory);
 
-        Item item1 = new Item("sword", "Sword", 1, 2);
-        Item item2 = new Item("shield", "Shield", 2, 1);
-        Item item3 = new Item("potion", "Potion", 1, 1);
+        Item glassBottle = CaquitaItems.getItem("glass_bottle");
 
-        manager.addItem(item1, new Position(0, 0));
-        manager.addItem(item2, new Position(1, 2));
-        manager.addItem(item3, new Position(3, 3));
+        manager.addItem(glassBottle, new Position(1, 2));
 
         updateInventory(inventory);
     }
@@ -55,7 +53,6 @@ public class InventoryApi {
         long user = AuthUtils.getUser(context);
         GridInventory inventory = getInventory(user);
 
-        // Map the item positions to a format the frontend can understand
         List<Map<String, Object>> itemsWithPositions = new ArrayList<>();
 
         inventory.itemPositions().forEach((item, position) -> {
@@ -63,9 +60,9 @@ public class InventoryApi {
 
             Map<String, Object> itemMap = new HashMap<>();
             itemMap.put("id", item.getId());
-            itemMap.put("name", item.getName());
             itemMap.put("width", item.getWidth());
             itemMap.put("height", item.getHeight());
+            itemMap.put("rarity", item.getRarity().name());
 
             Map<String, Integer> posMap = new HashMap<>();
             posMap.put("x", position.x());
@@ -183,7 +180,6 @@ public class InventoryApi {
 
     private static Item findItemById(GridInventory inventory, String itemId) {
         for (Item item : inventory.itemPositions().keySet()) {
-            System.out.println(item.getId());
             if (item.getId().equals(itemId)) {
                 return item;
             }

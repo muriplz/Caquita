@@ -13,7 +13,6 @@
     >
       <div v-if="!Store.getUser()">
         <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showLogin')">Login</a>
-        <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showRegister')">Register</a>
       </div>
       <div v-else>
         <div class="profile-info">
@@ -22,6 +21,17 @@
         <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showProfile')">View Profile</a>
         <a href="javascript:void(0)" class="dropdown-item logout" @click="emitEvent('logout')">Logout</a>
       </div>
+      <div class="social-links">
+        <a href="https://github.com/muriplz/Caquita" target="_blank" class="social-link">
+          <GithubLogo class="social-icon"/>
+        </a>
+        <a href="https://discord.com" target="_blank" class="social-link">
+          <DiscordLogo class="social-icon"/>
+        </a>
+        <a href="https://ko-fi.com/caquita" target="_blank" class="social-link">
+          <KofiLogo class="social-icon"/>
+        </a>
+      </div>
     </div>
   </Transition>
 </template>
@@ -29,6 +39,7 @@
 <script setup>
 import { defineEmits, defineProps, onMounted, onBeforeUnmount, ref, nextTick } from 'vue'
 import Store from "@/js/auth/store.js"
+import KofiLogo from "@/assets/icons/KofiLogo.vue";
 
 const props = defineProps({
   isVisible: {
@@ -37,14 +48,11 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['showLogin', 'showRegister', 'showProfile', 'logout', 'close'])
+const emit = defineEmits(['showLogin', 'showProfile', 'logout', 'close'])
 const dropdown = ref(null)
 
 const emitEvent = (eventName) => {
-  // Close dropdown first, then emit the event
   emit('close')
-
-  // Use nextTick to make sure the dropdown is closed before triggering the next action
   nextTick(() => {
     emit(eventName)
   })
@@ -52,7 +60,6 @@ const emitEvent = (eventName) => {
 
 const handleClickOutside = (event) => {
   if (props.isVisible && dropdown.value && !dropdown.value.contains(event.target)) {
-    // Check if the click was outside the dropdown and not on the profile button
     if (!event.target.closest('.profile-button')) {
       emit('close')
     }
@@ -106,10 +113,31 @@ onBeforeUnmount(() => {
 }
 
 .logout:hover {
-  background-color: rgba(244, 67, 54, 0.8); /* 0.8 is the alpha value for 80% opacity */
+  background-color: rgba(244, 67, 54, 0.8);
 }
 
-/* Animations */
+.social-links {
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  border-top: 1px solid #eee;
+}
+
+.social-link {
+  margin: 0 8px;
+  color: #777;
+  transition: color 0.2s;
+}
+
+.social-link:hover {
+  color: #333;
+}
+
+.social-icon {
+  width: 20px;
+  height: 20px;
+}
+
 .animate-enter {
   animation: dropdown-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

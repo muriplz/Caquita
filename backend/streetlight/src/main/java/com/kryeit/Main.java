@@ -3,21 +3,17 @@ package com.kryeit;
 import com.kryeit.auth.Level;
 import com.kryeit.auth.LoginApi;
 import com.kryeit.auth.inventory.InventoryApi;
-import com.kryeit.items.ItemConfigReader;
-import com.kryeit.items.ItemsApi;
+import com.kryeit.content.items.ItemsApi;
 import com.kryeit.landmark.LandmarkApi;
 import com.kryeit.landmark.can.TrashCanApi;
 import com.kryeit.map.MapTileApi;
+import com.kryeit.registry.CaquitaItems;
 import io.javalin.Javalin;
 import io.javalin.community.ssl.SslPlugin;
 import org.json.JSONObject;
 
-import javax.xml.crypto.Data;
 import java.time.LocalDate;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -25,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
 
         DatabaseUtils.createTables();
-        new ItemConfigReader();
+        CaquitaItems.register();
 
         SslPlugin sslPlugin = new SslPlugin(sslConfig -> {
             sslConfig.http2 = true;
@@ -59,10 +55,10 @@ public class Main {
             config.router.apiBuilder(() -> {
                 path("api", () -> {
                     path("v1", () -> {
-                        get(ctx -> ctx.result("Hello World!"));
+                        get(ctx -> ctx.result("Hello from Streetlight!"));
 
                         path("items", () -> {
-                            get(ItemsApi::getItems);
+                            get(ctx -> ctx.json(CaquitaItems.getAllItems()));
                             get("{id}", ItemsApi::getItem);
                         });
 
@@ -103,6 +99,8 @@ public class Main {
                                 post(InventoryApi::addItem);
                                 delete(InventoryApi::removeItem);
                                 patch(InventoryApi::moveItem);
+
+                                post("can-place", InventoryApi::canPlaceItem);
                             });
                         });
                     });

@@ -1,5 +1,7 @@
 package com.kryeit.auth.inventory;
 
+import com.kryeit.content.items.Item;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

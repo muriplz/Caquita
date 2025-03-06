@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("application")
 }
 
 group = "com.kryeit"
@@ -14,7 +15,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    implementation("io.javalin:javalin:6.3.0")
+    implementation("io.javalin:javalin:6.4.0")
     implementation("org.slf4j:slf4j-simple:2.0.7")
 
     implementation("org.jsoup:jsoup:1.17.2")
@@ -51,6 +52,10 @@ tasks.jar {
     manifest {
         attributes("Main-Class" to "com.kryeit.Main")
     }
+}
+
+application {
+    mainClass.set("com.kryeit.Main")
 }
 
 tasks.test {
