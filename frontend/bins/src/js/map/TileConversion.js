@@ -1,40 +1,61 @@
-// TileConversion.js - With proper mathematical coordinate conversion
+// TileConversion.js - Fixed version that doesn't rely on reactive objects
+import { reactive } from "vue";
+import {
+    getCoordinates,
+    setCoordinates,
+    resetCoordinates,
+    defaultCoordinates
+} from './coordinates.js';
+
 export const TILE_SIZE = 180;
 export const DEFAULT_ZOOM = 15;
 
 // Define the default world origin (Santander)
-export const DEFAULT_ORIGIN = {
-    lat: 43.4623,
-    lon: -3.8098,
-};
+export const DEFAULT_ORIGIN = defaultCoordinates;
 
-// Dynamic origin that can be set once when GPS is activated
-export let WORLD_ORIGIN = {
-    lat: DEFAULT_ORIGIN.lat,
-    lon: DEFAULT_ORIGIN.lon,
+// Legacy reactive object - kept for backward compatibility
+// but we won't use it internally anymore
+export const WORLD_ORIGIN = reactive({
+    lat: defaultCoordinates.lat,
+    lon: defaultCoordinates.lon,
     isCustom: false
-};
+});
 
 // Set the world origin using GPS coordinates
 export function setWorldOrigin(lat, lon) {
-    WORLD_ORIGIN.lat = lat;
-    WORLD_ORIGIN.lon = lon;
+    console.log('[TileConversion] Setting world origin:', { lat, lon });
+
+    // Update non-reactive store
+    setCoordinates(lat, lon);
+
+    // ALSO update reactive object for backward compatibility
+    WORLD_ORIGIN.lat = Number(lat);
+    WORLD_ORIGIN.lon = Number(lon);
     WORLD_ORIGIN.isCustom = true;
-    return WORLD_ORIGIN;
+
+    return getCoordinates();
 }
 
-// Reset world origin to default (Badajoz)
+// Reset world origin to default
 export function resetWorldOrigin() {
-    WORLD_ORIGIN.lat = DEFAULT_ORIGIN.lat;
-    WORLD_ORIGIN.lon = DEFAULT_ORIGIN.lon;
+    console.log('[TileConversion] Resetting world origin to default');
+
+    // Reset non-reactive store
+    resetCoordinates();
+
+    // ALSO update reactive object for backward compatibility
+    WORLD_ORIGIN.lat = defaultCoordinates.lat;
+    WORLD_ORIGIN.lon = defaultCoordinates.lon;
     WORLD_ORIGIN.isCustom = false;
-    return WORLD_ORIGIN;
+
+    return getCoordinates();
 }
 
 // Convert latitude/longitude to tile coordinates (for map APIs)
 export function latLonToTile(lat, lon, zoom = DEFAULT_ZOOM) {
-    const x = Math.floor((lon + 180) / 360 * Math.pow(2, zoom));
-    const y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+    const n = Math.pow(2, zoom);
+    const x = Math.floor(((lon + 180) / 360) * n);
+    const y = Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * n);
     return { x, y, zoom };
 }
 
@@ -48,34 +69,52 @@ export function tileToLatLon(x, y, zoom = DEFAULT_ZOOM) {
 
 // Convert lat/lon to game world coordinates
 export function latLonToWorld(lat, lon, zoom = DEFAULT_ZOOM) {
-    // Calculate tile coordinates
+    // Get current coordinates from our non-reactive store
+    const origin = getCoordinates();
+
+    console.log('[TileConversion] Converting lat/lon to world:', {
+        lat,
+        lon,
+        origin
+    });
+
+    // Calculate tile coordinates with high precision
     const { x: tileX, y: tileY } = latLonToTile(lat, lon, zoom);
 
-    // Calculate the origin tile
-    const { x: originTileX, y: originTileY } = latLonToTile(WORLD_ORIGIN.lat, WORLD_ORIGIN.lon, zoom);
+    // Calculate the origin tile using our non-reactive store
+    const { x: originTileX, y: originTileY } = latLonToTile(origin.lat, origin.lon, zoom);
 
-    // Calculate tile offsets
+    // Calculate precise tile offsets
     const tileOffsetX = tileX - originTileX;
     const tileOffsetY = tileY - originTileY;
 
-    // Convert tile offsets to world coordinates
-    // Each tile is TILE_SIZE world units
-    const worldX = tileOffsetX * TILE_SIZE;
-    const worldZ = tileOffsetY * TILE_SIZE;
+    // Adjust for sub-tile precision
+    const subTileX = ((lon + 180) / 360 * Math.pow(2, zoom)) % 1;
+    const subTileY = (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom) % 1;
 
-    return { x: worldX, z: worldZ };
+    // Convert tile offsets to world coordinates with sub-tile precision
+    const worldX = (tileOffsetX + subTileX) * TILE_SIZE;
+    const worldZ = (tileOffsetY + subTileY) * TILE_SIZE;
+
+    const result = { x: worldX, z: worldZ };
+    console.log('[TileConversion] Result world coordinates:', result);
+    return result;
 }
+
+// All other functions use getCoordinates() instead of WORLD_ORIGIN directly
 
 // Convert game world coordinates to lat/lon
 export function worldToLatLon(x, z, zoom = DEFAULT_ZOOM) {
+    const origin = getCoordinates();
+
     // Calculate tile coordinates of the origin
-    const { x: originTileX, y: originTileY } = latLonToTile(WORLD_ORIGIN.lat, WORLD_ORIGIN.lon, zoom);
+    const { x: originTileX, y: originTileY } = latLonToTile(origin.lat, origin.lon, zoom);
 
     // Calculate tile offsets from world coordinates
     const tileOffsetX = x / TILE_SIZE;
     const tileOffsetY = z / TILE_SIZE;
 
-    // Calculate absolute tile coordinates
+    // Calculate absolute tile coordinates with sub-tile precision
     const tileX = originTileX + tileOffsetX;
     const tileY = originTileY + tileOffsetY;
 
@@ -91,8 +130,10 @@ export function worldToTile(x, z, zoom = DEFAULT_ZOOM) {
 
 // Convert tile coordinates to game world coordinates
 export function tileToWorld(tileX, tileY, zoom = DEFAULT_ZOOM) {
+    const origin = getCoordinates();
+
     // Calculate the origin tile
-    const { x: originTileX, y: originTileY } = latLonToTile(WORLD_ORIGIN.lat, WORLD_ORIGIN.lon, zoom);
+    const { x: originTileX, y: originTileY } = latLonToTile(origin.lat, origin.lon, zoom);
 
     // Calculate tile offsets
     const tileOffsetX = tileX - originTileX;
@@ -109,3 +150,6 @@ export function tileToWorld(tileX, tileY, zoom = DEFAULT_ZOOM) {
 export function getTileWorldSize() {
     return { width: TILE_SIZE, height: TILE_SIZE };
 }
+
+// Export current coordinates function for debugging
+export { getCoordinates };

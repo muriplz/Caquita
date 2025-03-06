@@ -1,7 +1,7 @@
 <script setup>
-import {onMounted, onUnmounted, ref} from 'vue'
-import {positionData, removeControls, setupControls} from './playerControls.js'
-import {Cylinder} from '@tresjs/cientos'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { positionData, removeControls, setupControls } from './playerControls.js'
+import { Cylinder } from '@tresjs/cientos'
 
 const color = ref('orange')
 

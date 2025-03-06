@@ -2,22 +2,15 @@
 import {computed, onMounted, onUnmounted, reactive, ref, watch} from 'vue';
 import {positionData} from './player/playerControls.js';
 import {tileLoader} from '../js/map/TileLoader.js';
-import {TILE_SIZE, WORLD_ORIGIN} from "../js/map/TileConversion.js";
+import {DEFAULT_ZOOM, TILE_SIZE, WORLD_ORIGIN} from "../js/map/TileConversion.js";
 import settingsManager from '@/components/ui/settings/settings.js';
 import * as THREE from 'three';
+import { isTracking, getGPSStatus } from './player/GPSTracker.js';
 
 // Configuration
 const config = {
   tileSize: TILE_SIZE,
-  zoomLevel: 15,
-  centerLat: WORLD_ORIGIN.lat,
-  centerLon: WORLD_ORIGIN.lon,
-};
-
-// Calculate center tile
-const centerTile = {
-  x: Math.floor((config.centerLon + 180) / 360 * Math.pow(2, config.zoomLevel)),
-  y: Math.floor((1 - Math.log(Math.tan(config.centerLat * Math.PI / 180) + 1 / Math.cos(config.centerLat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, config.zoomLevel))
+  zoomLevel: DEFAULT_ZOOM
 };
 
 // State
@@ -28,6 +21,37 @@ let isComponentMounted = false;
 // Track materials for cleanup
 const materials = reactive(new Map());
 const textures = reactive(new Map());
+
+// Get current center coordinates - uses GPS coordinates when GPS is active
+const centerCoordinates = computed(() => {
+  const gpsStatus = getGPSStatus();
+
+  // If GPS is active and has first position, use that
+  if (isTracking.value && gpsStatus.firstPosition) {
+    return {
+      lat: gpsStatus.firstPosition.lat,
+      lon: gpsStatus.firstPosition.lon,
+      isGps: true
+    };
+  }
+
+  // Otherwise use default world origin
+  return {
+    lat: WORLD_ORIGIN.lat,
+    lon: WORLD_ORIGIN.lon,
+    isGps: false
+  };
+});
+
+// Calculate center tile based on current center coordinates
+const centerTile = computed(() => {
+  const center = centerCoordinates.value;
+  return {
+    x: Math.floor((center.lon + 180) / 360 * Math.pow(2, config.zoomLevel)),
+    y: Math.floor((1 - Math.log(Math.tan(center.lat * Math.PI / 180) + 1 / Math.cos(center.lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, config.zoomLevel)),
+    isGps: center.isGps
+  };
+});
 
 // Get render distance from settings
 const renderDistance = computed(() => {
@@ -51,6 +75,20 @@ watch(playerTilePosition, () => {
 
 // Watch for render distance changes
 watch(renderDistance, () => {
+  if (isComponentMounted) {
+    updateTiles();
+  }
+}, {immediate: false});
+
+// Watch for GPS status changes (when turning on/off)
+watch(isTracking, () => {
+  if (isComponentMounted) {
+    updateTiles();
+  }
+}, {immediate: true});
+
+// Watch for center tile changes (when GPS updates)
+watch(centerTile, () => {
   if (isComponentMounted) {
     updateTiles();
   }
@@ -110,12 +148,17 @@ function updateTiles() {
   const viewDist = renderDistance.value;
   const newTiles = [];
 
+  // Use current center tile (either default or GPS-based)
+  const currentCenterTile = centerTile.value;
+
+  console.log('[TileRenderer] Updating tiles with center:', currentCenterTile);
+
   // Generate tiles around player
   for (let x = playerX - viewDist; x <= playerX + viewDist; x++) {
     for (let z = playerZ - viewDist; z <= playerZ + viewDist; z++) {
       // Convert to map tile coordinates
-      const mapTileX = centerTile.x + x;
-      const mapTileY = centerTile.y + z;
+      const mapTileX = currentCenterTile.x + x;
+      const mapTileY = currentCenterTile.y + z;
 
       // World position
       const worldX = x * config.tileSize + config.tileSize / 2;
@@ -176,35 +219,12 @@ function cleanupUnusedResources(activeTileIds) {
     <primitive :object="materials.get(tile.id) || createMaterial(tile)"/>
 
     <!-- Debug tile overlay -->
-    <TresMesh
-        v-if="debugMode"
-        :position="[0, 0.01, 0]"
-    >
+    <TresMesh v-if="debugMode" :position="[0, 0.01, 0]">
       <TresPlaneGeometry :args="[config.tileSize - 1, config.tileSize - 1]"/>
       <TresMeshBasicMaterial wireframe color="red" transparent :opacity="0.5"/>
     </TresMesh>
   </TresMesh>
-
-  <!-- Debug overlay -->
-  <div v-if="debugMode" class="debug-overlay">
-    <div>Player Position: {{ positionData.x.toFixed(0) }}, {{ positionData.z.toFixed(0) }}</div>
-    <div>Player Tile: {{ playerTilePosition.x }}, {{ playerTilePosition.z }}</div>
-    <div>Zoom: {{ config.zoomLevel }}</div>
-    <div>Render Distance: {{ renderDistance }}</div>
-    <div>Tiles: {{ tiles.length }}</div>
-  </div>
 </template>
 
 <style scoped>
-.debug-overlay {
-  position: absolute;
-  top: 50px;
-  right: 10px;
-  padding: 10px;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  border-radius: 4px;
-  font-size: 12px;
-  z-index: 1000;
-}
 </style>

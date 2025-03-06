@@ -1,175 +1,128 @@
-import { ref, reactive, watch } from 'vue';
+import { ref, watch } from 'vue';
 import {
     latLonToWorld,
     setWorldOrigin,
-    WORLD_ORIGIN,
     resetWorldOrigin
 } from '@/js/map/TileConversion.js';
 import { position, positionData } from './playerControls.js';
 import settingsStore from '@/components/ui/settings/settings.js';
 
-const originPoint = reactive({
-    lat: null,
-    lon: null,
-    isSet: false
-});
-
-const gpsWorldPosition = reactive({
-    x: 0,
-    z: 0,
-    isActive: false
-});
-
+// Status tracking
 const isTracking = ref(false);
 const lastUpdateTime = ref(0);
 const updateCount = ref(0);
 
+// Resources
 let watchId = null;
 let keepAliveInterval = null;
+let firstPosition = null;
 
-function applyStoredPosition() {
-    if (gpsWorldPosition.isActive) {
-        positionData.x = gpsWorldPosition.x;
-        positionData.z = gpsWorldPosition.z;
-        position.set(gpsWorldPosition.x, positionData.y, gpsWorldPosition.z);
+// Process GPS coordinates
+function processPosition(gpsPosition) {
+    if (!gpsPosition || !gpsPosition.coords || !settingsStore.settings.general.gpsEnabled) return;
+
+    const { latitude, longitude } = gpsPosition.coords;
+    console.log('[GPS] Update:', { lat: latitude, lon: longitude });
+
+    // First GPS position becomes origin
+    if (!firstPosition) {
+        console.log('[GPS] First position - setting as origin:', { lat: latitude, lon: longitude });
+
+        // Store first position
+        firstPosition = { lat: latitude, lon: longitude };
+
+        // Set world origin for compatibility with existing code
+        setWorldOrigin(latitude, longitude);
+
+        // First position is always 0,0 in player coordinates
+        positionData.x = 0;
+        positionData.z = 0;
+        position.set(0, positionData.y, 0);
+
+        console.log('[GPS] Player at origin (0,0)');
+    } else {
+        // Calculate position relative to first position
+        const worldPos = latLonToWorld(latitude, longitude);
+
+        // Update player position
+        positionData.x = worldPos.x;
+        positionData.z = worldPos.z;
+        position.set(worldPos.x, positionData.y, worldPos.z);
+
+        console.log('[GPS] Player moved to:', { x: worldPos.x, z: worldPos.z });
     }
-}
 
-function updatePlayerPosition(x, z) {
-    positionData.x = x;
-    positionData.z = z;
-    position.set(x, positionData.y, z);
-
-    gpsWorldPosition.x = x;
-    gpsWorldPosition.z = z;
-    gpsWorldPosition.isActive = true;
-
+    // Track updates
     updateCount.value++;
     lastUpdateTime.value = Date.now();
 }
 
-function processPosition(position) {
-    if (!position || !position.coords) return;
-
-    const { latitude, longitude } = position.coords;
-
-    if (!originPoint.isSet) {
-        resetWorldOrigin();
-
-        const worldPos = latLonToWorld(latitude, longitude);
-        updatePlayerPosition(worldPos.x, worldPos.z);
-
-        originPoint.lat = latitude;
-        originPoint.lon = longitude;
-        originPoint.isSet = true;
-        setWorldOrigin(latitude, longitude);
-    } else {
-        // Use a small threshold for floating point comparison instead of exact equality
-        const epsilon = 0.0000001;
-        if (Math.abs(latitude - originPoint.lat) < epsilon &&
-            Math.abs(longitude - originPoint.lon) < epsilon) {
-            applyStoredPosition();
-            return;
-        }
-
-        const worldPos = latLonToWorld(latitude, longitude);
-        updatePlayerPosition(worldPos.x, worldPos.z);
-    }
-}
-
-function returnToDefaultPosition() {
-    resetWorldOrigin();
-    updatePlayerPosition(0, 0);
-
-    gpsWorldPosition.isActive = false;
-    originPoint.lat = null;
-    originPoint.lon = null;
-    originPoint.isSet = false;
-}
-
-function handlePositionError(error) {
-    if (error.code !== error.TIMEOUT) {
-        settingsStore.settings.general.gpsEnabled = false;
-        gpsWorldPosition.isActive = false;
-        isTracking.value = false;
-
-        if (watchId) {
-            navigator.geolocation.clearWatch(watchId);
-            watchId = null;
-        }
-
-        if (keepAliveInterval) {
-            clearInterval(keepAliveInterval);
-            keepAliveInterval = null;
-        }
-    } else {
-        applyStoredPosition();
-    }
-}
-
+// Start GPS tracking
 function startGPSTracking() {
     if (!navigator.geolocation) {
         settingsStore.settings.general.gpsEnabled = false;
         return false;
     }
 
-    if (isTracking.value) {
-        applyStoredPosition();
-        return true;
-    }
+    if (isTracking.value) return true;
 
+    // Reset tracking state
+    firstPosition = null;
+
+    console.log('[GPS] Starting GPS tracking');
+
+    // Get current position
     navigator.geolocation.getCurrentPosition(
         (initialPosition) => {
+            // Process the initial position
             processPosition(initialPosition);
 
+            // Set up continuous tracking
             watchId = navigator.geolocation.watchPosition(
                 processPosition,
-                handlePositionError,
-                {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 0
-                }
+                (error) => {
+                    if (error.code === error.PERMISSION_DENIED) {
+                        settingsStore.settings.general.gpsEnabled = false;
+                        stopGPSTracking();
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 30000, maximumAge: 5000 }
             );
 
             isTracking.value = true;
 
+            // Backup polling for more reliable updates
             keepAliveInterval = setInterval(() => {
-                if (isTracking.value && originPoint.isSet) {
-                    applyStoredPosition();
-
-                    if (watchId) {
-                        try {
-                            navigator.geolocation.getCurrentPosition(
-                                (pos) => {
-                                    processPosition(pos);
-                                },
-                                () => {
-                                    applyStoredPosition();
-                                },
-                                { timeout: 5000, maximumAge: 0 }
-                            );
-                        } catch (e) {
-                            applyStoredPosition();
-                        }
-                    }
+                if (!settingsStore.settings.general.gpsEnabled) {
+                    stopGPSTracking();
+                    return;
                 }
-            }, 5000);
+
+                if (isTracking.value) {
+                    navigator.geolocation.getCurrentPosition(
+                        processPosition,
+                        () => {}, // Ignore errors
+                        { timeout: 10000, maximumAge: 5000 }
+                    );
+                }
+            }, 10000);
         },
         (error) => {
-            handlePositionError(error);
+            console.error('[GPS] Initial error:', error.code);
+            if (error.code === error.PERMISSION_DENIED) {
+                settingsStore.settings.general.gpsEnabled = false;
+            }
         },
-        {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0
-        }
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
 
     return true;
 }
 
+// Stop GPS tracking
 function stopGPSTracking() {
+    console.log('[GPS] Stopping GPS tracking');
+
     if (watchId) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
@@ -181,51 +134,42 @@ function stopGPSTracking() {
     }
 
     isTracking.value = false;
-    gpsWorldPosition.isActive = false;
 }
 
-function resetOriginPoint() {
-    if (!navigator.geolocation) return false;
+// Reset to default position
+function returnToDefaultPosition() {
+    console.log('[GPS] Resetting to default position');
 
-    originPoint.isSet = false;
+    // Reset TileConversion world origin
+    resetWorldOrigin();
+    firstPosition = null;
 
-    return new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                processPosition(position);
-                resolve(true);
-            },
-            (error) => {
-                handlePositionError(error);
-                reject(error);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 15000,
-                maximumAge: 0
-            }
-        );
-    });
+    // Reset player position
+    positionData.x = 0;
+    positionData.z = 0;
+    position.set(0, positionData.y, 0);
+
+    console.log('[GPS] Reset complete');
 }
 
+// Get status for debugging
 function getGPSStatus() {
     return {
-        isActive: isTracking.value,
-        isSupported: !!navigator.geolocation,
-        coords: {
-            latitude: originPoint.lat,
-            longitude: originPoint.lon
+        isTracking: isTracking.value,
+        firstPosition,
+        playerPosition: {
+            x: positionData.x,
+            z: positionData.z
         },
-        origin: originPoint,
-        worldOrigin: WORLD_ORIGIN,
-        worldPosition: gpsWorldPosition,
         updateCount: updateCount.value,
         lastUpdate: lastUpdateTime.value ? new Date(lastUpdateTime.value).toISOString() : 'never'
     };
 }
 
-// Setup watches for settings changes
+// Watch settings changes
 watch(() => settingsStore.settings.general.gpsEnabled, (enabled) => {
+    console.log('[GPS] Setting changed:', enabled);
+
     if (enabled) {
         startGPSTracking();
     } else {
@@ -234,21 +178,18 @@ watch(() => settingsStore.settings.general.gpsEnabled, (enabled) => {
     }
 });
 
-// Initialize the GPS system
+// Initialize
 function initGPSSystem() {
+    console.log('[GPS] Initializing');
     if (settingsStore.settings.general.gpsEnabled) {
-        setTimeout(() => {
-            startGPSTracking();
-        }, 500);
+        setTimeout(startGPSTracking, 1000);
     }
 }
 
 export {
-    gpsWorldPosition,
     isTracking,
     startGPSTracking,
     stopGPSTracking,
-    resetOriginPoint,
     getGPSStatus,
     updateCount,
     lastUpdateTime,

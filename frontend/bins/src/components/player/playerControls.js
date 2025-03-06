@@ -1,7 +1,7 @@
 import { reactive } from 'vue';
 import * as THREE from 'three';
 
-// Player position data
+// Player position data - will always be 0,0 since world moves instead
 const positionData = reactive({ x: 0, y: 0, z: 0 });
 const position = new THREE.Vector3(0, 0, 0);
 
@@ -21,7 +21,7 @@ function setCameraInstance(camera) {
  * Called when component is unmounted
  */
 function removeControls() {
-    // Nothing to clean up since we've removed WASD controls
+    // No controls to remove
 }
 
 /**
@@ -29,11 +29,10 @@ function removeControls() {
  * Called when component is mounted
  */
 function setupControls() {
-    // We're not using keyboard controls anymore,
-    // But kept this function for API compatibility
+    // Player is static at 0,0,0 - no controls needed
 }
 
-// Export only what's needed
+// Export what's needed
 export {
     position,
     positionData,
