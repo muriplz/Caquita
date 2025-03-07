@@ -225,7 +225,6 @@ defineEmits(['close']);
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  user-select: none;
 }
 
 .reset-button:hover {
@@ -239,7 +238,6 @@ defineEmits(['close']);
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  user-select: none;
 }
 
 .close-button:hover {

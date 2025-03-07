@@ -46,6 +46,7 @@ button:hover {
   -moz-tap-highlight-color: transparent;
   -ms-tap-highlight-color: transparent;
   tap-highlight-color: transparent;
+  user-select: none;
 }
 
 @media (prefers-color-scheme: light) {

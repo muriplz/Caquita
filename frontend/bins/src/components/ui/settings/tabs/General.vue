@@ -1,10 +1,13 @@
 <template>
   <div class="setting-item">
-    <span class="setting-label">Location (GPS):</span>
+    <div class="setting-label-container">
+      <span class="setting-label">GPS</span>
+      <AdditionalInfo message="Please make sure to turn off battery saving options if you are using Wi-fi on phones" />
+    </div>
     <ToggleSwitch :model-value="gpsEnabled" @update:model-value="toggleGPS" />
   </div>
   <div class="setting-item">
-    <span class="setting-label">Language:</span>
+    <span class="setting-label">Language</span>
     <select v-model="language" class="select-dropdown">
       <option value="en">English</option>
       <option value="fr">French</option>
@@ -18,8 +21,8 @@
 import { computed } from 'vue';
 import ToggleSwitch from '../ToggleSwitch.vue';
 import settingsManager from '@/components/ui/settings/settings.js';
+import AdditionalInfo from "@/components/ui/settings/AdditionalInfo.vue";
 
-// General settings
 const gpsEnabled = computed(() => settingsManager.settings.general.gpsEnabled);
 
 const language = computed({
@@ -27,21 +30,16 @@ const language = computed({
   set: (value) => { settingsManager.settings.general.language = value; }
 });
 
-// Toggle GPS function
 function toggleGPS(value) {
   if (value) {
-    // If toggling on, first request permissions
     requestGPS().then(success => {
-      // Only update the setting if permission was granted
       settingsManager.settings.general.gpsEnabled = success;
     });
   } else {
-    // If toggling off, just update the setting
     settingsManager.settings.general.gpsEnabled = value;
   }
 }
 
-// Request GPS permissions
 function requestGPS() {
   if (!navigator.geolocation) {
     return Promise.resolve(false);
@@ -74,10 +72,14 @@ function requestGPS() {
   border-bottom: 1px solid #333;
 }
 
+.setting-label-container {
+  display: flex;
+  align-items: center;
+}
+
 .setting-label {
   font-weight: 500;
   font-size: 16px;
-  user-select: none;
 }
 
 .select-dropdown {

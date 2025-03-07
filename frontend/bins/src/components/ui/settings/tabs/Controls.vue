@@ -84,7 +84,6 @@ const zoomSpeed = computed({
 .setting-label {
   font-weight: 500;
   font-size: 16px;
-  user-select: none;
 }
 
 .slider-container {

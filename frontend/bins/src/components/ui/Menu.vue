@@ -280,7 +280,6 @@ function handleShowAbout() {
 .settings-button, .profile-button{
   color: white;
   cursor: pointer;
-  user-select: none;
   text-decoration: none;
   display: flex;
   justify-content: center;
@@ -327,7 +326,6 @@ function handleShowAbout() {
   cursor: pointer;
   z-index: 300;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  user-select: none;
   text-decoration: none;
   display: inline-block;
   transition: background-color 0.2s, transform 0.2s;
@@ -381,7 +379,6 @@ function handleShowAbout() {
   cursor: pointer;
   width: 200px;
   text-align: center;
-  user-select: none;
   text-decoration: none;
 }
 

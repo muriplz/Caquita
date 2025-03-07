@@ -245,7 +245,6 @@ export default {
   overflow: hidden;
   cursor: grab;
   transition: all 0.2s ease;
-  user-select: none;
   z-index: 1;
 }
 

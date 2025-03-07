@@ -65,7 +65,6 @@ function toggle() {
   font-weight: bold;
   font-size: 12px;
   transition: opacity 0.2s;
-  user-select: none;
 }
 
 .toggle-label.off {

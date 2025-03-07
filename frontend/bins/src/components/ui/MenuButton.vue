@@ -33,7 +33,6 @@ function handleClick() {
   transition: transform 0.2s, background-color 0.2s;
   width: 200px;
   text-align: center;
-  user-select: none;
   text-decoration: none;
 }
 

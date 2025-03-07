@@ -4,7 +4,7 @@ const IP_ADDRESSES = {
 };
 
 function isProduction() {
-    return true;
+    return false;
 }
 
 function getIpAddress() {
