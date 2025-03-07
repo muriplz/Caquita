@@ -109,22 +109,12 @@ onMounted(() => {
     if (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2
 
     const cameraControl = controlsRef.value.instance
-
     const distanceScale = Math.min(1, (distanceFromCenter - DEAD_ZONE_RADIUS) / DEAD_ZONE_RADIUS)
 
     if (cameraControl.azimuthAngle !== undefined) {
       cameraControl.azimuthAngle += deltaAngle * cameraSensitivityX.value * distanceScale
     }
 
-    const deltaY = (y - lastY.value) * 0.005 * distanceScale
-    if (cameraControl.polarAngle !== undefined) {
-      // Apply invert Y-axis if enabled
-      const yFactor = invertYAxis.value ? -1 : 1
-      const newPolarAngle = Math.min(MAX_POLAR_ANGLE,
-          Math.max(MIN_POLAR_ANGLE,
-              cameraControl.polarAngle - (deltaY * cameraSensitivityY.value * yFactor)))
-      cameraControl.polarAngle = newPolarAngle
-    }
     setOffset()
     cameraControl.update()
 
