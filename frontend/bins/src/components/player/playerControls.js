@@ -1,4 +1,4 @@
-import { reactive } from 'vue';
+import {reactive} from 'vue';
 import * as THREE from 'three';
 
 // Player position data - will always be 0,0 since world moves instead

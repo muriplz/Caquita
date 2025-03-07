@@ -5,7 +5,7 @@ import {tileLoader} from '../js/map/TileLoader.js';
 import {DEFAULT_ZOOM, TILE_SIZE, WORLD_ORIGIN} from "../js/map/TileConversion.js";
 import settingsManager from '@/components/ui/settings/settings.js';
 import * as THREE from 'three';
-import { isTracking, getGPSStatus } from './player/GPSTracker.js';
+import {getGPSStatus, isTracking} from './player/GPSTracker.js';
 
 // Configuration
 const config = {

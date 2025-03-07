@@ -1,4 +1,4 @@
-import { reactive, computed } from 'vue';
+import {computed, reactive} from 'vue';
 import InventoryManager from '../models/InventoryManager';
 import Position from '../models/Position';
 import Item from '../models/Item';

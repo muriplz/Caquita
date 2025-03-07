@@ -1,4 +1,4 @@
-import { reactive, computed, readonly } from 'vue';
+import {computed, reactive, readonly} from 'vue';
 import InventoryManager from './models/InventoryManager.js';
 import Position from './models/Position.js';
 import Item from './models/Item.js';

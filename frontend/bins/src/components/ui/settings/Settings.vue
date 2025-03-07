@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import {ref, watch} from 'vue';
 import GeneralTab from './tabs/General.vue';
 import ControlsTab from './tabs/Controls.vue';
 import GraphicsTab from './tabs/Graphics.vue';

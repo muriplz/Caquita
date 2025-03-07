@@ -46,7 +46,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import {computed} from 'vue';
 import ToggleSwitch from '../ToggleSwitch.vue';
 import settingsManager from '@/components/ui/settings/settings.js';
 

@@ -4,11 +4,9 @@ import OrbitControls from "../components/player/OrbitControls.vue"
 import {Sky, Stats} from '@tresjs/cientos'
 import PlayerEntity from "../components/player/PlayerEntity.vue"
 import TileRenderer from "../components/TileRenderer.vue"
-import {onMounted, ref, onUnmounted} from 'vue'
+import {onMounted, onUnmounted, ref} from 'vue'
 import InfinitePlane from "../components/InfinitePlane.vue"
-import { WORLD_ORIGIN } from "@/js/map/TileConversion.js"
-import { positionData } from "../components/player/playerControls.js"
-import { isTracking, getGPSStatus } from "../components/player/GPSTracker.js"
+import {getGPSStatus} from "../components/player/GPSTracker.js"
 
 const showDebugInfo = ref(false)
 const gpsInfo = ref({})

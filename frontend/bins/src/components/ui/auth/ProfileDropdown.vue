@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { defineEmits, defineProps, onMounted, onBeforeUnmount, ref, nextTick } from 'vue'
+import {defineEmits, defineProps, nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
 import Store from "@/js/auth/store.js"
 import KofiLogo from "@/assets/icons/KofiLogo.vue";
 

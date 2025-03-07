@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { computed, onMounted, onBeforeUnmount, toRefs, ref, watch } from 'vue';
+import {computed, onBeforeUnmount, onMounted, ref, toRefs, watch} from 'vue';
 import GridCell from './GridCell.vue';
 import InventoryItem from './InventoryItem.vue';
 import inventoryStore from './store/inventoryStore';

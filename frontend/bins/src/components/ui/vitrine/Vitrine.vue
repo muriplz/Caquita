@@ -42,8 +42,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { getAllItems } from '@/js/items/items.js';
+import {onBeforeUnmount, onMounted, ref} from 'vue';
+import {getAllItems} from '@/js/items/items.js';
 
 const items = ref([]);
 const loading = ref(false);

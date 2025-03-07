@@ -113,7 +113,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import {computed, ref, watch} from 'vue'
 import Inventory from "./inventory/Inventory.vue"
 import AuthService from "@/js/auth/authService.js"
 import ProfileDropdown from "@/components/ui/auth/ProfileDropdown.vue"

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import {computed} from "vue";
 import Store from "@/js/auth/store.js";
 
 const level = computed(() => Store.getLevel());

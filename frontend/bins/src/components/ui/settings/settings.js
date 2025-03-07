@@ -1,4 +1,4 @@
-import { reactive, watch } from 'vue';
+import {reactive, watch} from 'vue';
 
 // Storage key for all settings
 const STORAGE_KEY = 'user-settings';

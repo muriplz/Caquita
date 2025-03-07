@@ -1,11 +1,6 @@
 // TileConversion.js - Fixed version that doesn't rely on reactive objects
-import { reactive } from "vue";
-import {
-    getCoordinates,
-    setCoordinates,
-    resetCoordinates,
-    defaultCoordinates
-} from './coordinates.js';
+import {reactive} from "vue";
+import {defaultCoordinates, getCoordinates, resetCoordinates, setCoordinates} from './coordinates.js';
 
 export const TILE_SIZE = 180;
 export const DEFAULT_ZOOM = 15;

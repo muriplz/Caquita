@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import {computed} from 'vue';
 import settingsManager from '@/components/ui/settings/settings.js';
 
 // Graphics settings

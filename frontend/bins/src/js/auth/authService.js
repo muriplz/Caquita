@@ -1,7 +1,6 @@
 import Store from "./store.js";
 import {getIpAddress} from "../static.js";
 import inventoryStore from "@/components/ui/inventory/store/inventoryStore.js";
-import Levels from "@/js/auth/levels.js";
 
 class AuthService {
     async login(username, password) {

@@ -1,10 +1,6 @@
-import { ref, watch } from 'vue';
-import {
-    latLonToWorld,
-    setWorldOrigin,
-    resetWorldOrigin
-} from '@/js/map/TileConversion.js';
-import { position, positionData } from './playerControls.js';
+import {ref, watch} from 'vue';
+import {latLonToWorld, resetWorldOrigin, setWorldOrigin} from '@/js/map/TileConversion.js';
+import {position, positionData} from './playerControls.js';
 import settingsStore from '@/components/ui/settings/settings.js';
 
 // Status tracking
