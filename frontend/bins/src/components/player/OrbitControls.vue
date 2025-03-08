@@ -1,8 +1,9 @@
 <script setup>
 import {BaseCameraControls, CameraControls} from '@tresjs/cientos'
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
-import {positionData, removeControls, setCameraInstance} from './playerControls.js'
+import {positionData, removeControls, setCameraInstance, isMoving} from './playerControls.js'
 import settingsManager from '@/components/ui/settings/settings.js'
+import TeleportUtility from './TeleportUtility.js'
 
 // Constants
 const MIN_DISTANCE = 15
@@ -11,6 +12,7 @@ const DEAD_ZONE_RADIUS = 20
 const MIN_POLAR_ANGLE = Math.PI * (75 / 180)
 const MAX_POLAR_ANGLE = Math.PI * (87 / 180)
 const HEAD_OFFSET = 3.0
+const DEFAULT_TELEPORT_DURATION = 500 // 0.5 seconds
 
 // State variables
 const controlsRef = ref(null)
@@ -18,9 +20,21 @@ const isDragging = ref(false)
 const lastAngle = ref(0)
 const currentDistance = ref(50)
 
+// Use isMoving directly from playerControls instead of duplicating state
+const isTeleporting = computed(() => isMoving.value)
+
 // Computed properties
 const cameraSensitivityX = computed(() => settingsManager.settings.controls.cameraSensitivityX * 1.1 / 5)
 const zoomSpeed = computed(() => settingsManager.settings.controls.zoomSpeed * 3)
+
+// Teleport functions
+const teleportToPosition = async (x, z, duration = DEFAULT_TELEPORT_DURATION) => {
+  await TeleportUtility.toWorldPosition(x, z, duration)
+}
+
+const teleportToGPS = async (lat, lon, duration = DEFAULT_TELEPORT_DURATION) => {
+  await TeleportUtility.toLatLon(lat, lon, duration)
+}
 
 // Helper function to calculate polar angle based on distance
 const calculatePolarAngleFromDistance = (distance) => {
@@ -115,6 +129,7 @@ onMounted(() => {
 
   // Handle interaction start
   const handleStart = (x, y) => {
+    if (isTeleporting.value) return // Prevent interaction during teleport
     if (getDistanceFromCenter(x, y) > DEAD_ZONE_RADIUS) {
       isDragging.value = true
       lastAngle.value = getAngleFromCenter(x, y)
@@ -123,6 +138,7 @@ onMounted(() => {
 
   // Handle mouse/touch move
   const handleMove = (x, y) => {
+    if (isTeleporting.value) return // Prevent interaction during teleport
     if (!isDragging.value || !controlsRef.value?.instance) return
 
     // Check if outside dead zone
@@ -221,6 +237,17 @@ onMounted(() => {
     updateCameraZoom(newDistance)
   }, {passive: false})
 
+  // Keyboard teleport shortcuts (for demonstration/testing)
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'T') {
+      // Example teleport to a point 100 units away in both x and z
+      teleportToPosition(100, 100, DEFAULT_TELEPORT_DURATION)
+    } else if (e.key === 'G') {
+      // Example teleport to GPS coordinates (Santander)
+      teleportToGPS(43.4623, -3.8098, DEFAULT_TELEPORT_DURATION)
+    }
+  })
+
   // Initialize controls if they're already available
   if (controlsRef.value?.instance) {
     onReady(controlsRef.value.instance)
@@ -257,6 +284,12 @@ watch(positionData, (newPosition) => {
     console.error("Position update error:", error)
   }
 }, {deep: true})
+
+// Export teleport functions for external use
+defineExpose({
+  teleportToPosition,
+  teleportToGPS
+})
 </script>
 
 <template>

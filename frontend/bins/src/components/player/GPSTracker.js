@@ -1,6 +1,6 @@
 import {ref, watch} from 'vue';
 import {latLonToWorld, resetWorldOrigin, setWorldOrigin} from '@/js/map/TileConversion.js';
-import {position, positionData} from './playerControls.js';
+import {position, positionData, moveTo, isMoving} from './playerControls.js';
 import settingsStore from '@/components/ui/settings/settings.js';
 
 // Status tracking
@@ -35,10 +35,23 @@ function processPosition(gpsPosition) {
         // Calculate position relative to first position
         const worldPos = latLonToWorld(latitude, longitude);
 
-        // Update player position
-        positionData.x = worldPos.x;
-        positionData.z = worldPos.z;
-        position.set(worldPos.x, positionData.y, worldPos.z);
+        // Only start a new movement if not already moving and position changed significantly
+        if (!isMoving.value) {
+            const distance = Math.hypot(
+                worldPos.x - positionData.x,
+                worldPos.z - positionData.z
+            );
+
+            // If moved more than 1 meter, animate
+            if (distance > 1) {
+                moveTo(worldPos.x, positionData.y, worldPos.z, 1000);
+            } else {
+                // Small change, update directly
+                positionData.x = worldPos.x;
+                positionData.z = worldPos.z;
+                position.set(worldPos.x, positionData.y, worldPos.z);
+            }
+        }
     }
 
     // Track updates
@@ -126,10 +139,10 @@ function returnToDefaultPosition() {
     resetWorldOrigin();
     firstPosition = null;
 
-    // Reset player position
-    positionData.x = 0;
-    positionData.z = 0;
-    position.set(0, positionData.y, 0);
+    // Reset player position with smooth animation
+    if (!isMoving.value) {
+        moveTo(0, positionData.y, 0, 1500); // 1.5-second animation
+    }
 }
 
 // Get status for debugging
