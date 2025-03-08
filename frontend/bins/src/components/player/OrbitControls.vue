@@ -3,15 +3,14 @@ import {BaseCameraControls, CameraControls} from '@tresjs/cientos'
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {positionData, removeControls, setCameraInstance} from './playerControls.js'
 import settingsManager from '@/components/ui/settings/settings.js'
-import * as THREE from 'three'
 
 // Constants
 const MIN_DISTANCE = 15
 const MAX_DISTANCE = 70
 const DEAD_ZONE_RADIUS = 20
-const MIN_POLAR_ANGLE = Math.PI * (25 / 180)
+const MIN_POLAR_ANGLE = Math.PI * (75 / 180)
 const MAX_POLAR_ANGLE = Math.PI * (87 / 180)
-const HEAD_OFFSET = 1.6
+const HEAD_OFFSET = 3.0
 
 // State variables
 const controlsRef = ref(null)
