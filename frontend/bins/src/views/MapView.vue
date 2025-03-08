@@ -41,7 +41,7 @@ onUnmounted(() => {
     <TresCanvas window-size>
       <Sky/>
       <Stats v-if="showDebugInfo"/>
-      <TresPerspectiveCamera :args="[45, 1, 0.1, 1000]"/>
+      <TresPerspectiveCamera :args="[25, 1, 0.1, 1000]"/>
       <PlayerEntity/>
       <OrbitControls/>
       <TileRenderer />

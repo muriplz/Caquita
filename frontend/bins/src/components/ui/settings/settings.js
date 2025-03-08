@@ -10,9 +10,7 @@ const defaultSettings = {
         language: 'en',
     },
     controls: {
-        invertYAxis: false,
         cameraSensitivityX: 5,
-        cameraSensitivityY: 2,
         zoomSpeed: 1,
     },
     graphics: {

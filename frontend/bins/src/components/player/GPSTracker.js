@@ -18,12 +18,9 @@ function processPosition(gpsPosition) {
     if (!gpsPosition || !gpsPosition.coords || !settingsStore.settings.general.gpsEnabled) return;
 
     const { latitude, longitude } = gpsPosition.coords;
-    console.log('[GPS] Update:', { lat: latitude, lon: longitude });
 
     // First GPS position becomes origin
     if (!firstPosition) {
-        console.log('[GPS] First position - setting as origin:', { lat: latitude, lon: longitude });
-
         // Store first position
         firstPosition = { lat: latitude, lon: longitude };
 
@@ -34,8 +31,6 @@ function processPosition(gpsPosition) {
         positionData.x = 0;
         positionData.z = 0;
         position.set(0, positionData.y, 0);
-
-        console.log('[GPS] Player at origin (0,0)');
     } else {
         // Calculate position relative to first position
         const worldPos = latLonToWorld(latitude, longitude);
@@ -44,8 +39,6 @@ function processPosition(gpsPosition) {
         positionData.x = worldPos.x;
         positionData.z = worldPos.z;
         position.set(worldPos.x, positionData.y, worldPos.z);
-
-        console.log('[GPS] Player moved to:', { x: worldPos.x, z: worldPos.z });
     }
 
     // Track updates
@@ -64,8 +57,6 @@ function startGPSTracking() {
 
     // Reset tracking state
     firstPosition = null;
-
-    console.log('[GPS] Starting GPS tracking');
 
     // Get current position
     navigator.geolocation.getCurrentPosition(
@@ -104,7 +95,6 @@ function startGPSTracking() {
             }, 10000);
         },
         (error) => {
-            console.error('[GPS] Initial error:', error.code);
             if (error.code === error.PERMISSION_DENIED) {
                 settingsStore.settings.general.gpsEnabled = false;
             }
@@ -117,8 +107,6 @@ function startGPSTracking() {
 
 // Stop GPS tracking
 function stopGPSTracking() {
-    console.log('[GPS] Stopping GPS tracking');
-
     if (watchId) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
@@ -134,8 +122,6 @@ function stopGPSTracking() {
 
 // Reset to default position
 function returnToDefaultPosition() {
-    console.log('[GPS] Resetting to default position');
-
     // Reset TileConversion world origin
     resetWorldOrigin();
     firstPosition = null;
@@ -144,8 +130,6 @@ function returnToDefaultPosition() {
     positionData.x = 0;
     positionData.z = 0;
     position.set(0, positionData.y, 0);
-
-    console.log('[GPS] Reset complete');
 }
 
 // Get status for debugging
@@ -164,8 +148,6 @@ function getGPSStatus() {
 
 // Watch settings changes
 watch(() => settingsStore.settings.general.gpsEnabled, (enabled) => {
-    console.log('[GPS] Setting changed:', enabled);
-
     if (enabled) {
         startGPSTracking();
     } else {
@@ -176,7 +158,6 @@ watch(() => settingsStore.settings.general.gpsEnabled, (enabled) => {
 
 // Initialize
 function initGPSSystem() {
-    console.log('[GPS] Initializing');
     if (settingsStore.settings.general.gpsEnabled) {
         setTimeout(startGPSTracking, 1000);
     }

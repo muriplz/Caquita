@@ -18,8 +18,6 @@ export const WORLD_ORIGIN = reactive({
 
 // Set the world origin using GPS coordinates
 export function setWorldOrigin(lat, lon) {
-    console.log('[TileConversion] Setting world origin:', { lat, lon });
-
     // Update non-reactive store
     setCoordinates(lat, lon);
 
@@ -33,8 +31,6 @@ export function setWorldOrigin(lat, lon) {
 
 // Reset world origin to default
 export function resetWorldOrigin() {
-    console.log('[TileConversion] Resetting world origin to default');
-
     // Reset non-reactive store
     resetCoordinates();
 
@@ -67,12 +63,6 @@ export function latLonToWorld(lat, lon, zoom = DEFAULT_ZOOM) {
     // Get current coordinates from our non-reactive store
     const origin = getCoordinates();
 
-    console.log('[TileConversion] Converting lat/lon to world:', {
-        lat,
-        lon,
-        origin
-    });
-
     // Calculate tile coordinates with high precision
     const { x: tileX, y: tileY } = latLonToTile(lat, lon, zoom);
 
@@ -91,9 +81,7 @@ export function latLonToWorld(lat, lon, zoom = DEFAULT_ZOOM) {
     const worldX = (tileOffsetX + subTileX) * TILE_SIZE;
     const worldZ = (tileOffsetY + subTileY) * TILE_SIZE;
 
-    const result = { x: worldX, z: worldZ };
-    console.log('[TileConversion] Result world coordinates:', result);
-    return result;
+    return {x: worldX, z: worldZ};
 }
 
 // All other functions use getCoordinates() instead of WORLD_ORIGIN directly

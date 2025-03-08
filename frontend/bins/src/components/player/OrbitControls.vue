@@ -1,75 +1,102 @@
 <script setup>
 import {BaseCameraControls, CameraControls} from '@tresjs/cientos'
-import {computed, onMounted, onUnmounted, reactive, ref, watch} from 'vue'
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {positionData, removeControls, setCameraInstance} from './playerControls.js'
 import settingsManager from '@/components/ui/settings/settings.js'
 import * as THREE from 'three'
 
-const MIN_DISTANCE = 2
+// Constants
+const MIN_DISTANCE = 15
 const MAX_DISTANCE = 70
 const DEAD_ZONE_RADIUS = 20
 const MIN_POLAR_ANGLE = Math.PI * (25 / 180)
 const MAX_POLAR_ANGLE = Math.PI * (87 / 180)
+const HEAD_OFFSET = 1.6
 
+// State variables
+const controlsRef = ref(null)
 const isDragging = ref(false)
 const lastAngle = ref(0)
-const lastY = ref(0)
-const currentDistance = ref(10)
+const currentDistance = ref(50)
 
-const controlsRef = ref(null)
-const offsetPos = reactive({x: 0, y: 0, z: 0})
-const targetPosition = new THREE.Vector3()
-
-// Computed settings from user preferences
-const invertYAxis = computed(() => settingsManager.settings.controls.invertYAxis)
+// Computed properties
 const cameraSensitivityX = computed(() => settingsManager.settings.controls.cameraSensitivityX * 1.1 / 5)
-const cameraSensitivityY = computed(() => settingsManager.settings.controls.cameraSensitivityY * 1.1 / 5)
 const zoomSpeed = computed(() => settingsManager.settings.controls.zoomSpeed * 3)
 
-const updateCameraPosition = (position, offset, cameraControls, distance) => {
-  if (!cameraControls) return
-
-  targetPosition.set(
-      position.x,
-      position.y,
-      position.z
-  )
-
-  const desiredX = position.x + offset.x
-  const desiredY = position.y + offset.y
-  const desiredZ = position.z + offset.z
-
-  cameraControls.setLookAt(
-      desiredX, desiredY, desiredZ,
-      targetPosition.x, targetPosition.y, targetPosition.z,
-      true
-  )
+// Helper function to calculate polar angle based on distance
+const calculatePolarAngleFromDistance = (distance) => {
+  const normalizedDistance = (distance - MIN_DISTANCE) / (MAX_DISTANCE - MIN_DISTANCE)
+  const easedDistance = normalizedDistance * normalizedDistance
+  return MAX_POLAR_ANGLE - easedDistance * (MAX_POLAR_ANGLE - MIN_POLAR_ANGLE)
 }
 
+// Zoom camera to a specific distance
+const updateCameraZoom = (newDistance) => {
+  if (!controlsRef.value?.instance) return
+
+  try {
+    // Clamp distance within limits
+    newDistance = Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, newDistance))
+
+    // Apply zoom
+    const control = controlsRef.value.instance
+    control.distance = newDistance
+    control.polarAngle = calculatePolarAngleFromDistance(newDistance)
+    control.update()
+
+    // Update state
+    currentDistance.value = newDistance
+  } catch (error) {
+    console.error("Zoom error:", error)
+  }
+}
+
+// Initialize camera controls
 const onReady = (instance) => {
+  if (!instance) return
+
   controlsRef.value = instance
-  currentDistance.value = instance.distance
 
-  currentDistance.value = 30
+  try {
+    // Set up camera parameters
+    if (instance._camera) {
+      instance._camera.near = 0.1
+      instance._camera.far = 1000
+      instance._camera.updateProjectionMatrix()
+    }
 
-  if (instance) {
-    instance.setTarget(positionData.x, positionData.y, positionData.z)
+    // Initialize target to player position
+    instance.setTarget(
+        positionData.x,
+        positionData.y + HEAD_OFFSET,
+        positionData.z
+    )
+
+    // Set initial distance and angle
     instance.distance = currentDistance.value
-  }
+    instance.polarAngle = calculatePolarAngleFromDistance(currentDistance.value)
+    instance.update()
 
-  if (instance?._camera) {
-    setCameraInstance(instance._camera)
+    // Store camera reference for external use
+    if (instance._camera) {
+      setCameraInstance(instance._camera)
+    }
+  } catch (error) {
+    console.error("Camera initialization error:", error)
   }
 }
 
+// Clean up on component unmount
 onUnmounted(() => {
   removeControls()
 })
 
+// Set up interaction handling
 onMounted(() => {
   const canvas = document.querySelector('canvas')
   if (!canvas) return
 
+  // Helper function to get angle from center
   const getAngleFromCenter = (x, y) => {
     const rect = canvas.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
@@ -77,6 +104,7 @@ onMounted(() => {
     return Math.atan2(y - centerY, x - centerX)
   }
 
+  // Helper function to get distance from center
   const getDistanceFromCenter = (x, y) => {
     const rect = canvas.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
@@ -86,43 +114,43 @@ onMounted(() => {
     return Math.sqrt(dx * dx + dy * dy)
   }
 
+  // Handle interaction start
   const handleStart = (x, y) => {
     if (getDistanceFromCenter(x, y) > DEAD_ZONE_RADIUS) {
       isDragging.value = true
       lastAngle.value = getAngleFromCenter(x, y)
-      lastY.value = y
     }
   }
 
+  // Handle mouse/touch move
   const handleMove = (x, y) => {
     if (!isDragging.value || !controlsRef.value?.instance) return
 
+    // Check if outside dead zone
     const distanceFromCenter = getDistanceFromCenter(x, y)
-    if (distanceFromCenter <= DEAD_ZONE_RADIUS) {
-      return
-    }
+    if (distanceFromCenter <= DEAD_ZONE_RADIUS) return
 
+    // Calculate angle change
     const currentAngle = getAngleFromCenter(x, y)
     let deltaAngle = currentAngle - lastAngle.value
 
+    // Normalize angle delta
     if (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2
     if (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2
 
+    // Apply rotation
     const cameraControl = controlsRef.value.instance
     const distanceScale = Math.min(1, (distanceFromCenter - DEAD_ZONE_RADIUS) / DEAD_ZONE_RADIUS)
 
-    if (cameraControl.azimuthAngle !== undefined) {
-      cameraControl.azimuthAngle += deltaAngle * cameraSensitivityX.value * distanceScale
-    }
-
-    setOffset()
+    cameraControl.azimuthAngle += deltaAngle * cameraSensitivityX.value * distanceScale
     cameraControl.update()
 
+    // Update state
     lastAngle.value = currentAngle
-    lastY.value = y
     currentDistance.value = cameraControl.distance
   }
 
+  // Handle interaction end
   const handleEnd = () => {
     isDragging.value = false
     if (controlsRef.value?.instance) {
@@ -130,17 +158,13 @@ onMounted(() => {
     }
   }
 
-  canvas.addEventListener('mousedown', (e) => {
-    handleStart(e.clientX, e.clientY)
-  })
-
-  canvas.addEventListener('mousemove', (e) => {
-    handleMove(e.clientX, e.clientY)
-  })
-
+  // Mouse event handlers
+  canvas.addEventListener('mousedown', (e) => handleStart(e.clientX, e.clientY))
+  canvas.addEventListener('mousemove', (e) => handleMove(e.clientX, e.clientY))
   canvas.addEventListener('mouseup', handleEnd)
   canvas.addEventListener('mouseleave', handleEnd)
 
+  // Touch event handlers
   canvas.addEventListener('touchstart', (e) => {
     e.preventDefault()
     if (e.touches.length === 1) {
@@ -160,6 +184,7 @@ onMounted(() => {
   canvas.addEventListener('touchend', handleEnd)
   canvas.addEventListener('touchcancel', handleEnd)
 
+  // Handle pinch zoom
   let lastTouchDistance = 0
 
   canvas.addEventListener('touchstart', (e) => {
@@ -177,58 +202,60 @@ onMounted(() => {
       const distance = Math.sqrt(dx * dx + dy * dy)
 
       const delta = lastTouchDistance - distance
-      const cameraControl = controlsRef.value.instance
-      let newDistance = cameraControl.distance + (delta * 0.01 * zoomSpeed.value)
+      const newDistance = currentDistance.value + (delta * 0.01 * zoomSpeed.value)
 
-      newDistance = Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, newDistance))
-      cameraControl.distance = newDistance
-      cameraControl.update()
-
+      updateCameraZoom(newDistance)
       lastTouchDistance = distance
-      currentDistance.value = newDistance
     }
   })
 
+  // Handle wheel zoom
   canvas.addEventListener('wheel', (e) => {
     if (!controlsRef.value?.instance) return
-
     e.preventDefault()
 
-    const cameraControl = controlsRef.value.instance
-    let distance = cameraControl.distance
+    const zoomChange = zoomSpeed.value
+    const newDistance = e.deltaY > 0
+        ? Math.min(currentDistance.value + zoomChange, MAX_DISTANCE)
+        : Math.max(currentDistance.value - zoomChange, MIN_DISTANCE)
 
-    if (e.deltaY > 0) {
-      distance = Math.min(distance + zoomSpeed.value, MAX_DISTANCE)
-    } else {
-      distance = Math.max(distance - zoomSpeed.value, MIN_DISTANCE)
-    }
-
-    cameraControl.distance = distance
-    cameraControl.update()
-    currentDistance.value = distance
+    updateCameraZoom(newDistance)
   }, {passive: false})
 
-  onReady(controlsRef.value?.instance)
-
-  if (controlsRef.value?.instance?._camera) {
-    setCameraInstance(controlsRef.value.instance._camera)
+  // Initialize controls if they're already available
+  if (controlsRef.value?.instance) {
+    onReady(controlsRef.value.instance)
   }
 })
 
-const setOffset = () => {
-  const target = controlsRef.value.instance._target
-  const cameraPosition = controlsRef.value.instance._camera.position
-
-  offsetPos.x = (!isNaN(target.x) && !isNaN(cameraPosition.x)) ? cameraPosition.x - target.x : 0
-  offsetPos.y = (!isNaN(target.y) && !isNaN(cameraPosition.y)) ? cameraPosition.y - target.y : 0
-  offsetPos.z = (!isNaN(target.z) && !isNaN(cameraPosition.z)) ? cameraPosition.z - target.z : 0
-}
-
+// Watch for player position changes to update camera target
 watch(positionData, (newPosition) => {
-  setOffset()
-  updateCameraPosition(newPosition, offsetPos, controlsRef.value.instance, currentDistance.value)
-  if (controlsRef.value?.instance) {
-    controlsRef.value.instance.setTarget(newPosition.x, newPosition.y, newPosition.z)
+  if (!controlsRef.value?.instance) return
+
+  try {
+    // Save current camera state
+    const control = controlsRef.value.instance
+    const currentAzimuth = control.azimuthAngle
+    const currentPolar = control.polarAngle
+    const currentDist = control.distance
+
+    // Update target (the point camera looks at)
+    control.setTarget(
+        newPosition.x,
+        newPosition.y + HEAD_OFFSET,
+        newPosition.z,
+        false // Don't update yet
+    )
+
+    // Explicitly maintain camera's relative position
+    control.azimuthAngle = currentAzimuth
+    control.polarAngle = currentPolar
+    control.distance = currentDist
+
+    // Apply all changes
+    control.update()
+  } catch (error) {
+    console.error("Position update error:", error)
   }
 }, {deep: true})
 </script>

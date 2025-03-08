@@ -151,8 +151,6 @@ function updateTiles() {
   // Use current center tile (either default or GPS-based)
   const currentCenterTile = centerTile.value;
 
-  console.log('[TileRenderer] Updating tiles with center:', currentCenterTile);
-
   // Generate tiles around player
   for (let x = playerX - viewDist; x <= playerX + viewDist; x++) {
     for (let z = playerZ - viewDist; z <= playerZ + viewDist; z++) {
