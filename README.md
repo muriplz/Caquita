@@ -12,3 +12,10 @@ It's the backend of the app, controls the PostgreSQL database and authentificati
 ### [Townhall](https://github.com/muriplz/Caquita/tree/main/backend/townhall)
 
 It's a statistics backend made with R and Shiny. Aims to have interactable graphs about Caquita Landmarks.
+
+
+# TODO:
+- Websocket so that players have random items appearing around them
+- Item system (20%)
+- Inventory compat with Item system
+- Petition portal
