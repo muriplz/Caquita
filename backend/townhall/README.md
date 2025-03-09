@@ -3,11 +3,11 @@
 [R 4.4.3](https://cran.r-project.org) + [Shiny](https://shiny.posit.co)
 
 And as always with R, the endless list of libraries:
-[ShinyJs](https://deanattali.com/shinyjs/)
-[GGPlot2](https://ggplot2.tidyverse.org)
-[Plotly](https://plotly.com/r/)
-[DBI](https://dbi.r-dbi.org)
-[RPostgres](https://cran.r-project.org/web/packages/RPostgres/index.html)
+- [ShinyJs](https://deanattali.com/shinyjs/)
+- [GGPlot2](https://ggplot2.tidyverse.org)
+- [Plotly](https://plotly.com/r/)
+- [DBI](https://dbi.r-dbi.org)
+- [RPostgres](https://cran.r-project.org/web/packages/RPostgres/index.html)
 
 ## Running
 
