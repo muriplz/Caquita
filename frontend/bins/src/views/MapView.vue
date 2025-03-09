@@ -3,10 +3,10 @@ import {TresCanvas} from '@tresjs/core'
 import OrbitControls from "../components/player/OrbitControls.vue"
 import {Sky, Stats} from '@tresjs/cientos'
 import PlayerEntity from "../components/player/PlayerEntity.vue"
-import TileRenderer from "../components/TileRenderer.vue"
 import {onMounted, onUnmounted, ref} from 'vue'
 import InfinitePlane from "../components/InfinitePlane.vue"
 import {getGPSStatus} from "../components/player/GPSTracker.js"
+import MapCanvas from "@/components/MapCanvas.vue";
 
 const showDebugInfo = ref(false)
 const gpsInfo = ref({})
@@ -44,7 +44,7 @@ onUnmounted(() => {
       <TresPerspectiveCamera :args="[25, 1, 0.1, 1000]"/>
       <PlayerEntity/>
       <OrbitControls/>
-      <TileRenderer />
+      <MapCanvas />
       <InfinitePlane/>
       <TresDirectionalLight :position="[10, 10, 10]" :intensity="0.8" cast-shadow/>
     </TresCanvas>

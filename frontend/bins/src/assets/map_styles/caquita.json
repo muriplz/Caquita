@@ -1,0 +1,54 @@
+{
+  "version": 8,
+  "name": "caquita",
+  "metadata": {},
+  "sources": {
+    "stadia": {
+      "type": "vector",
+      "url": "https://tiles-eu.stadiamaps.com/data/openmaptiles.json"
+    }
+  },
+  "sprite": "",
+  "glyphs": "https://orangemug.github.io/font-glyphs/glyphs/{fontstack}/{range}.pbf",
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {"background-color": "#a4edba"}
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "stadia",
+      "source-layer": "water",
+      "paint": {"fill-color": "#6dbde9", "fill-outline-color": "#82caf9"}
+    },
+    {
+      "id": "landuse_park",
+      "type": "fill",
+      "source": "stadia",
+      "source-layer": "landuse",
+      "filter": ["all", ["==", "class", "park"]],
+      "paint": {"fill-color": "#7ecf7e"}
+    },
+    {
+      "id": "buildings",
+      "type": "fill",
+      "source": "stadia",
+      "source-layer": "building",
+      "paint": {"fill-color": "#e8e0cb", "fill-outline-color": "#d6ceb8"}
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "stadia",
+      "source-layer": "transportation",
+      "paint": {
+        "line-color": "#ffffff",
+        "line-width": 3,
+        "line-opacity": 1
+      }
+    }
+  ],
+  "id": "e2fyvll"
+}

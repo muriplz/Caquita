@@ -17,3 +17,9 @@ deno run dev
 ```bash
 deno clean
 ```
+
+#### Building:
+
+```bash
+deno run build
+```

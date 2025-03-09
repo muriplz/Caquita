@@ -6,7 +6,6 @@ import com.kryeit.auth.inventory.InventoryApi;
 import com.kryeit.content.items.ItemsApi;
 import com.kryeit.landmark.LandmarkApi;
 import com.kryeit.landmark.can.TrashCanApi;
-import com.kryeit.map.MapTileApi;
 import com.kryeit.registry.CaquitaItems;
 import io.javalin.Javalin;
 import io.javalin.community.ssl.SslPlugin;
@@ -76,12 +75,6 @@ public class Main {
                             path("cans", () -> {
                                 get(TrashCanApi::getCans);
                                 put(TrashCanApi::createCan);
-                            });
-                        });
-
-                        path("map", () -> {
-                            path("tiles/{zoom}/{x}/{y}", () -> {
-                                get(MapTileApi::getTile);
                             });
                         });
 
