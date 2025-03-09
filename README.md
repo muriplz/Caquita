@@ -7,4 +7,8 @@ It's based in TresJS (ThreeJS wrapper).
 
 ### [Streetlight](https://github.com/muriplz/Caquita/tree/main/backend/streetlight)
 
-It's the backend of the app, controls the PostgreSQL database and authentification with JWT
+It's the backend of the app, controls the PostgreSQL database and authentification with JWT.
+
+### [Townhall](https://github.com/muriplz/Caquita/tree/main/backend/townhall)
+
+It's a statistics backend made with R and Shiny. Aims to have interactable graphs about Caquita Landmarks.
