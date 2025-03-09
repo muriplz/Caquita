@@ -6,7 +6,7 @@ class MapLibreManager {
     constructor() {
         this.map = null;
         this.container = null;
-        this.styleUrl = '/src/assets/map_styles/caquita.json';
+        this.styleUrl = '/map_styles/caquita.json';
         this.initialized = false;
         this.maxZoom = 20;
         this.minZoom = 0;

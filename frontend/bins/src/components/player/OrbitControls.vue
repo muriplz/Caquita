@@ -7,7 +7,7 @@ import TeleportUtility from './TeleportUtility.js'
 
 // Constants
 const MIN_DISTANCE = 15
-const MAX_DISTANCE = 70
+const MAX_DISTANCE = 90
 const DEAD_ZONE_RADIUS = 20
 const MIN_POLAR_ANGLE = Math.PI * (75 / 180)
 const MAX_POLAR_ANGLE = Math.PI * (87 / 180)
