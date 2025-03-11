@@ -125,6 +125,8 @@ async function createMapTexture() {
   mapTexture.value.wrapS = THREE.RepeatWrapping;
   mapTexture.value.wrapT = THREE.RepeatWrapping;
 
+  mapTexture.value.encoding = THREE.sRGBEncoding;
+
   material.value = new THREE.MeshBasicMaterial({
     map: mapTexture.value,
     transparent: true
@@ -139,9 +141,9 @@ async function updateMapTexture() {
 function getMaterial() {
   if (!material.value) {
     material.value = new THREE.MeshBasicMaterial({
-      color: 0xcccccc,
-      transparent: true,
-      opacity: 0.8
+      color: 0xffffff, // Change from 0xcccccc to white
+      transparent: false, // Remove transparency
+      opacity: 1.0 // Full opacity
     });
   }
   return material.value;
