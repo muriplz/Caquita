@@ -9,7 +9,7 @@ import settingsManager from '@/components/ui/settings/settings.js';
 
 const mapTexture = ref(null);
 const material = ref(null);
-const canvasSize = 2048;
+const canvasSize = 1024;
 const debugMode = ref(false);
 
 let isComponentMounted = false;
@@ -52,7 +52,7 @@ onMounted(async () => {
 
   try {
     await mapLibreManager.initialize(mapContainer);
-    createMapTexture();
+    await createMapTexture();
     updateMapCenter();
     updateTimer = setInterval(updateMapTexture, 250);
   } catch (error) {
@@ -126,6 +126,12 @@ async function createMapTexture() {
   mapTexture.value.wrapT = THREE.RepeatWrapping;
 
   mapTexture.value.encoding = THREE.sRGBEncoding;
+
+  // Pixel art?
+  mapTexture.value.magFilter = THREE.NearestFilter;
+  mapTexture.value.minFilter = THREE.NearestFilter;
+  mapTexture.value.generateMipmaps = false;
+  mapTexture.value.anisotropy = 1;
 
   material.value = new THREE.MeshBasicMaterial({
     map: mapTexture.value,
