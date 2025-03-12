@@ -253,6 +253,8 @@ function closeAuth() {
 function handleLogout() {
   AuthService.logout()
   isProfileMenuOpen.value = false
+  activeComponent.value = null
+  previousComponent.value = null
   checkUserStatus()
 }
 
