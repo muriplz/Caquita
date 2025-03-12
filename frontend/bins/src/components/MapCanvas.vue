@@ -125,8 +125,8 @@ async function createMapTexture() {
   mapTexture.value.wrapS = THREE.RepeatWrapping;
   mapTexture.value.wrapT = THREE.RepeatWrapping;
 
-  mapTexture.value.encoding = THREE.sRGBEncoding;
-
+  mapTexture.value.colorSpace = THREE.SRGBColorSpace;
+  
   // Pixel art?
   mapTexture.value.magFilter = THREE.NearestFilter;
   mapTexture.value.minFilter = THREE.NearestFilter;
