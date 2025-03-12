@@ -20,7 +20,7 @@ class AuthService {
                 const { token, id, username, creation, trust, experience } = await response.json();
                 this.saveToken(token);
                 await Store.setUser(id, username, creation, trust, experience);
-                inventoryStore.initStore();
+                await inventoryStore.fetchInventory();
 
                 return true;
             } else if (response.status === 400) {
@@ -81,7 +81,7 @@ class AuthService {
         if (response.status === 200) {
             const { id, username, creation, trust, experience } = await response.json()
             await Store.setUser(id, username, creation, trust, experience)
-            inventoryStore.initStore()
+            await inventoryStore.fetchInventory();
 
             return true;
         } else {

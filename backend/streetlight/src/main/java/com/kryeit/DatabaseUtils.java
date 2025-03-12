@@ -25,7 +25,7 @@ public class DatabaseUtils {
                     user_id BIGINT NOT NULL,
                     width INTEGER NOT NULL,
                     height INTEGER NOT NULL,
-                    item_positions JSONB NOT NULL DEFAULT '{}',
+                    item_placements JSONB NOT NULL DEFAULT '{}',
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """);

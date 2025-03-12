@@ -1,7 +1,7 @@
 import {computed, reactive} from 'vue';
 import InventoryManager from '../models/InventoryManager';
 import Position from '../models/Position';
-import Item from '../models/Item';
+import InventoryItem from '../models/InventoryItem';
 import inventoryService from '../services/inventoryService';
 
 // Create a reactive state object
@@ -16,7 +16,7 @@ const state = reactive({
 // Computed properties
 const items = computed(() => {
     const result = [];
-    state.inventoryManager.items.forEach(({ item, position }, id) => {
+    state.inventoryManager.items.forEach(({ item, position }, instanceId) => {
         result.push({
             ...item,
             position: { ...position }
@@ -29,7 +29,7 @@ const grid = computed(() => {
     const { width, height } = state.inventoryManager;
     const result = Array(height).fill().map(() => Array(width).fill(null));
 
-    state.inventoryManager.items.forEach(({ item, position }) => {
+    state.inventoryManager.items.forEach(({ item, position }, instanceId) => {
         for (let y = 0; y < item.height; y++) {
             for (let x = 0; x < item.width; x++) {
                 const gridX = position.x + x;
@@ -37,7 +37,8 @@ const grid = computed(() => {
 
                 if (gridX < width && gridY < height) {
                     result[gridY][gridX] = {
-                        itemId: item.id,
+                        instanceId: item.instanceId,
+                        itemId: item.itemId,
                         isOrigin: x === 0 && y === 0,
                         x, y
                     };
@@ -49,7 +50,6 @@ const grid = computed(() => {
     return result;
 });
 
-// Actions
 async function fetchInventory(force = false) {
     if (state.loading) return;
 
@@ -58,10 +58,12 @@ async function fetchInventory(force = false) {
 
     try {
         const inventoryData = await inventoryService.getInventory(force);
+
         state.inventoryManager = new InventoryManager(inventoryData);
         state.lastSyncTime = Date.now();
     } catch (error) {
         state.error = error.message || 'Failed to fetch inventory';
+        console.error('Error fetching inventory:', error);
     } finally {
         state.loading = false;
     }
@@ -77,24 +79,53 @@ function closeInventory() {
 }
 
 async function addItem(item, position) {
-    const itemObj = item instanceof Item ? item : Item.fromJSON(item);
+    let itemObj;
+
+    if (item instanceof InventoryItem) {
+        itemObj = item;
+    } else {
+        // Generate a temporary UUID for client-side use before server response
+        const tempInstanceId = 'temp-' + Math.random().toString(36).substring(2, 15);
+        itemObj = new InventoryItem(
+            tempInstanceId,
+            item.id || item.itemId,
+            null,
+            item.width,
+            item.height,
+            null,
+            item.rarity
+        );
+    }
+
     const posObj = position instanceof Position ? position : new Position(position.x, position.y);
 
     if (!state.inventoryManager.canPlaceItem(itemObj, posObj)) {
         return false;
     }
 
+    // Apply optimistic update
+    const optimisticSuccess = state.inventoryManager.addItem(itemObj, posObj);
+    if (!optimisticSuccess) {
+        return false;
+    }
+
     state.loading = true;
 
     try {
-        await inventoryService.addItem(itemObj, posObj);
+        const response = await inventoryService.addItem(itemObj, posObj);
 
-        const success = state.inventoryManager.addItem(itemObj, posObj);
-        if (success) {
-            state.lastSyncTime = Date.now();
+        if (response.success) {
+            // After successful server update, refresh inventory to get the real instanceId
+            await fetchInventory(true);
+            return true;
+        } else {
+            // Revert optimistic update
+            state.inventoryManager.removeItem(itemObj.instanceId);
+            return false;
         }
-        return success;
     } catch (error) {
+        // Revert optimistic update
+        state.inventoryManager.removeItem(itemObj.instanceId);
         state.error = error.message || 'Failed to add item';
         return false;
     } finally {
@@ -102,22 +133,36 @@ async function addItem(item, position) {
     }
 }
 
-async function removeItem(itemId) {
-    if (!state.inventoryManager.getItem(itemId)) {
+async function removeItem(instanceId) {
+    const itemData = state.inventoryManager.items.get(instanceId);
+    if (!itemData) {
+        return false;
+    }
+
+    // Apply optimistic update
+    const originalItem = { ...itemData.item };
+    const originalPosition = { ...itemData.position };
+    const success = state.inventoryManager.removeItem(instanceId);
+
+    if (!success) {
         return false;
     }
 
     state.loading = true;
 
     try {
-        await inventoryService.removeItem(itemId);
+        const response = await inventoryService.removeItem(instanceId);
 
-        const success = state.inventoryManager.removeItem(itemId);
-        if (success) {
-            state.lastSyncTime = Date.now();
+        if (response.success) {
+            return true;
+        } else {
+            // Revert optimistic update
+            state.inventoryManager.addItem(originalItem, originalPosition);
+            return false;
         }
-        return success;
     } catch (error) {
+        // Revert optimistic update
+        state.inventoryManager.addItem(originalItem, originalPosition);
         state.error = error.message || 'Failed to remove item';
         return false;
     } finally {
@@ -125,25 +170,20 @@ async function removeItem(itemId) {
     }
 }
 
-async function moveItem(itemId, newPosition) {
+async function moveItem(instanceId, newPosition) {
     const posObj = newPosition instanceof Position ?
         newPosition : new Position(newPosition.x, newPosition.y);
 
-    const item = state.inventoryManager.getItem(itemId);
-    if (!item) {
-        return false;
-    }
-
-
-    if (!state.inventoryManager.canPlaceItem(item, posObj, itemId)) {
+    const itemData = state.inventoryManager.items.get(instanceId);
+    if (!itemData) {
         return false;
     }
 
     // Store original position in case we need to revert
-    const originalPosition = state.inventoryManager.getItemPosition(itemId);
+    const originalPosition = { ...itemData.position };
 
-    // Apply change locally first
-    const tempSuccess = state.inventoryManager.moveItem(itemId, posObj);
+    // Apply optimistic update
+    const tempSuccess = state.inventoryManager.moveItem(instanceId, posObj);
     if (!tempSuccess) {
         return false;
     }
@@ -151,27 +191,19 @@ async function moveItem(itemId, newPosition) {
     state.loading = true;
 
     try {
-        // Make API call to server
-        const response = await inventoryService.moveItem(itemId, posObj);
+        const response = await inventoryService.moveItem(instanceId, posObj);
 
         if (response.success) {
-            state.lastSyncTime = Date.now();
             return true;
         } else {
-            // Revert local change if server rejected
-            if (originalPosition) {
-                state.inventoryManager.moveItem(itemId, originalPosition);
-            }
+            // Revert optimistic update
+            state.inventoryManager.moveItem(instanceId, originalPosition);
             return false;
         }
     } catch (error) {
+        // Revert optimistic update
+        state.inventoryManager.moveItem(instanceId, originalPosition);
         state.error = error.message || 'Failed to move item';
-
-        // Revert local change on error
-        if (originalPosition) {
-            state.inventoryManager.moveItem(itemId, originalPosition);
-        }
-
         await fetchInventory(true);
         return false;
     } finally {
@@ -179,12 +211,6 @@ async function moveItem(itemId, newPosition) {
     }
 }
 
-// Initialize store
-function initStore() {
-    fetchInventory();
-}
-
-// Export as default
 export default {
     state,
     items,
@@ -194,6 +220,5 @@ export default {
     closeInventory,
     addItem,
     removeItem,
-    moveItem,
-    initStore
+    moveItem
 };

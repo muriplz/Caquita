@@ -34,7 +34,7 @@
         >
           <inventory-item
               v-if="cell && cell.isOrigin"
-              :item="getItemById(cell.itemId)"
+              :item="getItemByInstanceId(cell.instanceId)"
               :position="{ x, y }"
               :cell-size="cellSize"
               @item-clicked="onItemClicked"
@@ -79,7 +79,7 @@ export default {
   },
 
   setup(props) {
-    const { loading, error } = toRefs(inventoryStore.state);
+    const {loading, error} = toRefs(inventoryStore.state);
     const grid = inventoryStore.grid;
     const isGridReady = ref(false);
 
@@ -90,22 +90,23 @@ export default {
     const gridStyle = computed(() => {
       if (!inventoryStore.state.inventoryManager) return {};
 
-      const { width, height } = inventoryStore.state.inventoryManager;
+      const {width, height} = inventoryStore.state.inventoryManager;
       return {
         gridTemplateColumns: `repeat(${width}, ${props.cellSize}px)`,
-        gridTemplateRows: `repeat(${height}, ${props.cellSize}px)`
+        gridTemplateRows: `repeat(${height}, ${props.cellSize}px)`,
+        gap: '0px' // Explicitly set zero gap
       };
     });
 
     // Watch for when the inventory manager is ready
     watch(() => inventoryStore.state.inventoryManager, (newVal) => {
       isGridReady.value = newVal && grid.value && grid.value.length > 0;
-    }, { immediate: true });
+    }, {immediate: true});
 
     // Also watch the grid to update readiness
     watch(() => grid.value, (newVal) => {
       isGridReady.value = inventoryStore.state.inventoryManager && newVal && newVal.length > 0;
-    }, { immediate: true });
+    }, {immediate: true});
 
     onMounted(() => {
       inventoryStore.openInventory().then(() => {
@@ -125,15 +126,29 @@ export default {
       });
     };
 
-    const getItemById = (itemId) => {
+    const getItemByInstanceId = (instanceId) => {
       if (!inventoryStore.state.inventoryManager) return null;
-      return inventoryStore.state.inventoryManager.getItem(itemId);
+      return inventoryStore.state.inventoryManager.getItemByInstanceId(instanceId);
     };
 
-    const onItemDropped = ({ itemId, position, clickedCell }) => {
+    const onItemDropped = ({instanceId, itemId, position, clickedCell}) => {
+      // If we don't have instanceId (for backward compatibility)
+      if (!instanceId && itemId) {
+        // Find the first item with matching itemId
+        const items = inventoryStore.state.inventoryManager.findItemsByItemId(itemId);
+        if (items.length > 0) {
+          instanceId = items[0].instanceId;
+        }
+      }
+
+      if (!instanceId) {
+        console.error("Cannot move item: missing instanceId");
+        return;
+      }
+
       // If we have clicked cell info (from desktop drag), adjust the position
       if (clickedCell) {
-        const item = getItemById(itemId);
+        const item = getItemByInstanceId(instanceId);
         if (item) {
           // Adjust the position based on which cell within the item was clicked
           position = {
@@ -149,29 +164,29 @@ export default {
         }
       }
 
-      inventoryStore.moveItem(itemId, position);
+      inventoryStore.moveItem(instanceId, position);
     };
 
-    const onItemClicked = ({ itemId }) => {
-      const item = getItemById(itemId);
+    const onItemClicked = ({instanceId}) => {
+      const item = getItemByInstanceId(instanceId);
       if (window.confirm(`Do you want to remove ${item?.name || 'this item'}?`)) {
-        inventoryStore.removeItem(itemId);
+        inventoryStore.removeItem(instanceId);
       }
     };
 
-    const onTouchDragStart = ({ itemId, position }) => {
+    const onTouchDragStart = ({instanceId, position}) => {
       currentDragItem.value = {
-        itemId,
+        instanceId,
         originalPosition: position
       };
       dragStartPosition.value = position;
     };
 
-    const onTouchDragMove = ({ itemId, deltaX, deltaY }) => {
+    const onTouchDragMove = ({instanceId, deltaX, deltaY}) => {
       // Touch drag move is now handled with a visual ghost element
     };
 
-    const onTouchDragEnd = ({ itemId, deltaX, deltaY, position }) => {
+    const onTouchDragEnd = ({instanceId, deltaX, deltaY, position}) => {
       if (!currentDragItem.value) return;
 
       // Calculate new position based on delta movement
@@ -194,7 +209,7 @@ export default {
 
       // Only move if the position actually changed
       if (newPosition.x !== position.x || newPosition.y !== position.y) {
-        inventoryStore.moveItem(itemId, newPosition);
+        inventoryStore.moveItem(instanceId, newPosition);
       }
 
       // Reset drag state
@@ -218,7 +233,7 @@ export default {
       grid,
       isGridReady,
       refreshInventory,
-      getItemById,
+      getItemByInstanceId,
       onItemDropped,
       onItemClicked,
       onTouchDragStart,
@@ -279,7 +294,7 @@ export default {
 
 .inventory-grid {
   display: grid;
-  gap: 1px;
+  gap: 0; /* Remove gap */
   background-color: #333;
   border: 1px solid #555;
   border-radius: 8px;

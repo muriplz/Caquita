@@ -70,15 +70,20 @@ export default {
 
         const itemData = JSON.parse(dataText);
 
-        if (!itemData.itemId) {
+        // Check if we have instanceId or itemId for compatibility
+        const item = itemData.instanceId
+            ? this.inventoryManager.getItemByInstanceId(itemData.instanceId)
+            : { width: itemData.width || 1, height: itemData.height || 1 };
+
+        if (!item) {
           this.isDropValid = false;
           return;
         }
 
         this.isDropValid = this.inventoryManager.canPlaceItem(
-            { id: itemData.itemId },
+            item,
             { x: this.x, y: this.y },
-            itemData.itemId
+            itemData.instanceId
         );
 
         event.dataTransfer.dropEffect = this.isDropValid ? 'move' : 'none';
@@ -105,7 +110,8 @@ export default {
 
         // Pass all data to the parent component for processing
         this.$emit('item-dropped', {
-          itemId: itemData.itemId || itemData.id,
+          instanceId: itemData.instanceId,
+          itemId: itemData.itemId,
           position: { x: this.x, y: this.y },
           clickedCell: itemData.clickedCell
         });
@@ -122,10 +128,12 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-  border: 1px solid #ddd;
+  border: 1px solid #444; /* Darker border */
   box-sizing: border-box;
   background-color: #f9f9f9;
   transition: all 0.2s ease;
+  margin: 0; /* Ensure no margin */
+  padding: 0; /* Ensure no padding */
 }
 
 .grid-cell.occupied {

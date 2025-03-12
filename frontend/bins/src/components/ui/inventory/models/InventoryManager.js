@@ -1,5 +1,5 @@
 import Position from './Position';
-import Item from './Item';
+import InventoryItem from './InventoryItem';
 
 export default class InventoryManager {
     constructor(inventoryData = null) {
@@ -7,82 +7,64 @@ export default class InventoryManager {
         this.userId = inventoryData?.userId || 0;
         this.width = inventoryData?.width || 4;
         this.height = inventoryData?.height || 4;
-        this.items = new Map();
+        this.items = new Map(); // Key is instanceId
 
-        if (inventoryData?.itemPositions) {
+        // Support both property names for compatibility with backend
+        if (inventoryData?.itemPlacements && Array.isArray(inventoryData.itemPlacements)) {
+            this.loadItems(inventoryData.itemPlacements);
+        } else if (inventoryData?.itemPositions && Array.isArray(inventoryData.itemPositions)) {
             this.loadItems(inventoryData.itemPositions);
+        } else if (inventoryData?.items && Array.isArray(inventoryData.items)) {
+            this.loadItems(inventoryData.items);
         }
     }
 
-    loadItems(itemPositionsData) {
+    loadItems(itemsData) {
         this.items.clear();
 
-        // Handle array format
-        if (Array.isArray(itemPositionsData)) {
-            itemPositionsData.forEach(entry => {
-                if (entry.item && entry.position) {
-                    const item = new Item(
-                        entry.item.id,
-                        entry.item.name,
-                        entry.item.width,
-                        entry.item.height
-                    );
-                    const position = new Position(entry.position.x, entry.position.y);
-                    this.items.set(item.id, { item, position });
-                }
-            });
-        } else if (typeof itemPositionsData === 'object') {
-            // For backward compatibility, handle object format
-            Object.entries(itemPositionsData).forEach(([key, value]) => {
-                try {
-                    // Skip Java object references
-                    if (key.includes("com.kryeit")) {
-                        console.warn("Skipping Java object reference:", key);
-                        return;
-                    }
+        itemsData.forEach(entry => {
+            if (entry.item && entry.position) {
+                // Generate instanceId if not provided by backend
+                const instanceId = entry.instanceId || `item-${entry.item.id}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
-                    let item;
-                    let position;
-
-                    if (typeof key === 'string' && key.startsWith('{')) {
-                        // Handle JSON string for item
-                        const itemData = JSON.parse(key);
-                        item = new Item(
-                            itemData.id,
-                            itemData.name,
-                            itemData.width,
-                            itemData.height
-                        );
-                    } else {
-                        // Use the key as ID
-                        item = new Item(key, "Unknown Item", 1, 1);
-                    }
-
-                    position = new Position(
-                        value.x || 0,
-                        value.y || 0
-                    );
-
-                    this.items.set(item.id, { item, position });
-                } catch (error) {
-                    console.error('Error parsing item data:', error, key);
-                }
-            });
-        }
+                // Create new inventory item with proper parameters
+                const item = new InventoryItem(
+                    instanceId,
+                    entry.item.id,
+                    null, // name will be auto-generated from ID
+                    entry.item.width,
+                    entry.item.height,
+                    null, // no image URL
+                    entry.item.rarity
+                );
+                const position = new Position(entry.position.x, entry.position.y);
+                this.items.set(item.instanceId, { item, position });
+            }
+        });
     }
 
-    getItem(itemId) {
-        return this.items.get(itemId)?.item || null;
+    getItemByInstanceId(instanceId) {
+        return this.items.get(instanceId)?.item || null;
     }
 
-    getItemPosition(itemId) {
-        return this.items.get(itemId)?.position || null;
+    findItemsByItemId(itemId) {
+        const result = [];
+        this.items.forEach(({ item }) => {
+            if (item.itemId === itemId) {
+                result.push(item);
+            }
+        });
+        return result;
+    }
+
+    getPosition(instanceId) {
+        return this.items.get(instanceId)?.position || null;
     }
 
     getItemsAt(position) {
         const result = [];
 
-        this.items.forEach(({ item, position: itemPos }, itemId) => {
+        this.items.forEach(({ item, position: itemPos }, instanceId) => {
             if (this.isPositionWithinItem(position, item, itemPos)) {
                 result.push(item);
             }
@@ -109,25 +91,28 @@ export default class InventoryManager {
         );
     }
 
-    canPlaceItem(item, position, skipItemId = null) {
-        if (!this.isPositionValid(position) ||
-            position.x + item.width > this.width ||
-            position.y + item.height > this.height) {
+    isItemFitting(item, position) {
+        return position.x + item.width <= this.width &&
+            position.y + item.height <= this.height;
+    }
+
+    canPlaceItem(item, position, skipInstanceId = null) {
+        if (!this.isPositionValid(position) || !this.isItemFitting(item, position)) {
             return false;
         }
 
-        for (const [itemId, { item: existingItem, position: existingPos }] of this.items.entries()) {
-            if (skipItemId === itemId) continue;
+        for (const [instanceId, { item: existingItem, position: existingPos }] of this.items.entries()) {
+            if (skipInstanceId === instanceId) continue;
 
             if (this.doItemsOverlap(
                 item, position,
                 existingItem, existingPos
             )) {
-                return false;
+                return false; // Items overlap, can't place
             }
         }
 
-        return true;
+        return true; // No overlaps, can place item
     }
 
     doItemsOverlap(item1, pos1, item2, pos2) {
@@ -144,42 +129,23 @@ export default class InventoryManager {
             return false;
         }
 
-        this.items.set(item.id, { item, position });
+        this.items.set(item.instanceId, { item, position });
         return true;
     }
 
-    removeItem(itemId) {
-        return this.items.delete(itemId);
+    removeItem(instanceId) {
+        return this.items.delete(instanceId);
     }
 
-    moveItem(itemId, newPosition) {
-        const itemData = this.items.get(itemId);
+    moveItem(instanceId, newPosition) {
+        const itemData = this.items.get(instanceId);
         if (!itemData) return false;
 
-        if (!this.canPlaceItem(itemData.item, newPosition, itemId)) {
+        if (!this.canPlaceItem(itemData.item, newPosition, instanceId)) {
             return false;
         }
 
         itemData.position = newPosition;
         return true;
-    }
-
-    toServerFormat() {
-        const itemPositions = [];
-
-        this.items.forEach(({ item, position }) => {
-            itemPositions.push({
-                item: item.toJSON(),
-                position: { x: position.x, y: position.y }
-            });
-        });
-
-        return {
-            id: this.id,
-            userId: this.userId,
-            width: this.width,
-            height: this.height,
-            itemPositions
-        };
     }
 }

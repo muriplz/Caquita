@@ -49,11 +49,13 @@ export default {
 
         fetchingPromise = fetchJSON(API_URL)
             .then(data => {
+                // Backend returns the data directly matching our structure
                 cachedInventory = data;
                 fetchingPromise = null;
                 return cachedInventory;
             })
             .catch(error => {
+                console.error("Error fetching inventory:", error);
                 fetchingPromise = null;
                 throw error;
             });
@@ -64,10 +66,10 @@ export default {
     async addItem(item, position) {
         const requestPayload = {
             item: {
-                id: item.id,
-                name: item.name,
+                id: item.itemId || item.id,
                 width: item.width,
-                height: item.height
+                height: item.height,
+                rarity: item.rarity || 'COMMON'
             },
             position: {
                 x: position.x,
@@ -87,10 +89,10 @@ export default {
         return response;
     },
 
-    async removeItem(itemId) {
+    async removeItem(instanceId) {
         const response = await fetchJSON(API_URL, {
             method: 'DELETE',
-            body: JSON.stringify({ itemId })
+            body: JSON.stringify({ instanceId })
         });
 
         if (response.success) {
@@ -100,27 +102,10 @@ export default {
         return response;
     },
 
-    async moveItem(itemId, newPosition) {
+    async moveItem(instanceId, newPosition) {
         try {
-            // Get current position first
-            const inventory = await this.getInventory(false);
-            let currentPosition = null;
-
-            // Find the current position of the item
-            for (const item of inventory.itemPositions) {
-                if (item.item.id === itemId) {
-                    currentPosition = item.position;
-                    break;
-                }
-            }
-
-            if (!currentPosition) {
-                throw new Error(`Item with ID ${itemId} not found in inventory`);
-            }
-
             const requestBody = {
-                itemId,
-                currentPosition,
+                instanceId,
                 newPosition
             };
 
@@ -146,9 +131,9 @@ export default {
     async canPlaceItem(itemData, position) {
         const url = `${API_URL}/can-place`;
 
-        const requestPayload = itemData.id
-            ? { itemId: itemData.id, position }
-            : { item: itemData, position };
+        const requestPayload = itemData.instanceId
+            ? { instanceId: itemData.instanceId, position }
+            : { itemId: itemData.itemId || itemData.id, position };
 
         const response = await fetchJSON(url, {
             method: 'POST',

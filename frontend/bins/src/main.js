@@ -2,7 +2,6 @@ import {createApp} from 'vue';
 import './style.css';
 import App from './App.vue';
 import router from './router';
-import {createInventoryState} from './components/ui/inventory/inventoryState.js';
 import AuthService from './js/auth/authService.js';
 
 import {CarbonIconsVue, LogoDiscord32, LogoGithub32, Settings32, User32, UserProfile32,} from '@carbon/icons-vue';
@@ -11,8 +10,6 @@ import settingsStore from '@/components/ui/settings/settings.js';
 import {initGPSSystem} from "@/components/player/GPSTracker.js";
 
 settingsStore.init();
-
-export const inventoryState = createInventoryState();
 
 AuthService.validate();
 initGPSSystem();
@@ -31,5 +28,4 @@ createApp(App)
             }
         }
     )
-    .provide('inventoryState', inventoryState)
     .mount('#app');

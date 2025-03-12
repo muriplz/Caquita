@@ -2,7 +2,7 @@ package com.kryeit;
 
 import com.kryeit.auth.User;
 import com.kryeit.auth.inventory.GridInventory;
-import com.kryeit.auth.inventory.ItemPositionColumnMapper;
+import com.kryeit.auth.inventory.InventoryColumnMapper;
 import com.kryeit.landmark.Landmark;
 import com.kryeit.landmark.can.TrashCan;
 import com.zaxxer.hikari.HikariConfig;
@@ -24,10 +24,13 @@ public class Database {
         JDBI = Jdbi.create(new HikariDataSource(hikariConfig));
 
         JDBI.registerRowMapper(ConstructorMapper.factory(User.class));
-        JDBI.registerRowMapper(GridInventory.class, ConstructorMapper.of(GridInventory.class));
-        JDBI.registerColumnMapper(new ItemPositionColumnMapper());
+        JDBI.registerColumnMapper(GridInventory.class, new InventoryColumnMapper());
+
+        // LANDMARKS
         JDBI.registerRowMapper(ConstructorMapper.factory(Landmark.class));
+
         JDBI.registerRowMapper(ConstructorMapper.factory(TrashCan.class));
+        // LANDMARKS END
 
         JDBI.installPlugin(new Jackson2Plugin());
     }

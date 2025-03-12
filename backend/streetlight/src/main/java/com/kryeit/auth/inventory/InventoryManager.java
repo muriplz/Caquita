@@ -6,50 +6,73 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public record InventoryManager(GridInventory inventory) {
+public class InventoryManager {
+    private final GridInventory inventory;
+
+    public InventoryManager(GridInventory inventory) {
+        this.inventory = inventory;
+    }
 
     public boolean addItem(Item item, Position position) {
-        if (!canPlaceItem(item, position)) {
+        InventoryItem inventoryItem = new InventoryItem(item);
+        return addInventoryItem(inventoryItem, position);
+    }
+
+    public boolean addInventoryItem(InventoryItem inventoryItem, Position position) {
+        if (!canPlaceItem(inventoryItem, position)) {
             return false;
         }
 
-        inventory.itemPositions().put(item, position);
+        GridInventory.ItemPlacement placement = new GridInventory.ItemPlacement(inventoryItem, position);
+        inventory.itemPlacements().put(inventoryItem.getInstanceId(), placement);
         return true;
     }
 
-    public Item findItemByIdAndPosition(String itemId, Position position) {
-        for (Map.Entry<Item, Position> entry : inventory.itemPositions().entrySet()) {
-            Item item = entry.getKey();
-            Position itemPos = entry.getValue();
+    public InventoryItem findItemByIdAndPosition(String itemId, Position position) {
+        for (GridInventory.ItemPlacement placement : inventory.itemPlacements().values()) {
+            InventoryItem inventoryItem = placement.item();
+            Position itemPos = placement.position();
 
-            if (item.getId().equals(itemId) &&
+            if (inventoryItem.getItemId().equals(itemId) &&
                     itemPos.x() == position.x() &&
                     itemPos.y() == position.y()) {
-                return item;
+                return inventoryItem;
             }
         }
 
         return null;
     }
 
-    public boolean removeItem(Item item) {
-        return inventory.itemPositions().remove(item) != null;
+    public InventoryItem findItemByInstanceId(String instanceId) {
+        GridInventory.ItemPlacement placement = inventory.itemPlacements().get(instanceId);
+        return placement != null ? placement.item() : null;
     }
 
-    public boolean moveItem(Item item, Position newPosition) {
-        if (!inventory.itemPositions().containsKey(item)) {
+    public boolean removeItem(String instanceId) {
+        return inventory.itemPlacements().remove(instanceId) != null;
+    }
+
+    public boolean moveItem(String instanceId, Position newPosition) {
+        GridInventory.ItemPlacement placement = inventory.itemPlacements().get(instanceId);
+        if (placement == null) {
             return false;
         }
 
-        if (!canPlaceItem(item, newPosition)) {
+        InventoryItem item = placement.item();
+        if (!canPlaceItem(item, newPosition, instanceId)) {
             return false;
         }
 
-        inventory.itemPositions().put(item, newPosition);
+        GridInventory.ItemPlacement newPlacement = new GridInventory.ItemPlacement(item, newPosition);
+        inventory.itemPlacements().put(instanceId, newPlacement);
         return true;
     }
 
-    public boolean canPlaceItem(Item item, Position position) {
+    public boolean canPlaceItem(InventoryItem item, Position position) {
+        return canPlaceItem(item, position, null);
+    }
+
+    public boolean canPlaceItem(InventoryItem item, Position position, String excludeInstanceId) {
         if (!isPositionValid(position)) {
             return false;
         }
@@ -58,7 +81,7 @@ public record InventoryManager(GridInventory inventory) {
             return false;
         }
 
-        return !isOverlapping(item, position);
+        return !isOverlapping(item, position, excludeInstanceId);
     }
 
     private boolean isPositionValid(Position position) {
@@ -66,20 +89,22 @@ public record InventoryManager(GridInventory inventory) {
                 position.x() < inventory.width() && position.y() < inventory.height();
     }
 
-    private boolean isItemFitting(Item item, Position position) {
+    private boolean isItemFitting(InventoryItem item, Position position) {
         return position.x() + item.getWidth() <= inventory.width() &&
                 position.y() + item.getHeight() <= inventory.height();
     }
 
-    private boolean isOverlapping(Item itemToPlace, Position positionToPlace) {
-        for (Map.Entry<Item, Position> entry : inventory.itemPositions().entrySet()) {
-            Item existingItem = entry.getKey();
+    private boolean isOverlapping(InventoryItem itemToPlace, Position positionToPlace, String excludeInstanceId) {
+        for (Map.Entry<String, GridInventory.ItemPlacement> entry : inventory.itemPlacements().entrySet()) {
+            String instanceId = entry.getKey();
 
-            if (existingItem.equals(itemToPlace)) {
+            if (excludeInstanceId != null && instanceId.equals(excludeInstanceId)) {
                 continue;
             }
 
-            Position existingPosition = entry.getValue();
+            GridInventory.ItemPlacement placement = entry.getValue();
+            InventoryItem existingItem = placement.item();
+            Position existingPosition = placement.position();
 
             if (doItemsOverlap(
                     itemToPlace, positionToPlace,
@@ -92,20 +117,20 @@ public record InventoryManager(GridInventory inventory) {
     }
 
     private boolean doItemsOverlap(
-            Item item1, Position pos1,
-            Item item2, Position pos2) {
+            InventoryItem item1, Position pos1,
+            InventoryItem item2, Position pos2) {
         return pos1.x() < pos2.x() + item2.getWidth() &&
                 pos1.x() + item1.getWidth() > pos2.x() &&
                 pos1.y() < pos2.y() + item2.getHeight() &&
                 pos1.y() + item1.getHeight() > pos2.y();
     }
 
-    public List<Item> getItemsAt(Position position) {
-        List<Item> items = new ArrayList<>();
+    public List<InventoryItem> getItemsAt(Position position) {
+        List<InventoryItem> items = new ArrayList<>();
 
-        for (Map.Entry<Item, Position> entry : inventory.itemPositions().entrySet()) {
-            Item item = entry.getKey();
-            Position itemPos = entry.getValue();
+        for (GridInventory.ItemPlacement placement : inventory.itemPlacements().values()) {
+            InventoryItem item = placement.item();
+            Position itemPos = placement.position();
 
             if (position.x() >= itemPos.x() && position.x() < itemPos.x() + item.getWidth() &&
                     position.y() >= itemPos.y() && position.y() < itemPos.y() + item.getHeight()) {
@@ -116,7 +141,12 @@ public record InventoryManager(GridInventory inventory) {
         return items;
     }
 
-    public Position getItemPosition(Item item) {
-        return inventory.itemPositions().get(item);
+    public Position getItemPosition(String instanceId) {
+        GridInventory.ItemPlacement placement = inventory.itemPlacements().get(instanceId);
+        return placement != null ? placement.position() : null;
+    }
+
+    public GridInventory getInventory() {
+        return inventory;
     }
 }

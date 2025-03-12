@@ -16,14 +16,21 @@ public class RecyclingReward {
     }
 
     public int getReward(LandmarkType landmarkType, DisposalOutcome outcome) {
-        // First check if there's a specific reward for this landmark/outcome
         if (landmarkSpecificRewards.containsKey(landmarkType) &&
                 landmarkSpecificRewards.get(landmarkType).containsKey(outcome)) {
             return landmarkSpecificRewards.get(landmarkType).get(outcome);
         }
 
-        // Otherwise use the default reward for this outcome
         return defaultRewards.getOrDefault(outcome, 0);
+    }
+
+    // Add getters for Jackson serialization
+    public Map<DisposalOutcome, Integer> getDefaultRewards() {
+        return defaultRewards;
+    }
+
+    public Map<LandmarkType, Map<DisposalOutcome, Integer>> getLandmarkSpecificRewards() {
+        return landmarkSpecificRewards;
     }
 
     public static Builder builder() {
@@ -56,7 +63,6 @@ public class RecyclingReward {
         }
 
         public RecyclingReward build() {
-            // Ensure defaults are set
             if (!defaultRewards.containsKey(DisposalOutcome.CORRECT)) {
                 defaultRewards.put(DisposalOutcome.CORRECT, 10);
             }

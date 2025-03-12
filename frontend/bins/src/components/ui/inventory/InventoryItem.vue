@@ -1,7 +1,10 @@
 <template>
   <div
       class="inventory-item"
-      :class="{ 'is-dragging': isDragging }"
+      :class="{
+        'is-dragging': isDragging,
+        [`rarity-${item?.rarity?.toLowerCase() || 'common'}`]: true
+      }"
       :style="itemStyle"
       draggable="true"
       @dragstart="onDragStart"
@@ -12,8 +15,7 @@
       @touchend.prevent="onTouchEnd"
   >
     <div class="item-content">
-      <img v-if="item?.imageUrl" :src="item.imageUrl" :alt="item.name" class="item-image">
-      <div v-else class="item-placeholder" :style="{ background: generateItemColor(item?.id || '0') }">
+      <div class="item-placeholder" :style="{ background: generateItemColor(item?.itemId || '0') }">
         {{ item?.name ? item.name.substring(0, 2).toUpperCase() : 'IT' }}
       </div>
       <div class="item-name">{{ item?.name || 'Item' }}</div>
@@ -33,7 +35,7 @@ export default {
     },
     position: {
       type: Object,
-      default: () => ({ x: 0, y: 0 })
+      default: () => ({x: 0, y: 0})
     },
     cellSize: {
       type: Number,
@@ -61,7 +63,13 @@ export default {
         height: `${(this.item.height || 1) * this.cellSize}px`,
         gridColumn: `span ${this.item.width || 1}`,
         gridRow: `span ${this.item.height || 1}`,
-        backgroundColor: this.generateItemColor(this.item.id || '0', 0.8)
+        backgroundColor: this.generateItemColor(this.item.itemId || '0', 0.8),
+        position: 'absolute', // Ensure absolute positioning
+        top: '0',
+        left: '0',
+        margin: '0',
+        padding: '0',
+        boxSizing: 'border-box'
       };
     }
   },
@@ -83,8 +91,11 @@ export default {
 
       // Create position data with clicked cell info
       const dragData = {
-        itemId: this.item.id,
-        clickedCell: { x: cellX, y: cellY }
+        instanceId: this.item.instanceId,
+        itemId: this.item.itemId,
+        width: this.item.width,
+        height: this.item.height,
+        clickedCell: {x: cellX, y: cellY}
       };
 
       event.dataTransfer.effectAllowed = 'move';
@@ -98,7 +109,7 @@ export default {
 
       dragPreview.style.width = `${width}px`;
       dragPreview.style.height = `${height}px`;
-      dragPreview.style.backgroundColor = this.generateItemColor(this.item.id || '0', 0.6);
+      dragPreview.style.backgroundColor = this.generateItemColor(this.item.itemId || '0', 0.6);
       dragPreview.style.border = '2px dashed #fff';
       dragPreview.style.borderRadius = '4px';
       dragPreview.style.display = 'flex';
@@ -140,7 +151,8 @@ export default {
       this.createTouchGhost();
 
       this.$emit('touch-drag-start', {
-        itemId: this.item.id,
+        instanceId: this.item.instanceId,
+        itemId: this.item.itemId,
         position: this.position
       });
     },
@@ -152,7 +164,7 @@ export default {
       ghost.className = 'touch-drag-ghost';
       ghost.style.width = `${(this.item.width || 1) * this.cellSize}px`;
       ghost.style.height = `${(this.item.height || 1) * this.cellSize}px`;
-      ghost.style.backgroundColor = this.generateItemColor(this.item.id || '0', 0.6);
+      ghost.style.backgroundColor = this.generateItemColor(this.item.itemId || '0', 0.6);
       ghost.style.border = '2px dashed #fff';
       ghost.style.borderRadius = '4px';
       ghost.style.position = 'fixed';
@@ -178,7 +190,8 @@ export default {
       this.updateTouchGhostPosition();
 
       this.$emit('touch-drag-move', {
-        itemId: this.item.id,
+        instanceId: this.item.instanceId,
+        itemId: this.item.itemId,
         deltaX: this.touchCurrentX - this.touchStartX,
         deltaY: this.touchCurrentY - this.touchStartY,
         position: this.position
@@ -204,7 +217,8 @@ export default {
       this.isDragging = false;
 
       this.$emit('touch-drag-end', {
-        itemId: this.item.id,
+        instanceId: this.item.instanceId,
+        itemId: this.item.itemId,
         deltaX,
         deltaY,
         position: this.position
@@ -221,7 +235,8 @@ export default {
     onClick() {
       if (!this.item) return;
       this.$emit('item-clicked', {
-        itemId: this.item.id,
+        instanceId: this.item.instanceId,
+        itemId: this.item.itemId,
         position: this.position
       });
     },
@@ -246,6 +261,9 @@ export default {
   cursor: grab;
   transition: all 0.2s ease;
   z-index: 1;
+  margin: 0; /* Ensure no margin */
+  padding: 0; /* Ensure no padding */
+  box-sizing: border-box;
 }
 
 .inventory-item:hover {
@@ -267,12 +285,6 @@ export default {
   height: 100%;
   padding: 4px;
   box-sizing: border-box;
-}
-
-.item-image {
-  max-width: 100%;
-  max-height: 60%;
-  object-fit: contain;
 }
 
 .item-placeholder {
@@ -301,6 +313,27 @@ export default {
 .item-size {
   font-size: 0.7rem;
   color: rgba(0, 0, 0, 0.6);
+}
+
+.rarity-common {
+  border: 2px solid #a0a0a0;
+}
+
+.rarity-uncommon {
+  border: 2px solid #44bd32;
+}
+
+.rarity-rare {
+  border: 2px solid #0097e6;
+}
+
+.rarity-epic {
+  border: 2px solid #8c7ae6;
+}
+
+.rarity-legendary {
+  border: 2px solid #e1b12c;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.3) 100%);
 }
 
 @media (max-width: 768px) {

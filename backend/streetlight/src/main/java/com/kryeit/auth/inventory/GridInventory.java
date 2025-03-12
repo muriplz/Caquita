@@ -1,20 +1,20 @@
 package com.kryeit.auth.inventory;
 
-import com.kryeit.content.items.Item;
-
 import java.beans.ConstructorProperties;
 import java.util.HashMap;
 import java.util.Map;
 
-public record GridInventory(long id, long userId, int width, int height, Map<Item, Position> itemPositions) {
+public record GridInventory(long id, long userId, int width, int height, Map<String, ItemPlacement> itemPlacements) {
     public GridInventory(long id, long userId, int width, int height) {
         this(id, userId, width, height, new HashMap<>());
     }
 
-    @ConstructorProperties({"id", "userId", "width", "height", "itemPositions"})
+    @ConstructorProperties({"id", "userId", "width", "height", "itemPlacements"})
     public GridInventory {
-        if (itemPositions == null) {
-            itemPositions = new HashMap<>();
+        if (itemPlacements == null) {
+            itemPlacements = new HashMap<>();
         }
     }
+
+    public record ItemPlacement(InventoryItem item, Position position) {}
 }

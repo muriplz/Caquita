@@ -37,11 +37,9 @@ public class PlasticBottle extends Item {
     private static Map<LandmarkType, DisposalOutcome> createDisposalMap(PlasticClassification plasticType) {
         Map<LandmarkType, DisposalOutcome> outcomes = new EnumMap<>(LandmarkType.class);
 
-        // Most plastics go in plastic bin
         outcomes.put(LandmarkType.PLASTIC,
                 plasticType.isRecyclable() ? DisposalOutcome.CORRECT : DisposalOutcome.DECENT);
 
-        // Trash can is decent for non-recyclable plastics, otherwise it's wrong
         outcomes.put(LandmarkType.TRASH_CAN,
                 plasticType.isRecyclable() ? DisposalOutcome.WRONG : DisposalOutcome.DECENT);
 
@@ -54,10 +52,9 @@ public class PlasticBottle extends Item {
                 .setDefaultReward(DisposalOutcome.DECENT, 5)
                 .setDefaultReward(DisposalOutcome.WRONG, -10);
 
-        // PET bottles are worth more when correctly recycled
-        if (plasticType == PlasticClassification.PET) {
-            builder.addLandmarkReward(LandmarkType.PLASTIC, DisposalOutcome.CORRECT, 25);
-        }
+//        if (plasticType == PlasticClassification.PET) {
+//            builder.addLandmarkReward(LandmarkType.PLASTIC, DisposalOutcome.CORRECT, 25);
+//        }
 
         return builder.build();
     }
