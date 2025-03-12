@@ -9,6 +9,7 @@ And as always with R, the endless list of libraries:
 - [DBI](https://dbi.r-dbi.org)
 - [RPostgres](https://cran.r-project.org/web/packages/RPostgres/index.html)
 
+*Recommended editor: [RStudio](https://posit.co/download/rstudio-desktop/)*
 ## Running
 
 Create a `.Renviron`:

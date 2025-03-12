@@ -2,6 +2,7 @@
 
 [Deno](https://deno.com) + [Vue 3](https://vuejs.org) + [TresJS](https://tresjs.org) (ThreeJS wrapper)
 
+*Recommended editor: [Webstorm](https://www.jetbrains.com/webstorm/)*
 ## Development
 
 ```bash

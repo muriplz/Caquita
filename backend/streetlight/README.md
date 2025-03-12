@@ -2,6 +2,7 @@
 
 Java 21 + [Javalin](https://javalin.io/) + [Gradle Kotlin DSL](https://docs.gradle.org/current/userguide/kotlin_dsl.html)
 
+*Recommended editor: [IntelliJ IDEA](https://www.jetbrains.com/idea/)*
 ## Development
 
 ```bash
