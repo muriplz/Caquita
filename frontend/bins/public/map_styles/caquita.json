@@ -45,7 +45,7 @@
       "source-layer": "transportation",
       "paint": {
         "line-color": "#ffffff",
-        "line-width": 3,
+        "line-width": 2,
         "line-opacity": 1
       }
     }

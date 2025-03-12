@@ -1,6 +1,6 @@
 import { getCoordinates, resetCoordinates, setCoordinates } from './coordinates.js';
 
-export const TILE_SIZE = 256;
+export const TILE_SIZE = 512;
 export const DEFAULT_ZOOM = 14;
 
 export function setWorldOrigin(lat, lon) {
