@@ -3,6 +3,7 @@ import InventoryManager from '../models/InventoryManager';
 import Position from '../models/Position';
 import InventoryItem from '../models/InventoryItem';
 import inventoryService from '../services/inventoryService';
+import ItemUtils from '../ItemUtils';
 
 // Create a reactive state object
 const state = reactive({
@@ -57,6 +58,9 @@ async function fetchInventory(force = false) {
     state.error = null;
 
     try {
+        // Initialize ItemUtils first to ensure translations are loaded
+        await ItemUtils.init();
+
         const inventoryData = await inventoryService.getInventory(force);
 
         state.inventoryManager = new InventoryManager(inventoryData);

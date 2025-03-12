@@ -15,11 +15,16 @@
       @touchend.prevent="onTouchEnd"
   >
     <div class="item-content">
-      <div class="item-placeholder" :style="{ background: generateItemColor(item?.itemId || '0') }">
+      <img
+          v-if="item.imageUrl"
+          :src="item.imageUrl"
+          :alt="item.name"
+          class="item-image"
+          @error="handleImageError"
+      />
+      <div v-else class="item-placeholder" :style="{ background: generateItemColor(item?.itemId || '0') }">
         {{ item?.name ? item.name.substring(0, 2).toUpperCase() : 'IT' }}
       </div>
-      <div class="item-name">{{ item?.name || 'Item' }}</div>
-      <div class="item-size">{{ item?.width || 1 }}x{{ item?.height || 1 }}</div>
     </div>
   </div>
 </template>
@@ -50,7 +55,8 @@ export default {
       touchStartY: 0,
       touchCurrentX: 0,
       touchCurrentY: 0,
-      touchGhostElement: null
+      touchGhostElement: null,
+      imageError: false
     };
   },
 
@@ -64,7 +70,7 @@ export default {
         gridColumn: `span ${this.item.width || 1}`,
         gridRow: `span ${this.item.height || 1}`,
         backgroundColor: this.generateItemColor(this.item.itemId || '0', 0.8),
-        position: 'absolute', // Ensure absolute positioning
+        position: 'absolute',
         top: '0',
         left: '0',
         margin: '0',
@@ -75,21 +81,22 @@ export default {
   },
 
   methods: {
+    handleImageError() {
+      this.imageError = true;
+    },
+
     onDragStart(event) {
       if (!this.item) return;
 
       this.isDragging = true;
 
-      // Calculate which part of the item was clicked
       const rect = event.currentTarget.getBoundingClientRect();
       const clickOffsetX = event.clientX - rect.left;
       const clickOffsetY = event.clientY - rect.top;
 
-      // Calculate clicked cell within the item
       const cellX = Math.floor(clickOffsetX / this.cellSize);
       const cellY = Math.floor(clickOffsetY / this.cellSize);
 
-      // Create position data with clicked cell info
       const dragData = {
         instanceId: this.item.instanceId,
         itemId: this.item.itemId,
@@ -119,11 +126,10 @@ export default {
 
       document.body.appendChild(dragPreview);
 
-      // Center the ghost by using half of the full item width and height
       event.dataTransfer.setDragImage(
           dragPreview,
-          width / 2,   // Center horizontally
-          height / 2   // Center vertically
+          width / 2,
+          height / 2
       );
 
       setTimeout(() => {
@@ -261,8 +267,8 @@ export default {
   cursor: grab;
   transition: all 0.2s ease;
   z-index: 1;
-  margin: 0; /* Ensure no margin */
-  padding: 0; /* Ensure no padding */
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -279,11 +285,10 @@ export default {
 
 .item-content {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 4px;
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -292,27 +297,19 @@ export default {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 60%;
+  height: 100%;
   font-size: 1.2rem;
   font-weight: bold;
   color: rgba(0, 0, 0, 0.7);
   border-radius: 4px;
 }
 
-.item-name {
-  margin-top: 4px;
-  font-size: 0.8rem;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.item-image {
+  image-rendering: pixelated;
   width: 100%;
-  font-weight: bold;
-}
-
-.item-size {
-  font-size: 0.7rem;
-  color: rgba(0, 0, 0, 0.6);
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .rarity-common {
@@ -334,15 +331,5 @@ export default {
 .rarity-legendary {
   border: 2px solid #e1b12c;
   background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.3) 100%);
-}
-
-@media (max-width: 768px) {
-  .item-name {
-    font-size: 0.7rem;
-  }
-
-  .item-size {
-    font-size: 0.6rem;
-  }
 }
 </style>

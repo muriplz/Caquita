@@ -3,6 +3,7 @@ package com.kryeit.registry;
 
 import com.kryeit.content.items.glass.GlassBottle;
 import com.kryeit.content.items.Item;
+import com.kryeit.content.items.plastic.PlasticBottle;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ public class CaquitaItems {
 
     static {
         register(new GlassBottle());
+        register(new PlasticBottle());
     }
 
     public static void register() {

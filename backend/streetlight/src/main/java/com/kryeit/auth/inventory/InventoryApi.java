@@ -33,9 +33,11 @@ public class InventoryApi {
         GridInventory inventory = new GridInventory(0, user, 4, 4);
 
         Item glassBottle = CaquitaItems.getItem("glass:bottle");
+        Item plasticBottle = CaquitaItems.getItem("plastic:bottle");
         InventoryManager manager = new InventoryManager(inventory);
 
         manager.addItem(glassBottle, new Position(1, 2));
+        manager.addItem(plasticBottle, new Position(2, 2));
 
         Database.getJdbi().useHandle(handle -> {
             handle.createUpdate("INSERT INTO inventories (user_id, width, height, item_placements) VALUES (:user_id, :width, :height, cast(:item_placements as jsonb))")
