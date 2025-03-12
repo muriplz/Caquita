@@ -1,16 +1,5 @@
 <template>
   <div class="setting-item">
-    <span class="setting-label">Render Distance:</span>
-    <div class="slider-container">
-      <input
-          type="range"
-          min="2"
-          max="6"
-          v-model.number="renderDistance"
-          class="slider"
-      />
-      <span class="slider-value">{{ renderDistance }}</span>
-    </div>
   </div>
 </template>
 
@@ -18,11 +7,7 @@
 import {computed} from 'vue';
 import settingsManager from '@/components/ui/settings/settings.js';
 
-// Graphics settings
-const renderDistance = computed({
-  get: () => settingsManager.settings.graphics.renderDistance,
-  set: (value) => { settingsManager.settings.graphics.renderDistance = value; }
-});
+
 </script>
 
 <style scoped>

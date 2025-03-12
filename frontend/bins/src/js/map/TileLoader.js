@@ -12,15 +12,15 @@ export class TileLoader {
         this.highPriQueue = [];
         this.isLoading = false;
         this.maxConcurrentLoads = 4;
+        this.renderDistance = 2;
     }
 
     /**
      * Calculate dynamic cache size based on render distance
      */
     get maxCacheSize() {
-        const renderDistance = settingsManager.settings.graphics.renderDistance;
         // Calculate tiles in view (square of (2*renderDistance+1))
-        const tilesInView = Math.pow((2 * renderDistance + 1), 2);
+        const tilesInView = Math.pow((2 * this.renderDistance + 1), 2);
         // Add buffer for movement (4x current view is usually sufficient)
         return Math.max(this.baseCacheSize, tilesInView * 4);
     }

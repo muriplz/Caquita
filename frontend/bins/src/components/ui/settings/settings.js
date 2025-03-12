@@ -14,7 +14,6 @@ const defaultSettings = {
         zoomSpeed: 1,
     },
     graphics: {
-        renderDistance: 3,
     }
 };
 

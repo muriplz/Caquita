@@ -6,6 +6,7 @@ import { worldToLatLon, latLonToWorld, TILE_SIZE } from '../js/map/TileConversio
 import { getGPSStatus, isTracking } from './player/GPSTracker.js';
 import * as THREE from 'three';
 import settingsManager from '@/components/ui/settings/settings.js';
+import {tileLoader, TileLoader} from "@/js/map/TileLoader.js";
 
 const mapTexture = ref(null);
 const material = ref(null);
@@ -18,10 +19,6 @@ let rafId = null;
 let lastUpdateTime = 0;
 let lastPosition = { x: 0, z: 0 };
 let needsUpdate = false;
-
-const renderDistance = computed(() => {
-  return settingsManager.settings.graphics.renderDistance;
-});
 
 const centerCoordinates = computed(() => {
   const gpsStatus = getGPSStatus();
@@ -39,7 +36,7 @@ const centerCoordinates = computed(() => {
 });
 
 const worldSize = computed(() => {
-  const dist = renderDistance.value;
+  const dist = tileLoader.renderDistance;
   return (2 * dist + 1) * TILE_SIZE;
 });
 
@@ -113,13 +110,6 @@ onUnmounted(() => {
 });
 
 watch(centerCoordinates, () => {
-  if (isComponentMounted) {
-    updateMapCenter();
-    needsUpdate = true;
-  }
-}, { immediate: false });
-
-watch(renderDistance, () => {
   if (isComponentMounted) {
     updateMapCenter();
     needsUpdate = true;
