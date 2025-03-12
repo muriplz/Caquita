@@ -14,7 +14,10 @@ const debugMode = ref(false);
 
 let isComponentMounted = false;
 let mapContainer = null;
-let updateTimer = null;
+let rafId = null;
+let lastUpdateTime = 0;
+let lastPosition = { x: 0, z: 0 };
+let needsUpdate = false;
 
 const renderDistance = computed(() => {
   return settingsManager.settings.graphics.renderDistance;
@@ -54,7 +57,23 @@ onMounted(async () => {
     await mapLibreManager.initialize(mapContainer);
     await createMapTexture();
     updateMapCenter();
-    updateTimer = setInterval(updateMapTexture, 250);
+
+    const updateLoop = () => {
+      if (!isComponentMounted) return;
+
+      // Check if player moved significantly
+      checkPositionChange();
+
+      // Only update texture when needed
+      if (needsUpdate) {
+        updateMapTexture();
+        needsUpdate = false;
+      }
+
+      rafId = requestAnimationFrame(updateLoop);
+    };
+
+    rafId = requestAnimationFrame(updateLoop);
   } catch (error) {
     console.error('Failed to initialize map:', error);
   }
@@ -73,8 +92,9 @@ onUnmounted(() => {
 
   window.removeEventListener('keydown', toggleDebug);
 
-  if (updateTimer) {
-    clearInterval(updateTimer);
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
   }
 
   mapLibreManager.dispose();
@@ -95,21 +115,36 @@ onUnmounted(() => {
 watch(centerCoordinates, () => {
   if (isComponentMounted) {
     updateMapCenter();
+    needsUpdate = true;
   }
 }, { immediate: false });
 
 watch(renderDistance, () => {
   if (isComponentMounted) {
     updateMapCenter();
-    updateMapTexture();
+    needsUpdate = true;
   }
 }, { immediate: false });
 
 watch(isTracking, () => {
   if (isComponentMounted) {
     updateMapCenter();
+    needsUpdate = true;
   }
 }, { immediate: false });
+
+function checkPositionChange() {
+  // Only trigger updates when player has moved significantly
+  const dx = Math.abs(positionData.x - lastPosition.x);
+  const dz = Math.abs(positionData.z - lastPosition.z);
+
+  if (dx > 1 || dz > 1) {
+    lastPosition.x = positionData.x;
+    lastPosition.z = positionData.z;
+    updateMapCenter();
+    needsUpdate = true;
+  }
+}
 
 function updateMapCenter() {
   const center = centerCoordinates.value;
@@ -126,8 +161,8 @@ async function createMapTexture() {
   mapTexture.value.wrapT = THREE.RepeatWrapping;
 
   mapTexture.value.colorSpace = THREE.SRGBColorSpace;
-  
-  // Pixel art?
+
+  // Optimize texture settings
   mapTexture.value.magFilter = THREE.NearestFilter;
   mapTexture.value.minFilter = THREE.NearestFilter;
   mapTexture.value.generateMipmaps = false;
@@ -135,21 +170,28 @@ async function createMapTexture() {
 
   material.value = new THREE.MeshBasicMaterial({
     map: mapTexture.value,
-    transparent: true
+    transparent: false,
+    opacity: 1.0
   });
 }
 
 async function updateMapTexture() {
   if (!mapTexture.value || !material.value) return;
+
+  // Throttle updates to avoid excessive redraws
+  const now = performance.now();
+  if (now - lastUpdateTime < 100) return;
+
+  lastUpdateTime = now;
   mapTexture.value.needsUpdate = true;
 }
 
 function getMaterial() {
   if (!material.value) {
     material.value = new THREE.MeshBasicMaterial({
-      color: 0xffffff, // Change from 0xcccccc to white
-      transparent: false, // Remove transparency
-      opacity: 1.0 // Full opacity
+      color: 0xffffff,
+      transparent: false,
+      opacity: 1.0
     });
   }
   return material.value;

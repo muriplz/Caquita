@@ -10,6 +10,9 @@ class MapLibreManager {
         this.initialized = false;
         this.maxZoom = 20;
         this.minZoom = 0;
+        this.lastCenter = null;
+        this.pendingOperations = [];
+        this.canvas = null;
     }
 
     async initialize(container) {
@@ -19,8 +22,13 @@ class MapLibreManager {
         const coordinates = getCoordinates();
 
         try {
-            const styleResponse = await fetch(this.styleUrl);
-            const style = await styleResponse.json();
+            // Cache the style to avoid repeated fetching
+            if (!this.cachedStyle) {
+                const styleResponse = await fetch(this.styleUrl);
+                this.cachedStyle = await styleResponse.json();
+            }
+
+            const style = this.cachedStyle;
 
             if (style.sources && style.sources.openmaptiles) {
                 style.sources.openmaptiles = {
@@ -30,6 +38,7 @@ class MapLibreManager {
                 };
             }
 
+            // Optimize map performance settings
             this.map = new maplibregl.Map({
                 container: this.container,
                 style: style,
@@ -38,11 +47,26 @@ class MapLibreManager {
                 attributionControl: false,
                 preserveDrawingBuffer: true,
                 maxZoom: this.maxZoom,
-                minZoom: this.minZoom
+                minZoom: this.minZoom,
+                fadeDuration: 0,
+                renderWorldCopies: false,
+                antialias: false
             });
 
             await new Promise(resolve => {
-                this.map.on('load', resolve);
+                this.map.on('load', () => {
+                    // Store canvas for faster access
+                    this.canvas = this.map.getCanvas();
+
+                    // Apply any pending operations
+                    this.pendingOperations.forEach(op => op());
+                    this.pendingOperations = [];
+
+                    // Apply performance optimizations to canvas
+                    this.optimizeCanvas();
+
+                    resolve();
+                });
             });
 
             this.initialized = true;
@@ -53,14 +77,42 @@ class MapLibreManager {
         }
     }
 
+    optimizeCanvas() {
+        if (!this.canvas) return;
+
+        // Set will-change to improve graphics performance
+        this.canvas.style.willChange = 'transform';
+
+        // Disable image smoothing for better performance and sharper pixels
+        const ctx = this.canvas.getContext('2d');
+        if (ctx) {
+            ctx.imageSmoothingEnabled = false;
+        }
+    }
+
     setCenter(lat, lon) {
-        if (!this.map) return;
+        if (!this.map) {
+            this.pendingOperations.push(() => this.setCenter(lat, lon));
+            return;
+        }
+
+        // Skip redundant updates
+        if (this.lastCenter &&
+            Math.abs(this.lastCenter[0] - lat) < 0.00001 &&
+            Math.abs(this.lastCenter[1] - lon) < 0.00001) {
+            return;
+        }
+
+        this.lastCenter = [lat, lon];
         this.map.setCenter([lon, lat]);
     }
 
     setZoom(zoom) {
-        if (!this.map) return;
-        this.map.setZoom(zoom);
+        if (!this.map) {
+            this.pendingOperations.push(() => this.setZoom(zoom));
+            return;
+        }
+        this.map.setZoom(Math.min(Math.max(zoom, this.minZoom), this.maxZoom));
     }
 
     resize() {
@@ -73,21 +125,28 @@ class MapLibreManager {
             this.map.remove();
             this.map = null;
         }
+        this.canvas = null;
         this.initialized = false;
+        this.lastCenter = null;
     }
 
     getCanvas() {
-        return this.map ? this.map.getCanvas() : null;
+        return this.canvas || (this.map ? this.map.getCanvas() : null);
     }
 
     async getMapTexture() {
         if (!this.map) return null;
 
         return new Promise(resolve => {
+            if (this.canvas && this.map.loaded()) {
+                resolve(this.canvas);
+                return;
+            }
+
             const check = () => {
                 if (this.map.loaded()) {
-                    const canvas = this.map.getCanvas();
-                    resolve(canvas);
+                    this.canvas = this.map.getCanvas();
+                    resolve(this.canvas);
                 } else {
                     setTimeout(check, 100);
                 }
