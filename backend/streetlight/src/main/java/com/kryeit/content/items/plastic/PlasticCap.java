@@ -8,17 +8,17 @@ import com.kryeit.recycling.RecyclingReward;
 import java.util.EnumMap;
 import java.util.Map;
 
-public class PlasticBottle extends PlasticItem {
+public class PlasticCap extends PlasticItem {
 
-    public PlasticBottle() {
-        this(PlasticClassification.PET);
+    public PlasticCap() {
+        this(PlasticClassification.HDPE);
     }
 
-    public PlasticBottle(PlasticClassification plasticType) {
+    public PlasticCap(PlasticClassification plasticType) {
         super(
-                "plastic:bottle",
+                "plastic:cap",
                 1,
-                2,
+                1,
                 Rarity.COMMON,
                 plasticType,
                 createDisposalMap(plasticType),
@@ -40,9 +40,9 @@ public class PlasticBottle extends PlasticItem {
 
     private static RecyclingReward createRecyclingReward(PlasticClassification plasticType) {
         RecyclingReward.Builder builder = RecyclingReward.builder()
-                .setDefaultReward(DisposalOutcome.CORRECT, 20)
-                .setDefaultReward(DisposalOutcome.DECENT, 5)
-                .setDefaultReward(DisposalOutcome.WRONG, -10);
+                .setDefaultReward(DisposalOutcome.CORRECT, 10)
+                .setDefaultReward(DisposalOutcome.DECENT, 2)
+                .setDefaultReward(DisposalOutcome.WRONG, -5);
 
         return builder.build();
     }

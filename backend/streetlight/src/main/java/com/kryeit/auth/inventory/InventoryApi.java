@@ -34,10 +34,15 @@ public class InventoryApi {
 
         Item glassBottle = CaquitaItems.getItem("glass:bottle");
         Item plasticBottle = CaquitaItems.getItem("plastic:bottle");
+        Item plasticCap = CaquitaItems.getItem("plastic:cap");
+        Item glassShard = CaquitaItems.getItem("glass:shard");
+
         InventoryManager manager = new InventoryManager(inventory);
 
         manager.addItem(glassBottle, new Position(1, 2));
         manager.addItem(plasticBottle, new Position(2, 2));
+        manager.addItem(plasticCap, new Position(3, 2));
+        manager.addItem(glassShard, new Position(0, 0));
 
         Database.getJdbi().useHandle(handle -> {
             handle.createUpdate("INSERT INTO inventories (user_id, width, height, item_placements) VALUES (:user_id, :width, :height, cast(:item_placements as jsonb))")
