@@ -122,7 +122,20 @@ export default {
       dragPreview.style.display = 'flex';
       dragPreview.style.alignItems = 'center';
       dragPreview.style.justifyContent = 'center';
-      dragPreview.textContent = this.item.name || 'Item';
+      dragPreview.style.overflow = 'hidden';
+
+      if (this.item.imageUrl && !this.imageError) {
+        const img = document.createElement('img');
+        img.src = this.item.imageUrl;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+        img.style.imageRendering = 'pixelated';
+
+        dragPreview.appendChild(img);
+      } else {
+        dragPreview.textContent = this.item.name || 'Item';
+      }
 
       document.body.appendChild(dragPreview);
 
@@ -180,6 +193,23 @@ export default {
       ghost.style.transform = 'translate(-50%, -50%)';
       ghost.style.left = `${this.touchCurrentX}px`;
       ghost.style.top = `${this.touchCurrentY}px`;
+      ghost.style.display = 'flex';
+      ghost.style.alignItems = 'center';
+      ghost.style.justifyContent = 'center';
+      ghost.style.overflow = 'hidden';
+
+      if (this.item.imageUrl && !this.imageError) {
+        const img = document.createElement('img');
+        img.src = this.item.imageUrl;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'contain';
+        img.style.imageRendering = 'pixelated';
+
+        ghost.appendChild(img);
+      } else {
+        ghost.textContent = this.item.name || 'Item';
+      }
 
       document.body.appendChild(ghost);
     },
