@@ -12,25 +12,49 @@ const updateCount = ref(0);
 let watchId = null;
 let keepAliveInterval = null;
 let firstPosition = null;
+let positionBuffer = [];
+const BUFFER_SIZE = 3;
+const MAX_ACCURACY = 30; // Maximum acceptable accuracy in meters
 
 // Process GPS coordinates
 function processPosition(gpsPosition) {
     if (!gpsPosition || !gpsPosition.coords || !settingsStore.settings.general.gpsEnabled) return;
 
-    const { latitude, longitude } = gpsPosition.coords;
+    const { latitude, longitude, accuracy } = gpsPosition.coords;
+
+    // Skip highly inaccurate readings
+    if (accuracy > MAX_ACCURACY) {
+        console.log(`Skipping inaccurate GPS reading (${accuracy}m)`);
+        return;
+    }
 
     // First GPS position becomes origin
     if (!firstPosition) {
-        // Store first position
-        firstPosition = { lat: latitude, lon: longitude };
+        // Store positions in buffer for averaging
+        positionBuffer.push({ lat: latitude, lon: longitude });
 
-        // Set world origin for compatibility with existing code
-        setWorldOrigin(latitude, longitude);
+        // Once we have enough readings, average them for better accuracy
+        if (positionBuffer.length >= BUFFER_SIZE) {
+            const avgLat = positionBuffer.reduce((sum, pos) => sum + pos.lat, 0) / positionBuffer.length;
+            const avgLon = positionBuffer.reduce((sum, pos) => sum + pos.lon, 0) / positionBuffer.length;
 
-        // First position is always 0,0 in player coordinates
-        positionData.x = 0;
-        positionData.z = 0;
-        position.set(0, positionData.y, 0);
+            // Store averaged first position
+            firstPosition = { lat: avgLat, lon: avgLon };
+
+            // Set world origin for compatibility with existing code
+            setWorldOrigin(avgLat, avgLon);
+
+            // First position is always 0,0 in player coordinates
+            positionData.x = 0;
+            positionData.z = 0;
+            position.set(0, positionData.y, 0);
+
+            // Clear buffer
+            positionBuffer = [];
+        } else {
+            // Wait for more readings
+            return;
+        }
     } else {
         // Calculate position relative to first position
         const worldPos = latLonToWorld(latitude, longitude);
@@ -70,6 +94,7 @@ function startGPSTracking() {
 
     // Reset tracking state
     firstPosition = null;
+    positionBuffer = [];
 
     // Get current position
     navigator.geolocation.getCurrentPosition(
@@ -138,6 +163,7 @@ function returnToDefaultPosition() {
     // Reset TileConversion world origin
     resetWorldOrigin();
     firstPosition = null;
+    positionBuffer = [];
 
     // Reset player position with smooth animation
     if (!isMoving.value) {
@@ -155,7 +181,8 @@ function getGPSStatus() {
             z: positionData.z
         },
         updateCount: updateCount.value,
-        lastUpdate: lastUpdateTime.value ? new Date(lastUpdateTime.value).toISOString() : 'never'
+        lastUpdate: lastUpdateTime.value ? new Date(lastUpdateTime.value).toISOString() : 'never',
+        bufferSize: positionBuffer.length
     };
 }
 
