@@ -48,27 +48,20 @@ public class LoginApi {
             return;
         }
 
-        String storedPasswordHash = Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT password FROM users WHERE username = :username")
+        User user = Database.getJdbi().withHandle(handle ->
+                handle.createQuery("SELECT * FROM users WHERE LOWER(username) = LOWER(:username)")
                         .bind("username", username)
-                        .mapTo(String.class)
+                        .mapTo(User.class)
                         .findOne()
                         .orElse(null)
         );
 
-        if (storedPasswordHash != null && BCrypt.checkpw(password, storedPasswordHash)) {
-            User user = Database.getJdbi().withHandle(handle ->
-                    handle.createQuery("SELECT * FROM users WHERE username = :username")
-                            .bind("username", username)
-                            .mapTo(User.class)
-                            .first()
-            );
-
+        if (user != null && BCrypt.checkpw(password, user.password())) {
             String token = Jwt.generateToken(user.id());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
             response.put("id", String.valueOf(user.id()));
-            response.put("username", username);
+            response.put("username", user.username());
             response.put("creation", user.creation().toString());
             response.put("trust", user.trust().toString());
             response.put("experience", String.valueOf(user.experience()));
@@ -163,5 +156,4 @@ public class LoginApi {
                 "experience", data.get("experience")
         ));
     }
-
 }
