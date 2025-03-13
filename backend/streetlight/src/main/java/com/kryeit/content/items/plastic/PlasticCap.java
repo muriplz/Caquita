@@ -1,14 +1,16 @@
 package com.kryeit.content.items.plastic;
 
 import com.kryeit.content.items.Rarity;
+import com.kryeit.content.items.ResourceItem;
 import com.kryeit.landmark.LandmarkType;
 import com.kryeit.recycling.DisposalOutcome;
 import com.kryeit.recycling.RecyclingReward;
+import com.kryeit.recycling.ResourceType;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-public class PlasticCap extends PlasticItem {
+public class PlasticCap extends ResourceItem<PlasticClassification> {
 
     public PlasticCap() {
         this(PlasticClassification.HDPE);
@@ -20,6 +22,7 @@ public class PlasticCap extends PlasticItem {
                 1,
                 1,
                 Rarity.COMMON,
+                ResourceType.PLASTIC,
                 plasticType,
                 createDisposalMap(plasticType),
                 createRecyclingReward(plasticType)

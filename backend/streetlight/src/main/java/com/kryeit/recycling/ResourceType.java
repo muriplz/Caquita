@@ -5,8 +5,9 @@ public enum ResourceType {
     METAL,
     GLASS,
     PAPER,
+    CARDBOARD,
+    OIL,
     ORGANIC,
-    JUNK,
     OTHER,
     ;
 
@@ -16,8 +17,9 @@ public enum ResourceType {
             case "metal" -> METAL;
             case "glass" -> GLASS;
             case "paper" -> PAPER;
+            case "cardboard" -> CARDBOARD;
+            case "oil" -> OIL;
             case "organic" -> ORGANIC;
-            case "junk" -> JUNK;
             default -> OTHER;
         };
     }

@@ -1,14 +1,16 @@
 package com.kryeit.content.items.glass;
 
 import com.kryeit.content.items.Rarity;
+import com.kryeit.content.items.ResourceItem;
 import com.kryeit.landmark.LandmarkType;
 import com.kryeit.recycling.DisposalOutcome;
 import com.kryeit.recycling.RecyclingReward;
+import com.kryeit.recycling.ResourceType;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-public class GlassShard extends GlassItem {
+public class GlassShard extends ResourceItem<GlassClassification> {
 
     public GlassShard() {
         this(GlassClassification.MIXED);
@@ -20,6 +22,7 @@ public class GlassShard extends GlassItem {
                 1,
                 1,
                 Rarity.JUNK,
+                ResourceType.GLASS,
                 glassType,
                 createDisposalMap(glassType),
                 createRecyclingReward(glassType)
