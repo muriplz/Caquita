@@ -5,7 +5,9 @@
       'occupied': isOccupied,
       'drop-valid': isDropValid && !isOccupied,
       'drop-invalid': isDropTarget && !isDropValid,
-      'is-origin': isOrigin
+      'is-origin': isOrigin,
+      'is-item-part': isOccupied && !isOrigin,
+      'current-target': isCurrentTarget && isDraggingActive
     }"
       @dragover.prevent="onDragOver"
       @dragleave="onDragLeave"
@@ -47,6 +49,18 @@ export default {
       default: () => ({
         canPlaceItem: () => false
       })
+    },
+    isCurrentTarget: {
+      type: Boolean,
+      default: false
+    },
+    isDraggingActive: {
+      type: Boolean,
+      default: false
+    },
+    currentDragItemId: {
+      type: String,
+      default: null
     }
   },
 
@@ -80,9 +94,13 @@ export default {
           return;
         }
 
+        // Calculate target position, accounting for which part of the item was grabbed
+        const targetX = this.x - (itemData.clickedCell?.x || 0);
+        const targetY = this.y - (itemData.clickedCell?.y || 0);
+
         this.isDropValid = this.inventoryManager.canPlaceItem(
             item,
-            { x: this.x, y: this.y },
+            { x: targetX, y: targetY },
             itemData.instanceId
         );
 
@@ -128,16 +146,20 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-  border: 1px solid #444; /* Darker border */
+  border: 1px solid #444;
   box-sizing: border-box;
   background-color: #f9f9f9;
   transition: all 0.2s ease;
-  margin: 0; /* Ensure no margin */
-  padding: 0; /* Ensure no padding */
+  margin: 0;
+  padding: 0;
 }
 
 .grid-cell.occupied {
   background-color: rgba(200, 200, 200, 0.3);
+}
+
+.grid-cell.is-item-part {
+  cursor: grab;
 }
 
 .grid-cell.drop-valid {
@@ -152,5 +174,11 @@ export default {
 
 .grid-cell.is-origin {
   background-color: rgba(220, 220, 220, 0.4);
+}
+
+.grid-cell.current-target {
+  background-color: rgba(255, 215, 0, 0.3);
+  border: 2px solid #ff9800;
+  z-index: 2;
 }
 </style>

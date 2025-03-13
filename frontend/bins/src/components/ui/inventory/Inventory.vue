@@ -1,5 +1,7 @@
 <template>
-  <div class="inventory-container" :class="{ 'is-loading': loading }">
+  <div class="inventory-container" :class="{ 'is-loading': loading }"
+       @mousemove="onMouseMove"
+       @dragover.prevent="onDragOver">
     <div class="inventory-header">
       <h2>Inventory</h2>
       <div class="inventory-actions">
@@ -16,8 +18,7 @@
     <div v-if="isGridReady"
          class="inventory-grid"
          :style="gridStyle"
-         @dragover.prevent
-         @drop.prevent
+         @drop.prevent="onGridDrop"
          @touchmove.prevent
     >
       <template v-for="(row, y) in grid" :key="`row-${y}`">
@@ -30,6 +31,9 @@
             :is-origin="cell?.isOrigin"
             :item-ref="cell"
             :inventory-manager="inventoryStore.state.inventoryManager"
+            :is-current-target="x === currentTargetX && y === currentTargetY"
+            :is-dragging-active="isDraggingActive"
+            :current-drag-item-id="currentDragItemId"
             @item-dropped="onItemDropped"
         >
           <inventory-item
@@ -41,6 +45,7 @@
               @touch-drag-start="onTouchDragStart"
               @touch-drag-move="onTouchDragMove"
               @touch-drag-end="onTouchDragEnd"
+              @drag-start="onItemDragStart"
           />
         </grid-cell>
       </template>
@@ -83,9 +88,16 @@ export default {
     const grid = inventoryStore.grid;
     const isGridReady = ref(false);
 
-    // Track current dragging item
+    // Track current dragging state
+    const isDraggingActive = ref(false);
     const currentDragItem = ref(null);
+    const currentDragItemId = ref(null);
     const dragStartPosition = ref(null);
+    const clickedCell = ref(null);
+
+    // Track current target position
+    const currentTargetX = ref(-1);
+    const currentTargetY = ref(-1);
 
     const gridStyle = computed(() => {
       if (!inventoryStore.state.inventoryManager) return {};
@@ -94,7 +106,7 @@ export default {
       return {
         gridTemplateColumns: `repeat(${width}, ${props.cellSize}px)`,
         gridTemplateRows: `repeat(${height}, ${props.cellSize}px)`,
-        gap: '0px' // Explicitly set zero gap
+        gap: '0px'
       };
     });
 
@@ -131,7 +143,113 @@ export default {
       return inventoryStore.state.inventoryManager.getItemByInstanceId(instanceId);
     };
 
+    // Track mouse movement to update target cell
+    const onMouseMove = (event) => {
+      if (!isDraggingActive.value || !currentDragItem.value) return;
+
+      // Get grid position
+      const gridElement = event.currentTarget.querySelector('.inventory-grid');
+      if (!gridElement) return;
+
+      const rect = gridElement.getBoundingClientRect();
+
+      // Calculate which cell the mouse is over
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      const cellX = Math.floor(mouseX / props.cellSize);
+      const cellY = Math.floor(mouseY / props.cellSize);
+
+      // Ensure within grid bounds
+      if (cellX >= 0 && cellX < inventoryStore.state.inventoryManager.width &&
+          cellY >= 0 && cellY < inventoryStore.state.inventoryManager.height) {
+        currentTargetX.value = cellX;
+        currentTargetY.value = cellY;
+      }
+    };
+
+    // Handle dragover to update target position
+    const onDragOver = (event) => {
+      if (!isDraggingActive.value) return;
+
+      // Similar calculation as onMouseMove
+      const gridElement = event.currentTarget.querySelector('.inventory-grid');
+      if (!gridElement) return;
+
+      const rect = gridElement.getBoundingClientRect();
+
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      const cellX = Math.floor(mouseX / props.cellSize);
+      const cellY = Math.floor(mouseY / props.cellSize);
+
+      if (cellX >= 0 && cellX < inventoryStore.state.inventoryManager.width &&
+          cellY >= 0 && cellY < inventoryStore.state.inventoryManager.height) {
+        currentTargetX.value = cellX;
+        currentTargetY.value = cellY;
+      }
+    };
+
+    // Start tracking when an item starts being dragged
+    const onItemDragStart = (data) => {
+      isDraggingActive.value = true;
+      currentDragItem.value = data.item;
+      currentDragItemId.value = data.item.instanceId;
+      clickedCell.value = data.clickedCell;
+      dragStartPosition.value = data.position;
+    };
+
+    // Handle drop on the entire grid
+    const onGridDrop = (event) => {
+      if (!isDraggingActive.value || !currentDragItem.value) {
+        resetDragState();
+        return;
+      }
+
+      try {
+        // Calculate the new position based on original grabbed cell and current target
+        const item = currentDragItem.value;
+        const grabbedCellX = clickedCell.value?.x || 0;
+        const grabbedCellY = clickedCell.value?.y || 0;
+
+        const newX = currentTargetX.value - grabbedCellX;
+        const newY = currentTargetY.value - grabbedCellY;
+
+        // Make sure position is valid
+        const adjustedX = Math.max(0, Math.min(
+            inventoryStore.state.inventoryManager.width - item.width,
+            newX
+        ));
+        const adjustedY = Math.max(0, Math.min(
+            inventoryStore.state.inventoryManager.height - item.height,
+            newY
+        ));
+
+        // Move the item
+        inventoryStore.moveItem(item.instanceId, { x: adjustedX, y: adjustedY });
+
+      } catch (error) {
+        console.error('Error handling grid drop:', error);
+      }
+
+      // Reset drag state
+      resetDragState();
+    };
+
+    const resetDragState = () => {
+      isDraggingActive.value = false;
+      currentDragItem.value = null;
+      currentDragItemId.value = null;
+      clickedCell.value = null;
+      dragStartPosition.value = null;
+      currentTargetX.value = -1;
+      currentTargetY.value = -1;
+    };
+
     const onItemDropped = ({instanceId, itemId, position, clickedCell}) => {
+      // This is the original drop handler for touch/mobile
+
       // If we don't have instanceId (for backward compatibility)
       if (!instanceId && itemId) {
         // Find the first item with matching itemId
@@ -146,21 +264,25 @@ export default {
         return;
       }
 
-      // If we have clicked cell info (from desktop drag), adjust the position
+      // If we have clicked cell info, adjust the position
       if (clickedCell) {
+        // Calculate target position accounting for which part of the item was grabbed
+        position = {
+          x: position.x - clickedCell.x,
+          y: position.y - clickedCell.y
+        };
+
+        // Make sure the position is within bounds
         const item = getItemByInstanceId(instanceId);
         if (item) {
-          // Adjust the position based on which cell within the item was clicked
-          position = {
-            x: Math.max(0, Math.min(
-                inventoryStore.state.inventoryManager.width - item.width,
-                position.x - clickedCell.x
-            )),
-            y: Math.max(0, Math.min(
-                inventoryStore.state.inventoryManager.height - item.height,
-                position.y - clickedCell.y
-            ))
-          };
+          position.x = Math.max(0, Math.min(
+              inventoryStore.state.inventoryManager.width - item.width,
+              position.x
+          ));
+          position.y = Math.max(0, Math.min(
+              inventoryStore.state.inventoryManager.height - item.height,
+              position.y
+          ));
         }
       }
 
@@ -239,7 +361,16 @@ export default {
       onTouchDragStart,
       onTouchDragMove,
       onTouchDragEnd,
-      handleBeforeUnload
+      handleBeforeUnload,
+      // New properties
+      isDraggingActive,
+      currentDragItemId,
+      currentTargetX,
+      currentTargetY,
+      onMouseMove,
+      onDragOver,
+      onItemDragStart,
+      onGridDrop
     };
   }
 };
@@ -294,7 +425,7 @@ export default {
 
 .inventory-grid {
   display: grid;
-  gap: 0; /* Remove gap */
+  gap: 0;
   background-color: #333;
   border: 1px solid #555;
   border-radius: 8px;

@@ -97,12 +97,21 @@ export default {
       const cellX = Math.floor(clickOffsetX / this.cellSize);
       const cellY = Math.floor(clickOffsetY / this.cellSize);
 
+      const clickedCell = {x: cellX, y: cellY};
+
+      // Emit to parent for tracking
+      this.$emit('drag-start', {
+        item: this.item,
+        position: this.position,
+        clickedCell: clickedCell
+      });
+
       const dragData = {
         instanceId: this.item.instanceId,
         itemId: this.item.itemId,
         width: this.item.width,
         height: this.item.height,
-        clickedCell: {x: cellX, y: cellY}
+        clickedCell: clickedCell
       };
 
       event.dataTransfer.effectAllowed = 'move';
@@ -141,8 +150,8 @@ export default {
 
       event.dataTransfer.setDragImage(
           dragPreview,
-          width / 2,
-          height / 2
+          cellX * this.cellSize + this.cellSize / 2,
+          cellY * this.cellSize + this.cellSize / 2
       );
 
       setTimeout(() => {
