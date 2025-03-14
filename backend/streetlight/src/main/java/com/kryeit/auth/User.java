@@ -5,7 +5,7 @@ import com.kryeit.auth.inventory.GridInventory;
 
 import java.sql.Timestamp;
 
-public record User(long id, String username, String password, Timestamp creation, TrustLevel trust, int experience) {
+public record User(long id, String username, String password, Timestamp creation, TrustLevel trust, int experience, int beans) {
 
     public void changeTrust(TrustLevel trust) {
         Database.getJdbi().useHandle(handle ->

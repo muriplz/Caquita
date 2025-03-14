@@ -15,6 +15,8 @@ public class DatabaseUtils {
                     password VARCHAR(255) NOT NULL,
                     creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
                     trust VARCHAR(255) NOT NULL
+                    experience INTEGER NOT NULL DEFAULT 0,
+                    beans INTEGER NOT NULL DEFAULT 0
                 )
             """);
 

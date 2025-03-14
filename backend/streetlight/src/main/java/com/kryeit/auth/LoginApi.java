@@ -65,6 +65,7 @@ public class LoginApi {
             response.put("creation", user.creation().toString());
             response.put("trust", user.trust().toString());
             response.put("experience", String.valueOf(user.experience()));
+            response.put("beans", String.valueOf(user.beans()));
             ctx.status(200).json(response);
         } else {
             ctx.status(401).result("Invalid username or password.");
@@ -103,7 +104,7 @@ public class LoginApi {
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
             long id = Database.getJdbi().withHandle(handle ->
-                    handle.createUpdate("INSERT INTO users (username, password, creation, trust, experience) VALUES (:username, :password, NOW(), 'DEFAULT', 0)")
+                    handle.createUpdate("INSERT INTO users (username, password, creation, trust, experience, beans) VALUES (:username, :password, NOW(), 'DEFAULT', 0, 50)")
                             .bind("username", username)
                             .bind("password", hashedPassword)
                             .executeAndReturnGeneratedKeys("id")
@@ -140,7 +141,7 @@ public class LoginApi {
         }
 
         Map<String, Object> data = Database.getJdbi().withHandle(handle -> handle.createQuery("""
-            SELECT id, username, creation, trust, experience
+            SELECT id, username, creation, trust, experience, beans
             FROM users
             WHERE id = :id
             """)
@@ -153,7 +154,8 @@ public class LoginApi {
                 "username", data.get("username"),
                 "creation", data.get("creation"),
                 "trust", data.get("trust"),
-                "experience", data.get("experience")
+                "experience", data.get("experience"),
+                "beans", data.get("beans")
         ));
     }
 }
