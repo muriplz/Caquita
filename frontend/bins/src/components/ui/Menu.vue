@@ -5,14 +5,14 @@
          class="settings-button"
          :class="{ 'spin': isSettingsSpinning }"
          @click="showSettings">
-        <SettingsIcon class="settings-icon" />
+        <img src="/images/ui/settings.png" alt="Settings" class="settings-icon" />
       </a>
     </div>
 
     <div v-if="isMenuOpen" class="profile-container">
       <a href="javascript:void(0)" class="profile-button" @click="toggleProfileMenu">
-        <UserProfileIcon v-if="isUserLoggedIn" class="profile-icon" />
-        <UserIcon v-else class="profile-icon" />
+        <img v-if="isUserLoggedIn" src="/images/ui/profile_logged.png" alt="Profile" class="profile-icon" />
+        <img v-else src="/images/ui/profile.png" alt="Profile" class="profile-icon" />
       </a>
       <ProfileDropdown
           :isVisible="isProfileMenuOpen"
@@ -184,16 +184,13 @@ function showNoIdea() {
 }
 
 function showSettings() {
-  // Cancel any ongoing spin animation timeout
   if (spinTimeout) {
     clearTimeout(spinTimeout);
   }
 
-  // Start spinning animation
   triggerSpinAnimation();
 
   if (activeComponent.value === 'settings') {
-    // If settings are already open, close and return to previous screen
     if (previousComponent.value) {
       activeComponent.value = previousComponent.value;
       previousComponent.value = null;
@@ -201,7 +198,6 @@ function showSettings() {
       closeComponent();
     }
   } else {
-    // Store current component before opening settings
     if (activeComponent.value) {
       previousComponent.value = activeComponent.value;
     }
@@ -209,7 +205,6 @@ function showSettings() {
   }
 }
 
-// Store the timeout reference
 let spinTimeout;
 
 function triggerSpinAnimation() {
@@ -292,8 +287,35 @@ function handleShowAbout() {
   opacity: 0.8;
 }
 
-.settings-icon, .profile-icon {
-  fill: white;
+.settings-icon {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.profile-button {
+  color: white;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.2s;
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.profile-icon {
+  width: 52px;
+  height: 52px;
+  image-rendering: pixelated;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateZ(0);
 }
 
 .settings-button.spin .settings-icon {
@@ -305,7 +327,7 @@ function handleShowAbout() {
     transform: rotate(0deg);
   }
   to {
-    transform: rotate(120deg);
+    transform: rotate(90deg);
   }
 }
 

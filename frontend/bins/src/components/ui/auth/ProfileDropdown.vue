@@ -78,7 +78,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .profile-dropdown {
   position: absolute;
-  top: 40px;
+  top: 56px;
   right: 0;
   background-color: white;
   border-radius: 8px;
