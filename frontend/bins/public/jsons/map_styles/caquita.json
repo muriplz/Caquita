@@ -43,6 +43,7 @@
       "type": "line",
       "source": "stadia",
       "source-layer": "transportation",
+      "filter": ["!=", "class", "ferry"],
       "paint": {
         "line-color": "#ffffff",
         "line-width": 2,
