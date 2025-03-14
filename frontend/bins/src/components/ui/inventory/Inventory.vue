@@ -4,15 +4,6 @@
        @dragover.prevent="onDragOver">
     <div class="inventory-header">
       <h2>Inventory</h2>
-      <div class="inventory-actions">
-        <button
-            class="refresh-button"
-            @click="refreshInventory"
-            :disabled="loading"
-        >
-          Refresh
-        </button>
-      </div>
     </div>
 
     <div v-if="isGridReady"
@@ -41,11 +32,12 @@
               :item="getItemByInstanceId(cell.instanceId)"
               :position="{ x, y }"
               :cell-size="cellSize"
-              @item-clicked="onItemClicked"
+              :inventory-bounds="inventoryBounds"
               @touch-drag-start="onTouchDragStart"
               @touch-drag-move="onTouchDragMove"
               @touch-drag-end="onTouchDragEnd"
               @drag-start="onItemDragStart"
+              @item-deleted="onItemDeleted"
           />
         </grid-cell>
       </template>
@@ -98,6 +90,16 @@ export default {
     // Track current target position
     const currentTargetX = ref(-1);
     const currentTargetY = ref(-1);
+
+    // Get inventory bounds for tooltip positioning
+    const inventoryBounds = computed(() => {
+      if (!inventoryStore.state.inventoryManager) return { width: 0, height: 0 };
+
+      return {
+        width: inventoryStore.state.inventoryManager.width * props.cellSize,
+        height: inventoryStore.state.inventoryManager.height * props.cellSize
+      };
+    });
 
     const gridStyle = computed(() => {
       if (!inventoryStore.state.inventoryManager) return {};
@@ -248,8 +250,6 @@ export default {
     };
 
     const onItemDropped = ({instanceId, itemId, position, clickedCell}) => {
-      // This is the original drop handler for touch/mobile
-
       // If we don't have instanceId (for backward compatibility)
       if (!instanceId && itemId) {
         // Find the first item with matching itemId
@@ -289,9 +289,8 @@ export default {
       inventoryStore.moveItem(instanceId, position);
     };
 
-    const onItemClicked = ({instanceId}) => {
-      const item = getItemByInstanceId(instanceId);
-      if (window.confirm(`Do you want to remove ${item?.name || 'this item'}?`)) {
+    const onItemDeleted = ({instanceId}) => {
+      if (window.confirm(`Do you want to remove this item?`)) {
         inventoryStore.removeItem(instanceId);
       }
     };
@@ -357,12 +356,11 @@ export default {
       refreshInventory,
       getItemByInstanceId,
       onItemDropped,
-      onItemClicked,
+      onItemDeleted,
       onTouchDragStart,
       onTouchDragMove,
       onTouchDragEnd,
       handleBeforeUnload,
-      // New properties
       isDraggingActive,
       currentDragItemId,
       currentTargetX,
@@ -370,7 +368,8 @@ export default {
       onMouseMove,
       onDragOver,
       onItemDragStart,
-      onGridDrop
+      onGridDrop,
+      inventoryBounds
     };
   }
 };
@@ -378,7 +377,7 @@ export default {
 
 <style scoped>
 .inventory-container {
-  width: 90%;
+  width: auto;
   max-width: 600px;
   background-color: black;
   border-radius: 12px;
@@ -394,7 +393,7 @@ export default {
 
 .inventory-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }
 
@@ -404,25 +403,6 @@ export default {
   font-weight: 500;
 }
 
-.refresh-button {
-  padding: 8px 16px;
-  background-color: #444;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.refresh-button:hover:not(:disabled) {
-  background-color: #555;
-}
-
-.refresh-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .inventory-grid {
   display: grid;
   gap: 0;
@@ -430,6 +410,8 @@ export default {
   border: 1px solid #555;
   border-radius: 8px;
   overflow: hidden;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .empty-grid-message {

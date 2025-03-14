@@ -56,7 +56,7 @@
 
         <Transition name="component-slide">
           <div v-if="activeComponent === 'vitrine'" class="component-container" @click.self="closeComponent">
-            <Vitrine/>
+            <h2>Vitrine Component</h2>
           </div>
         </Transition>
 
@@ -123,7 +123,6 @@ import Profile from "@/components/ui/auth/Profile.vue"
 import Settings from "@/components/ui/settings/Settings.vue"
 import Store from "@/js/auth/store.js"
 import About from "@/components/ui/About.vue"
-import Vitrine from "@/components/ui/vitrine/Vitrine.vue"
 
 const isMenuOpen = ref(false)
 const activeComponent = ref(null)

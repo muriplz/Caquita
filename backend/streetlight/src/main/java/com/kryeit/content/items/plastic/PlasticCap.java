@@ -21,7 +21,7 @@ public class PlasticCap extends ResourceItem<PlasticClassification> {
                 "plastic:cap",
                 1,
                 1,
-                Rarity.COMMON,
+                Rarity.UNCOMMON,
                 ResourceType.PLASTIC,
                 plasticType,
                 createDisposalMap(plasticType),
