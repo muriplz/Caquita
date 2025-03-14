@@ -1,5 +1,5 @@
 <template>
-  <div class="auth-form">
+  <form class="auth-form" @submit.prevent="register">
     <div class="auth-header">
       <h2>Create an account</h2>
       <p>Please don't use personal information for the username, and remember the password you use. It's recommended to use a password you've never used before.</p>
@@ -13,14 +13,14 @@
       <input v-model="registerPassword" type="password" placeholder="Password" />
     </div>
 
-    <button @click="register" class="register-button">Sign Up</button>
+    <button type="submit" class="register-button">Sign Up</button>
 
     <div class="auth-footer">
       <a href="javascript:void(0)" @click="$emit('showAbout')">About us</a>
       <span class="divider">|</span>
       <a href="javascript:void(0)" @click="$emit('showLogin')">Already have an account</a>
     </div>
-  </div>
+  </form>
 </template>
 
 <script setup>

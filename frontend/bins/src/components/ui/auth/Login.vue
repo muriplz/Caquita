@@ -1,5 +1,5 @@
 <template>
-  <div class="auth-form">
+  <form class="auth-form" @submit.prevent="login">
     <div class="auth-header">
       <h2>Log In</h2>
     </div>
@@ -12,14 +12,14 @@
       <input v-model="loginPassword" type="password" placeholder="Password" />
     </div>
 
-    <button @click="login" class="login-button">Sign In</button>
+    <button type="submit" class="login-button">Sign In</button>
 
     <div class="auth-footer">
       <a href="javascript:void(0)" @click="$emit('showAbout')">About us</a>
       <span class="divider">|</span>
       <a href="javascript:void(0)" @click="$emit('showRegister')">Create an account</a>
     </div>
-  </div>
+  </form>
 </template>
 
 <script setup>
