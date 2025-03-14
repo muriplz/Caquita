@@ -273,29 +273,7 @@ function handleShowAbout() {
   z-index: 300;
 }
 
-.settings-button, .profile-button{
-  color: white;
-  cursor: pointer;
-  text-decoration: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: opacity 0.2s;
-}
-
-.settings-button:hover, .profile-button:hover {
-  opacity: 0.8;
-}
-
-.settings-icon {
-  width: 48px;
-  height: 48px;
-  image-rendering: pixelated;
-  will-change: transform;
-  backface-visibility: hidden;
-}
-
-.profile-button {
+.settings-button, .profile-button {
   color: white;
   cursor: pointer;
   text-decoration: none;
@@ -308,14 +286,17 @@ function handleShowAbout() {
   height: 48px;
 }
 
-.profile-icon {
-  width: 52px;
-  height: 52px;
+.settings-button:hover, .profile-button:hover {
+  opacity: 0.8;
+}
+
+.settings-icon, .profile-icon {
+  width: 48px;
+  height: 48px;
   image-rendering: pixelated;
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translateZ(0);
+  image-rendering: crisp-edges;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .settings-button.spin .settings-icon {
