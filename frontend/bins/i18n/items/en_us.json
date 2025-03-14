@@ -2,5 +2,7 @@
   "items.glass.bottle": "Glass bottle",
   "items.glass.shard": "Glass shard",
   "items.plastic.bottle": "Plastic bottle",
-  "items.plastic.cap": "Plastic cap"
+  "items.plastic.cap": "Plastic cap",
+  "items.plastic.tupper": "Plastic tupper",
+  "items.plastic.gloves": "Plastic gloves"
 }
