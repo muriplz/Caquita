@@ -290,9 +290,18 @@ function handleShowAbout() {
   opacity: 0.8;
 }
 
-.settings-icon, .profile-icon {
-  width: 48px;
-  height: 48px;
+.profile-icon {
+  width: 52px;
+  height: 52px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.settings-icon {
+  width: 46px;
+  height: 46px;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   will-change: transform;
