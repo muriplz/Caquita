@@ -9,8 +9,8 @@ class Store {
         };
     }
 
-    async setUser(id, username, creation, trust) {
-        this.state.user = new User(id, username, creation, trust);
+    async setUser(id, username, creation, trust, experience, beans) {
+        this.state.user = new User(id, username, creation, trust, experience, beans);
         await Levels.setup();
     }
 

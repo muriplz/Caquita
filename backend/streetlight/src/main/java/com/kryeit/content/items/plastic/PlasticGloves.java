@@ -21,7 +21,7 @@ public class PlasticGloves extends ResourceItem<PlasticClassification> {
                 "plastic:gloves",
                 2,
                 1,
-                Rarity.COMMON,
+                Rarity.RARE,
                 ResourceType.PLASTIC,
                 plasticType,
                 createDisposalMap(plasticType),

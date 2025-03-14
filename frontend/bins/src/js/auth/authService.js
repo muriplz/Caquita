@@ -18,9 +18,9 @@ class AuthService {
             });
 
             if (response.status === 200) {
-                const { token, id, username, creation, trust, experience } = await response.json();
+                const { token, id, username, creation, trust, experience, beans } = await response.json();
                 this.saveToken(token);
-                await Store.setUser(id, username, creation, trust, experience);
+                await Store.setUser(id, username, creation, trust, experience, beans);
                 // Force refresh inventory data
                 await inventoryStore.fetchInventory(true);
 
@@ -80,8 +80,8 @@ class AuthService {
         });
 
         if (response.status === 200) {
-            const { id, username, creation, trust, experience } = await response.json()
-            await Store.setUser(id, username, creation, trust, experience)
+            const { id, username, creation, trust, experience, beans } = await response.json()
+            await Store.setUser(id, username, creation, trust, experience, beans)
             // Force refresh inventory data
             await inventoryStore.fetchInventory(true);
 
