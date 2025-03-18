@@ -24,16 +24,10 @@
       />
     </div>
 
-    <a href="javascript:void(0)"
-       class="menu-toggle-button"
-       :class="{
-         'closed': !isMenuOpen && !activeComponent,
-         'open': isMenuOpen && !activeComponent,
-         'back': activeComponent
-       }"
-       @click="handleMenuButtonClick">
-      <span>{{ menuButtonText }}</span>
-    </a>
+    <MenuButton
+        :state="menuButtonState"
+        @click="handleMenuButtonClick"
+    />
 
     <Transition name="menu-fade">
       <div v-if="isMenuOpen" class="fullscreen-menu" @click.self="handleBackgroundClick">
@@ -123,6 +117,7 @@ import Profile from "@/components/ui/auth/Profile.vue"
 import Settings from "@/components/ui/settings/Settings.vue"
 import Store from "@/js/auth/store.js"
 import About from "@/components/ui/About.vue"
+import MenuButton from "@/components/ui/MenuButton.vue"
 
 const isMenuOpen = ref(false)
 const activeComponent = ref(null)
@@ -141,10 +136,10 @@ watch(isMenuOpen, (newVal) => {
   }
 })
 
-const menuButtonText = computed(() => {
-  if (activeComponent.value) return 'Go back'
-  if (isMenuOpen.value) return 'Close'
-  return 'Menu'
+const menuButtonState = computed(() => {
+  if (activeComponent.value) return 'back'
+  if (isMenuOpen.value) return 'open'
+  return 'closed'
 })
 
 function handleMenuButtonClick() {
@@ -328,39 +323,6 @@ function handleShowAbout() {
   z-index: 300;
 }
 
-.menu-toggle-button {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 24px;
-  cursor: pointer;
-  z-index: 300;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-decoration: none;
-  display: inline-block;
-  transition: background-color 0.2s, transform 0.2s;
-}
-
-.menu-toggle-button.closed {
-  background-color: #333;
-}
-
-.menu-toggle-button.open {
-  background-color: #f44336;
-}
-
-.menu-toggle-button.back {
-  background-color: #42a5f5;
-}
-
-.menu-toggle-button:hover {
-  text-decoration: none;
-  color: white;
-}
-
 .fullscreen-menu {
   position: fixed;
   top: 0;
@@ -378,27 +340,6 @@ function handleShowAbout() {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.menu-button {
-  display: block;
-  padding: 16px 32px;
-  background-color: white;
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 200px;
-  text-align: center;
-  text-decoration: none;
-}
-
-.menu-button:hover {
-  background-color: #f0f0f0;
-  text-decoration: none;
-  color: #333;
 }
 
 .component-container {

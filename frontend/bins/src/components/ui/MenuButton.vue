@@ -1,14 +1,20 @@
 <template>
-  <a href="javascript:void(0)" class="menu-button" @click="handleClick">
-    {{ label }}
+  <a href="javascript:void(0)"
+     class="menu-button"
+     :class="buttonState"
+     @click="handleClick">
+    <img :src="buttonImage" alt="Menu Button" class="menu-button-bg" />
   </a>
 </template>
 
 <script setup>
-defineProps({
-  label: {
+import { computed } from 'vue';
+
+const props = defineProps({
+  state: {
     type: String,
-    required: true
+    default: 'closed',
+    validator: (value) => ['closed', 'open', 'back'].includes(value)
   }
 })
 
@@ -17,33 +23,38 @@ const emit = defineEmits(['click'])
 function handleClick() {
   emit('click')
 }
+
+const buttonState = computed(() => props.state)
+
+const buttonImage = computed(() => {
+  const imageMap = {
+    'open': '/images/ui/close.png',
+    'closed': '/images/ui/open.png',
+    'back': '/images/ui/back.png'
+  }
+  return imageMap[props.state]
+})
 </script>
 
 <style scoped>
 .menu-button {
-  display: block;
-  padding: 16px 32px;
-  background-color: white;
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 600;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
-  width: 200px;
-  text-align: center;
+  z-index: 300;
+
   text-decoration: none;
+  transition: transform 0.2s;
 }
 
-.menu-button:hover {
-  background-color: #f0f0f0;
-  transform: scale(1.05);
-  text-decoration: none;
-  color: #333;
-}
-
-.menu-button:active {
-  transform: scale(0.98);
+.menu-button img {
+  width: 67px;
+  height: 67px;
+  image-rendering: pixelated;
 }
 </style>
