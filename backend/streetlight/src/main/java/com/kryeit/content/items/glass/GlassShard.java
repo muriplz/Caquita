@@ -8,6 +8,7 @@ import com.kryeit.recycling.RecyclingReward;
 import com.kryeit.recycling.ResourceType;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 public class GlassShard extends ResourceItem<GlassClassification> {
@@ -19,13 +20,15 @@ public class GlassShard extends ResourceItem<GlassClassification> {
     public GlassShard(GlassClassification glassType) {
         super(
                 "glass:shard",
-                1,
-                1,
+                List.of(
+                        new int[]{1}
+                ),
                 Rarity.JUNK,
                 ResourceType.GLASS,
                 glassType,
                 createDisposalMap(glassType),
-                createRecyclingReward(glassType)
+                createRecyclingReward(glassType),
+                "{}"
         );
     }
 

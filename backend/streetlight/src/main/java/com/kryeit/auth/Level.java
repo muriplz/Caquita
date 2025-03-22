@@ -3,7 +3,6 @@ package com.kryeit.auth;
 import com.kryeit.Database;
 import com.kryeit.Utils;
 import io.javalin.http.Context;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.util.Map;
