@@ -1,11 +1,9 @@
 package com.kryeit.auth;
 
 import com.kryeit.Database;
-import com.kryeit.Utils;
 import com.kryeit.auth.inventory.InventoryApi;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.mindrot.jbcrypt.BCrypt;
 

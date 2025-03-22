@@ -25,6 +25,7 @@
     </div>
 
     <MenuButton
+        ref="menuButtonRef"
         :state="menuButtonState"
         @click="handleMenuButtonClick"
     />
@@ -37,9 +38,9 @@
             class="menu-container"
             v-if="!activeComponent"
             appear>
-          <a v-if="isUserLoggedIn" key="inventory" href="javascript:void(0)" class="menu-button" style="transition-delay: 0.05s" @click="showInventory">Inventory</a>
-          <a v-if="isUserLoggedIn" key="vitrine" href="javascript:void(0)" class="menu-button" style="transition-delay: 0.1s" @click="showVitrine">Vitrine</a>
-          <a key="noidea" href="javascript:void(0)" class="menu-button" :style="{transitionDelay: isUserLoggedIn ? '0.15s' : '0.05s'}" @click="showNoIdea">NoIdea</a>
+          <a v-if="isUserLoggedIn" key="inventory" href="javascript:void(0)" class="menu-btn" style="transition-delay: 0.05s" @click="showInventory">Inventory</a>
+          <a v-if="isUserLoggedIn" key="vitrine" href="javascript:void(0)" class="menu-btn" style="transition-delay: 0.1s" @click="showVitrine">Vitrine</a>
+          <a key="noidea" href="javascript:void(0)" class="menu-btn" :style="{transitionDelay: isUserLoggedIn ? '0.15s' : '0.05s'}" @click="showNoIdea">NoIdea</a>
         </TransitionGroup>
 
         <Transition name="component-slide">
@@ -125,6 +126,7 @@ const previousComponent = ref(null)
 const isProfileMenuOpen = ref(false)
 const isUserLoggedIn = ref(Store.getUser() !== null)
 const isSettingsSpinning = ref(false)
+const menuButtonRef = ref(null)
 
 function checkUserStatus() {
   isUserLoggedIn.value = Store.getUser() !== null
@@ -151,13 +153,20 @@ function handleMenuButtonClick() {
 }
 
 function toggleMenu() {
+  if (isMenuOpen.value) {
+    menuButtonRef.value.flipLeft()
+  } else {
+    menuButtonRef.value.flipRight()
+  }
   isMenuOpen.value = !isMenuOpen.value
 }
 
 function handleBackgroundClick() {
   if (activeComponent.value) {
+    menuButtonRef.value.flipLeft()
     closeComponent()
   } else {
+    menuButtonRef.value.flipLeft()
     isMenuOpen.value = false
   }
 }
@@ -167,14 +176,17 @@ function toggleProfileMenu() {
 }
 
 function showInventory() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'inventory'
 }
 
 function showVitrine() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'vitrine'
 }
 
 function showNoIdea() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'noidea'
 }
 
@@ -211,30 +223,36 @@ function triggerSpinAnimation() {
 }
 
 function showAbout() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'about'
 }
 
 function showLogin() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'login'
   isProfileMenuOpen.value = false
 }
 
 function showRegister() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'register'
   isProfileMenuOpen.value = false
 }
 
 function showProfile() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'profile'
   isProfileMenuOpen.value = false
 }
 
 function closeComponent() {
+  menuButtonRef.value.flipLeft()
   activeComponent.value = null
   previousComponent.value = null
 }
 
 function closeAuth() {
+  menuButtonRef.value.flipLeft()
   activeComponent.value = null
   checkUserStatus()
 }
@@ -248,14 +266,17 @@ function handleLogout() {
 }
 
 function handleShowRegister() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'register'
 }
 
 function handleShowLogin() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'login'
 }
 
 function handleShowAbout() {
+  menuButtonRef.value.flipRight()
   activeComponent.value = 'about'
 }
 </script>
@@ -340,6 +361,27 @@ function handleShowAbout() {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.menu-btn {
+  display: block;
+  padding: 16px 32px;
+  background-color: white;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 200px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.menu-btn:hover {
+  background-color: #f0f0f0;
+  text-decoration: none;
+  color: #333;
 }
 
 .component-container {

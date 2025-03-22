@@ -25,10 +25,9 @@ public class DatabaseUtils {
                 CREATE TABLE IF NOT EXISTS inventories (
                     id SERIAL PRIMARY KEY,
                     user_id BIGINT NOT NULL,
-                    width INTEGER NOT NULL,
+                    items JSONB NOT NULL DEFAULT '[]',
                     height INTEGER NOT NULL,
-                    item_placements JSONB NOT NULL DEFAULT '{}',
-                    FOREIGN KEY (user_id) REFERENCES users(id)
+                    width INTEGER NOT NULL
                 )
             """);
 

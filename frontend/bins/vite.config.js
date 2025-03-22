@@ -5,6 +5,7 @@ import {templateCompilerOptions} from '@tresjs/core'
 
 // https://vite.dev/config/
 export default defineConfig({
+
   plugins: [vue(
       {
         ...templateCompilerOptions
