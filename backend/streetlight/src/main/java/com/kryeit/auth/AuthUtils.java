@@ -3,6 +3,8 @@ package com.kryeit.auth;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
 
+import java.util.UUID;
+
 public class AuthUtils {
 
     public static long getUser(Context ctx) {

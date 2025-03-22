@@ -1,20 +1,26 @@
 package com.kryeit.auth.inventory;
 
-import com.google.gson.JsonArray;
 import com.kryeit.Database;
 import com.kryeit.auth.AuthUtils;
 import com.kryeit.content.items.Item;
-import io.javalin.http.BadRequestResponse;
+import com.kryeit.registry.CaquitaItems;
 import io.javalin.http.Context;
+import io.javalin.http.BadRequestResponse;
+import io.javalin.http.NotFoundResponse;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class InventoryApi {
 
-    public static Inventory getInventory(long user) {
+    public static GridInventory getInventory(long user) {
         return Database.getJdbi().withHandle(handle ->
                 handle.createQuery("SELECT * FROM inventories WHERE user_id = :user_id")
                         .bind("user_id", user)
-                        .mapTo(Inventory.class)
+                        .mapTo(GridInventory.class)
                         .findFirst()
                         .orElseGet(() -> {
                             initInventory(user);
@@ -24,85 +30,190 @@ public class InventoryApi {
     }
 
     public static void initInventory(long user) {
-        InventoryItem item = new InventoryItem(
-                "plastic:bottle",
-                new int[]{0, 2}
-        );
+        GridInventory inventory = new GridInventory(0, user, 4, 4);
 
-        JsonArray items = new JsonArray();
-        items.add(item.toJson());
+        Item plasticBottle = CaquitaItems.getItem("plastic:bottle");
+        Item plasticCap = CaquitaItems.getItem("plastic:cap");
+        Item glassBottle = CaquitaItems.getItem("glass:bottle");
+        Item glassShard = CaquitaItems.getItem("glass:shard");
+
+        InventoryManager manager = new InventoryManager(inventory);
+
+        manager.addItem(plasticBottle, new Position(0, 0));
+        manager.addItem(plasticCap, new Position(1, 0));
+        manager.addItem(glassBottle, new Position(2, 0));
+        manager.addItem(glassShard, new Position(3, 0));
+
         Database.getJdbi().useHandle(handle -> {
-            handle.createUpdate("INSERT INTO inventories (user_id, items, height, width) VALUES (:user_id, cast(:item_placements as jsonb), height, width)")
+            handle.createUpdate("INSERT INTO inventories (user_id, width, height, item_placements) VALUES (:user_id, :width, :height, cast(:item_placements as jsonb))")
                     .bind("user_id", user)
-                    .bind("height", 3)
-                    .bind("width", 2)
-                    .bind("items", items)
+                    .bind("width", inventory.width())
+                    .bind("height", inventory.height())
+                    .bind("item_placements", JsonUtils.serialize(inventory))
                     .execute();
         });
     }
 
     public static void getInventory(@NotNull Context context) {
         long user = AuthUtils.getUser(context);
+        GridInventory inventory = getInventory(user);
 
-        Inventory inventory = getInventory(user);
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", inventory.id());
+        response.put("userId", inventory.userId());
+        response.put("width", inventory.width());
+        response.put("height", inventory.height());
 
-        context.json(inventory);
+        List<Map<String, Object>> itemsList = new ArrayList<>();
+
+        for (Map.Entry<String, GridInventory.ItemPlacement> entry : inventory.itemPlacements().entrySet()) {
+            String instanceId = entry.getKey();
+            GridInventory.ItemPlacement placement = entry.getValue();
+            InventoryItem inventoryItem = placement.item();
+            Position position = placement.position();
+
+            Map<String, Object> itemMap = new HashMap<>();
+            itemMap.put("instanceId", instanceId);
+
+            Map<String, Object> itemDetails = new HashMap<>();
+            itemDetails.put("id", inventoryItem.getItemId());
+            itemDetails.put("width", inventoryItem.getWidth());
+            itemDetails.put("height", inventoryItem.getHeight());
+            itemDetails.put("rarity", inventoryItem.getRarity().name());
+
+            Map<String, Integer> posMap = new HashMap<>();
+            posMap.put("x", position.x());
+            posMap.put("y", position.y());
+
+            itemMap.put("item", itemDetails);
+            itemMap.put("position", posMap);
+
+            itemsList.add(itemMap);
+        }
+
+        response.put("items", itemsList);
+        context.json(response);
     }
 
     public static void addItem(@NotNull Context context) {
         long user = AuthUtils.getUser(context);
+        GridInventory inventory = getInventory(user);
 
         AddItemRequest request = context.bodyAsClass(AddItemRequest.class);
-        InventoryManager manager = new InventoryManager(user);
+        InventoryManager manager = new InventoryManager(inventory);
 
-        boolean success = manager.addItem(request.item, request.slot);
+        boolean success = manager.addItem(request.item(), request.position());
         if (!success) {
             throw new BadRequestResponse("Cannot add item at the specified position");
         }
-        context.status(200);
+
+        updateInventory(inventory);
+        context.status(200).json(Map.of("success", true));
     }
 
     public static void removeItem(@NotNull Context context) {
         long user = AuthUtils.getUser(context);
+        GridInventory inventory = getInventory(user);
         RemoveItemRequest request = context.bodyAsClass(RemoveItemRequest.class);
 
-        InventoryManager manager = new InventoryManager(user);
+        InventoryManager manager = new InventoryManager(inventory);
 
-        if (manager.removeItem(request.item)) {
-            context.status(200);
+        if (request.instanceId() != null) {
+            boolean success = manager.removeItem(request.instanceId());
+            if (!success) {
+                throw new NotFoundResponse("Item not found with the given instance ID");
+            }
+        } else if (request.itemId() != null && request.position() != null) {
+            InventoryItem itemToRemove = manager.findItemByIdAndPosition(request.itemId(), request.position());
+            if (itemToRemove == null) {
+                throw new NotFoundResponse("Item not found at the specified position");
+            }
+            boolean success = manager.removeItem(itemToRemove.getInstanceId());
+            if (!success) {
+                throw new BadRequestResponse("Failed to remove item");
+            }
         } else {
-            throw new BadRequestResponse("Failed to remove item");
+            throw new BadRequestResponse("Either instanceId or (itemId and position) must be provided");
         }
+
+        updateInventory(inventory);
+        context.status(200).json(Map.of("success", true));
     }
 
     public static void moveItem(@NotNull Context context) {
         long user = AuthUtils.getUser(context);
+        GridInventory inventory = getInventory(user);
         MoveItemRequest request = context.bodyAsClass(MoveItemRequest.class);
 
-        InventoryManager manager = new InventoryManager(user);
+        InventoryManager manager = new InventoryManager(inventory);
 
-        if (manager.moveItem(request.item, request.newSlot)) {
-            context.status(200);
+        if (request.instanceId() != null) {
+            boolean success = manager.moveItem(request.instanceId(), request.newPosition());
+            if (!success) {
+                throw new BadRequestResponse("Cannot move item to the specified position");
+            }
+        } else if (request.itemId() != null && request.currentPosition() != null) {
+            InventoryItem itemToMove = manager.findItemByIdAndPosition(request.itemId(), request.currentPosition());
+            if (itemToMove == null) {
+                throw new NotFoundResponse("Item not found at the specified position");
+            }
+            boolean success = manager.moveItem(itemToMove.getInstanceId(), request.newPosition());
+            if (!success) {
+                throw new BadRequestResponse("Cannot move item to the specified position");
+            }
         } else {
-            throw new BadRequestResponse("Failed to move item");
+            throw new BadRequestResponse("Either instanceId or (itemId and currentPosition) must be provided");
         }
+
+        updateInventory(inventory);
+        context.status(200).json(Map.of("success", true));
     }
 
     public static void canPlaceItem(@NotNull Context context) {
         long user = AuthUtils.getUser(context);
+        GridInventory inventory = getInventory(user);
 
         CanPlaceItemRequest request = context.bodyAsClass(CanPlaceItemRequest.class);
-        InventoryManager manager = new InventoryManager(user);
+        InventoryManager manager = new InventoryManager(inventory);
 
-        if (manager.calculatePlacement(request.item, request.slot) != null) {
-            context.status(200);
+        if (request.instanceId() != null) {
+            InventoryItem inventoryItem = manager.findItemByInstanceId(request.instanceId());
+            if (inventoryItem == null) {
+                throw new NotFoundResponse("Item not found with the given instance ID");
+            }
+            boolean canPlace = manager.canPlaceItem(inventoryItem, request.position(), request.instanceId());
+            context.status(200).json(Map.of("canPlace", canPlace));
+        } else if (request.itemId() != null) {
+            Item item = CaquitaItems.getItem(request.itemId());
+            if (item == null) {
+                throw new NotFoundResponse("Item not found with the given ID");
+            }
+            InventoryItem tempItem = new InventoryItem(item);
+            boolean canPlace = manager.canPlaceItem(tempItem, request.position());
+            context.status(200).json(Map.of("canPlace", canPlace));
+        } else if (request.item() != null) {
+            InventoryItem tempItem = new InventoryItem(request.item());
+            boolean canPlace = manager.canPlaceItem(tempItem, request.position());
+            context.status(200).json(Map.of("canPlace", canPlace));
         } else {
-            throw new BadRequestResponse("Cannot place item at the specified position");
+            throw new BadRequestResponse("Either instanceId, itemId, or item must be provided");
         }
     }
 
-    record AddItemRequest(Item item, int slot) {}
-    record RemoveItemRequest(InventoryItem item) {}
-    record MoveItemRequest(InventoryItem item, int newSlot) {}
-    record CanPlaceItemRequest(Item item, int slot) {}
+    private static void updateInventory(GridInventory inventory) {
+        Database.getJdbi().useHandle(handle -> {
+            handle.createUpdate("UPDATE inventories SET width = :width, height = :height, item_placements = cast(:item_placements as jsonb) WHERE id = :id AND user_id = :user_id")
+                    .bind("id", inventory.id())
+                    .bind("user_id", inventory.userId())
+                    .bind("width", inventory.width())
+                    .bind("height", inventory.height())
+                    .bind("item_placements", JsonUtils.serialize(inventory))
+                    .execute();
+        });
+    }
+
+    record AddItemRequest(Item item, Position position) {}
+    record RemoveItemRequest(String instanceId, String itemId, Position position) {}
+    record MoveItemRequest(String instanceId, String itemId, Position currentPosition, Position newPosition) {}
+    record CanPlaceItemRequest(String instanceId, String itemId, Item item, Position position) {}
 }

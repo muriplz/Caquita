@@ -5,36 +5,33 @@ import com.kryeit.recycling.DisposalOutcome;
 import com.kryeit.recycling.RecyclingReward;
 import com.kryeit.recycling.ResourceType;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public abstract class Item {
     private final String id;
-    private final List<int[]> shape;
+    private final int width;
+    private final int height;
     private final Rarity rarity;
     private final ResourceType resourceType;
     private final Map<LandmarkType, DisposalOutcome> disposalOutcomes;
     private final RecyclingReward recyclingReward;
+    private final Map<String, Object> properties = new HashMap<>();
 
-    private final String nbt;
-
-    protected Item(String id, List<int[]> shape, Rarity rarity,
+    protected Item(String id, int width, int height, Rarity rarity,
                    ResourceType resourceType, Map<LandmarkType, DisposalOutcome> disposalOutcomes,
-                   RecyclingReward recyclingReward,
-                   String nbt) {
+                   RecyclingReward recyclingReward) {
         this.id = id;
-        this.shape = shape;
+        this.width = width;
+        this.height = height;
         this.rarity = rarity;
         this.resourceType = resourceType;
         this.disposalOutcomes = new EnumMap<>(disposalOutcomes);
         this.recyclingReward = recyclingReward;
-        this.nbt = nbt;
     }
 
     public String getId() { return id; }
-    public List<int[]> getShape() { return shape; }
+    public int getWidth() { return width; }
+    public int getHeight() { return height; }
     public Rarity getRarity() { return rarity; }
     public ResourceType getResourceType() { return resourceType; }
 
@@ -57,6 +54,14 @@ public abstract class Item {
     }
 
     public RecyclingReward getRecyclingReward() { return recyclingReward; }
+
+    public void setProperty(String key, Object value) {
+        properties.put(key, value);
+    }
+
+    public Object getProperty(String key) {
+        return properties.get(key);
+    }
 
     public DisposalOutcome getDisposalOutcome(LandmarkType landmarkType) {
         return disposalOutcomes.getOrDefault(landmarkType, DisposalOutcome.WRONG);

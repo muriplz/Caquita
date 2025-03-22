@@ -1,8 +1,8 @@
 package com.kryeit.registry;
 
 
-import com.kryeit.content.items.Item;
 import com.kryeit.content.items.glass.GlassBottle;
+import com.kryeit.content.items.Item;
 import com.kryeit.content.items.glass.GlassShard;
 import com.kryeit.content.items.plastic.PlasticBottle;
 import com.kryeit.content.items.plastic.PlasticCap;

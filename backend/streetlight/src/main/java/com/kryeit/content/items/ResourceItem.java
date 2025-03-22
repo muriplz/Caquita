@@ -5,24 +5,23 @@ import com.kryeit.recycling.DisposalOutcome;
 import com.kryeit.recycling.RecyclingReward;
 import com.kryeit.recycling.ResourceType;
 
-import java.util.List;
 import java.util.Map;
 
 public abstract class ResourceItem<T extends Enum<T>> extends Item {
     private final T classification;
 
-    protected ResourceItem(String id, List<int[]> shape, Rarity rarity,
+    protected ResourceItem(String id, int width, int height, Rarity rarity,
                            ResourceType resourceType, T classification,
                            Map<LandmarkType, DisposalOutcome> disposalOutcomes,
-                           RecyclingReward recyclingReward, String nbt) {
+                           RecyclingReward recyclingReward) {
         super(
                 id,
-                shape,
+                width,
+                height,
                 rarity,
                 resourceType,
                 disposalOutcomes,
-                recyclingReward,
-                nbt
+                recyclingReward
         );
         this.classification = classification;
     }

@@ -8,7 +8,6 @@ import com.kryeit.recycling.RecyclingReward;
 import com.kryeit.recycling.ResourceType;
 
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 public class PlasticGloves extends ResourceItem<PlasticClassification> {
@@ -20,16 +19,13 @@ public class PlasticGloves extends ResourceItem<PlasticClassification> {
     public PlasticGloves(PlasticClassification plasticType) {
         super(
                 "plastic:gloves",
-                List.of(
-                        new int[]{1, 1},
-                        new int[]{0, 0}
-                ),
+                2,
+                1,
                 Rarity.RARE,
                 ResourceType.PLASTIC,
                 plasticType,
                 createDisposalMap(plasticType),
-                createRecyclingReward(plasticType),
-                "{}"
+                createRecyclingReward(plasticType)
         );
     }
 

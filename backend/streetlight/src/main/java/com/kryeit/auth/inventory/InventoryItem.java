@@ -1,83 +1,58 @@
 package com.kryeit.auth.inventory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.kryeit.content.items.Item;
-import com.kryeit.registry.CaquitaItems;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.kryeit.content.items.Rarity;
+import java.util.Objects;
+import java.util.UUID;
 
 public class InventoryItem {
-    private String id;
-    private int[] cells;
-    private String nbt;
+    private final String instanceId;
+    private final Item item;
 
-    public InventoryItem(String id, int[] cells, String nbt) {
-        this.id = id;
-        this.cells = cells;
-        this.nbt = nbt;
+    public InventoryItem(Item item) {
+        this.instanceId = UUID.randomUUID().toString();
+        this.item = item;
     }
 
-    public InventoryItem(String id, int[] cells) {
-        this.id = id;
-        this.cells = cells;
-        this.nbt = "{}";
+    public InventoryItem(String instanceId, Item item) {
+        this.instanceId = instanceId;
+        this.item = item;
     }
 
-    public String id() {
-        return id;
+    public String getInstanceId() {
+        return instanceId;
     }
 
-    public int[] cells() {
-        return cells;
+    public Item getItem() {
+        return item;
     }
 
-    public String nbt() {
-        return nbt;
+    public String getItemId() {
+        return item.getId();
     }
 
-    public void setCells(int[] cells) {
-        this.cells = cells;
+    public int getWidth() {
+        return item.getWidth();
     }
 
-    public void setNbt(String nbt) {
-        this.nbt = nbt;
+    public int getHeight() {
+        return item.getHeight();
     }
 
-    public Item toItem() {
-        return CaquitaItems.getItem(id);
+    public Rarity getRarity() {
+        return item.getRarity();
     }
 
-    public JsonObject toJson() {
-        JsonObject json = new JsonObject();
-        json.addProperty("id", id);
-        json.addProperty("nbt", nbt);
-        JsonArray cellsArray = new JsonArray();
-        for (int cell : cells) {
-            cellsArray.add(cell);
-        }
-        json.add("cells", cellsArray);
-        return json;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        InventoryItem that = (InventoryItem) o;
+        return Objects.equals(instanceId, that.instanceId);
     }
 
-    public static List<InventoryItem> fromJsonArray(JsonArray json) {
-        List<InventoryItem> items = new ArrayList<>();
-        for (JsonElement element : json) {
-            items.add(fromJsonElement(element));
-        }
-        return items;
-    }
-
-    public static InventoryItem fromJsonElement(JsonElement element) {
-        JsonObject item = element.getAsJsonObject();
-        String id = item.get("id").getAsString();
-        int[] cells = new int[item.getAsJsonArray("cells").size()];
-        for (int i = 0; i < cells.length; i++) {
-            cells[i] = item.getAsJsonArray("cells").get(i).getAsInt();
-        }
-        String nbt = item.get("nbt").getAsString();
-        return new InventoryItem(id, cells, nbt);
+    @Override
+    public int hashCode() {
+        return Objects.hash(instanceId);
     }
 }

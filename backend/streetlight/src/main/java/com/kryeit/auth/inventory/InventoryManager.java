@@ -1,123 +1,152 @@
 package com.kryeit.auth.inventory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.kryeit.Database;
 import com.kryeit.content.items.Item;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-// Example inventory.items() json
-// [
-//   {
-//     "id": "plastic:bottle",
-//     "cells": [0, 3],
-//     "nbt": "{}"
-//   },
-//   {
-//     ...
-//   }
-// ]
 public class InventoryManager {
-    private long user;
-    public final Inventory inventory;
+    private final GridInventory inventory;
 
-    public InventoryManager(long user) {
-        this.user = user;
-        this.inventory = Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT * FROM inventories WHERE user_id = :user_id")
-                        .bind("user_id", user)
-                        .mapTo(Inventory.class)
-                        .one()
-        );
-
+    public InventoryManager(GridInventory inventory) {
+        this.inventory = inventory;
     }
 
-    public boolean addItem(Item item, int slot) {
-        InventoryItem placedItem = calculatePlacement(item, slot);
-        if (placedItem == null)
+    public boolean addItem(Item item, Position position) {
+        InventoryItem inventoryItem = new InventoryItem(item);
+        return addInventoryItem(inventoryItem, position);
+    }
+
+    public boolean addInventoryItem(InventoryItem inventoryItem, Position position) {
+        if (!canPlaceItem(inventoryItem, position)) {
             return false;
+        }
 
-        inventory.items().add(placedItem.toJson());
-        updateInventory();
+        GridInventory.ItemPlacement placement = new GridInventory.ItemPlacement(inventoryItem, position);
+        inventory.itemPlacements().put(inventoryItem.getInstanceId(), placement);
         return true;
     }
 
-    public boolean removeItem(InventoryItem item) {
-        inventory.items().remove(item.toJson());
-        updateInventory();
-        return true;
-    }
+    public InventoryItem findItemByIdAndPosition(String itemId, Position position) {
+        for (GridInventory.ItemPlacement placement : inventory.itemPlacements().values()) {
+            InventoryItem inventoryItem = placement.item();
+            Position itemPos = placement.position();
 
-    public boolean moveItem(InventoryItem item, int newSlot) {
-        InventoryItem placedItem = calculatePlacement(item.toItem(), newSlot);
-
-        if (placedItem == null)
-            return false;
-
-        inventory.items().remove(item.toJson());
-        inventory.items().add(placedItem.toJson());
-        updateInventory();
-        return true;
-    }
-
-    public void updateInventory() {
-        Database.getJdbi().useHandle(handle -> {
-            handle.createUpdate("UPDATE inventories SET items = cast(:items as jsonb) WHERE user_id = :user_id")
-                    .bind("user_id", user)
-                    .bind("items", inventory.items())
-                    .execute();
-        });
-    }
-
-    public InventoryItem calculatePlacement(Item newItem, int slot) {
-        int startX = slot % inventory.width();
-        int startY = slot / inventory.width();
-
-        // Get the shape of the new item
-        List<int[]> newItemShape = newItem.getShape();
-
-        // Calculate all cells the new item would occupy
-        Set<Integer> newItemCells = new HashSet<>();
-        for (int y = 0; y < newItemShape.size(); y++) {
-            for (int x = 0; x < newItemShape.get(y).length; x++) {
-                if (newItemShape.get(y)[x] == 1) {
-                    int cellX = startX + x;
-                    int cellY = startY + y;
-
-                    // Check if the item would go outside the inventory bounds
-                    if (cellX >= inventory.width() || cellY >= inventory.height()) {
-                        return null;
-                    }
-
-                    int cellSlot = cellY * inventory.width() + cellX;
-                    newItemCells.add(cellSlot);
-                }
+            if (inventoryItem.getItemId().equals(itemId) &&
+                    itemPos.x() == position.x() &&
+                    itemPos.y() == position.y()) {
+                return inventoryItem;
             }
         }
 
-        // Check for collisions with existing items in the inventory
-        JsonArray items = inventory.items();
-        for (int i = 0; i < items.size(); i++) {
-            JsonObject itemJson = items.get(i).getAsJsonObject();
-            JsonArray cellsJson = itemJson.get("cells").getAsJsonArray();
+        return null;
+    }
 
-            for (int j = 0; j < cellsJson.size(); j++) {
-                int cell = cellsJson.get(j).getAsInt();
-                if (newItemCells.contains(cell)) {
-                    // Found a collision
-                    return null;
-                }
+    public InventoryItem findItemByInstanceId(String instanceId) {
+        GridInventory.ItemPlacement placement = inventory.itemPlacements().get(instanceId);
+        return placement != null ? placement.item() : null;
+    }
+
+    public boolean removeItem(String instanceId) {
+        return inventory.itemPlacements().remove(instanceId) != null;
+    }
+
+    public boolean moveItem(String instanceId, Position newPosition) {
+        GridInventory.ItemPlacement placement = inventory.itemPlacements().get(instanceId);
+        if (placement == null) {
+            return false;
+        }
+
+        InventoryItem item = placement.item();
+        if (!canPlaceItem(item, newPosition, instanceId)) {
+            return false;
+        }
+
+        GridInventory.ItemPlacement newPlacement = new GridInventory.ItemPlacement(item, newPosition);
+        inventory.itemPlacements().put(instanceId, newPlacement);
+        return true;
+    }
+
+    public boolean canPlaceItem(InventoryItem item, Position position) {
+        return canPlaceItem(item, position, null);
+    }
+
+    public boolean canPlaceItem(InventoryItem item, Position position, String excludeInstanceId) {
+        if (!isPositionValid(position)) {
+            return false;
+        }
+
+        if (!isItemFitting(item, position)) {
+            return false;
+        }
+
+        return !isOverlapping(item, position, excludeInstanceId);
+    }
+
+    private boolean isPositionValid(Position position) {
+        return position.x() >= 0 && position.y() >= 0 &&
+                position.x() < inventory.width() && position.y() < inventory.height();
+    }
+
+    private boolean isItemFitting(InventoryItem item, Position position) {
+        return position.x() + item.getWidth() <= inventory.width() &&
+                position.y() + item.getHeight() <= inventory.height();
+    }
+
+    private boolean isOverlapping(InventoryItem itemToPlace, Position positionToPlace, String excludeInstanceId) {
+        for (Map.Entry<String, GridInventory.ItemPlacement> entry : inventory.itemPlacements().entrySet()) {
+            String instanceId = entry.getKey();
+
+            if (excludeInstanceId != null && instanceId.equals(excludeInstanceId)) {
+                continue;
+            }
+
+            GridInventory.ItemPlacement placement = entry.getValue();
+            InventoryItem existingItem = placement.item();
+            Position existingPosition = placement.position();
+
+            if (doItemsOverlap(
+                    itemToPlace, positionToPlace,
+                    existingItem, existingPosition)) {
+                return true;
             }
         }
 
-        // Convert Set to int array for InventoryItem
-        int[] cellsArray = newItemCells.stream().mapToInt(Integer::intValue).toArray();
-
-        // Create new InventoryItem with calculated cells
-        return new InventoryItem(newItem.getId(), cellsArray, "{}");
+        return false;
     }
 
+    private boolean doItemsOverlap(
+            InventoryItem item1, Position pos1,
+            InventoryItem item2, Position pos2) {
+        return pos1.x() < pos2.x() + item2.getWidth() &&
+                pos1.x() + item1.getWidth() > pos2.x() &&
+                pos1.y() < pos2.y() + item2.getHeight() &&
+                pos1.y() + item1.getHeight() > pos2.y();
+    }
+
+    public List<InventoryItem> getItemsAt(Position position) {
+        List<InventoryItem> items = new ArrayList<>();
+
+        for (GridInventory.ItemPlacement placement : inventory.itemPlacements().values()) {
+            InventoryItem item = placement.item();
+            Position itemPos = placement.position();
+
+            if (position.x() >= itemPos.x() && position.x() < itemPos.x() + item.getWidth() &&
+                    position.y() >= itemPos.y() && position.y() < itemPos.y() + item.getHeight()) {
+                items.add(item);
+            }
+        }
+
+        return items;
+    }
+
+    public Position getItemPosition(String instanceId) {
+        GridInventory.ItemPlacement placement = inventory.itemPlacements().get(instanceId);
+        return placement != null ? placement.position() : null;
+    }
+
+    public GridInventory getInventory() {
+        return inventory;
+    }
 }
