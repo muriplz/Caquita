@@ -5,10 +5,7 @@ import com.kryeit.recycling.DisposalOutcome;
 import com.kryeit.recycling.RecyclingReward;
 import com.kryeit.recycling.ResourceType;
 
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public abstract class Item {
     private final String id;

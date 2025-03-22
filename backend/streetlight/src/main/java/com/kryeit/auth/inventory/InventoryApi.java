@@ -1,6 +1,7 @@
 package com.kryeit.auth.inventory;
 
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.kryeit.Database;
 import com.kryeit.auth.AuthUtils;
 import com.kryeit.content.items.Item;
@@ -9,6 +10,7 @@ import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
 
 public class InventoryApi {
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static Inventory getInventory(long user) {
         return Database.getJdbi().withHandle(handle ->
@@ -25,14 +27,15 @@ public class InventoryApi {
 
     public static void initInventory(long user) {
         InventoryItem item = new InventoryItem(
-                "plastic:bottle",
-                new int[]{0, 2}
+                "plastic:tupper",
+                new int[]{0, 1, 2, 3}
         );
 
-        JsonArray items = new JsonArray();
+        ArrayNode items = MAPPER.createArrayNode();
         items.add(item.toJson());
+
         Database.getJdbi().useHandle(handle -> {
-            handle.createUpdate("INSERT INTO inventories (user_id, items, height, width) VALUES (:user_id, cast(:item_placements as jsonb), height, width)")
+            handle.createUpdate("INSERT INTO inventories (user_id, items, height, width) VALUES (:user_id, cast(:items as jsonb), :height, :width)")
                     .bind("user_id", user)
                     .bind("height", 3)
                     .bind("width", 2)
@@ -79,6 +82,7 @@ public class InventoryApi {
         long user = AuthUtils.getUser(context);
         MoveItemRequest request = context.bodyAsClass(MoveItemRequest.class);
 
+        System.out.println("Moving item to slot " + request.newSlot);
         InventoryManager manager = new InventoryManager(user);
 
         if (manager.moveItem(request.item, request.newSlot)) {

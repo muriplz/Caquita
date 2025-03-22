@@ -1,7 +1,8 @@
 package com.kryeit.auth.inventory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kryeit.Database;
 import com.kryeit.content.items.Item;
 
@@ -9,17 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// Example inventory.items() json
-// [
-//   {
-//     "id": "plastic:bottle",
-//     "cells": [0, 3],
-//     "nbt": "{}"
-//   },
-//   {
-//     ...
-//   }
-// ]
 public class InventoryManager {
     private long user;
     public final Inventory inventory;
@@ -32,7 +22,6 @@ public class InventoryManager {
                         .mapTo(Inventory.class)
                         .one()
         );
-
     }
 
     public boolean addItem(Item item, int slot) {
@@ -46,21 +35,83 @@ public class InventoryManager {
     }
 
     public boolean removeItem(InventoryItem item) {
-        inventory.items().remove(item.toJson());
+        ArrayNode items = inventory.items();
+        String itemId = item.id();
+
+        for (int i = 0; i < items.size(); i++) {
+            JsonNode currentItem = items.get(i);
+            if (currentItem.get("id").asText().equals(itemId)) {
+                items.remove(i);
+                break;
+            }
+        }
+
         updateInventory();
         return true;
     }
 
     public boolean moveItem(InventoryItem item, int newSlot) {
-        InventoryItem placedItem = calculatePlacement(item.toItem(), newSlot);
+        InventoryItem placedItem = calculateMovePlacement(item, newSlot);
 
         if (placedItem == null)
             return false;
 
-        inventory.items().remove(item.toJson());
+        removeItem(item);
         inventory.items().add(placedItem.toJson());
         updateInventory();
         return true;
+    }
+
+    public InventoryItem calculateMovePlacement(InventoryItem existingItem, int newSlot) {
+        Item itemType = existingItem.toItem();
+        int startX = newSlot % inventory.width();
+        int startY = newSlot / inventory.width();
+
+        List<int[]> itemShape = itemType.getShape();
+
+        Set<Integer> newItemCells = new HashSet<>();
+        for (int y = 0; y < itemShape.size(); y++) {
+            for (int x = 0; x < itemShape.get(y).length; x++) {
+                if (itemShape.get(y)[x] == 1) {
+                    int cellX = startX + x;
+                    int cellY = startY + y;
+
+                    if (cellX >= inventory.width() || cellY >= inventory.height()) {
+                        return null;
+                    }
+
+                    int cellSlot = cellY * inventory.width() + cellX;
+                    newItemCells.add(cellSlot);
+                }
+            }
+        }
+
+        Set<Integer> existingItemCells = new HashSet<>();
+        for (int cell : existingItem.cells()) {
+            existingItemCells.add(cell);
+        }
+
+        ArrayNode items = inventory.items();
+        for (int i = 0; i < items.size(); i++) {
+            JsonNode itemJson = items.get(i);
+            String currentItemId = itemJson.get("id").asText();
+
+            // Skip checking collision with the item being moved
+            if (currentItemId.equals(existingItem.id())) {
+                continue;
+            }
+
+            ArrayNode cellsJson = (ArrayNode) itemJson.get("cells");
+            for (int j = 0; j < cellsJson.size(); j++) {
+                int cell = cellsJson.get(j).asInt();
+                if (newItemCells.contains(cell)) {
+                    return null;
+                }
+            }
+        }
+
+        int[] cellsArray = newItemCells.stream().mapToInt(Integer::intValue).toArray();
+        return new InventoryItem(itemType.getId(), cellsArray, existingItem.nbt());
     }
 
     public void updateInventory() {
@@ -76,10 +127,8 @@ public class InventoryManager {
         int startX = slot % inventory.width();
         int startY = slot / inventory.width();
 
-        // Get the shape of the new item
         List<int[]> newItemShape = newItem.getShape();
 
-        // Calculate all cells the new item would occupy
         Set<Integer> newItemCells = new HashSet<>();
         for (int y = 0; y < newItemShape.size(); y++) {
             for (int x = 0; x < newItemShape.get(y).length; x++) {
@@ -87,7 +136,6 @@ public class InventoryManager {
                     int cellX = startX + x;
                     int cellY = startY + y;
 
-                    // Check if the item would go outside the inventory bounds
                     if (cellX >= inventory.width() || cellY >= inventory.height()) {
                         return null;
                     }
@@ -98,26 +146,20 @@ public class InventoryManager {
             }
         }
 
-        // Check for collisions with existing items in the inventory
-        JsonArray items = inventory.items();
+        ArrayNode items = inventory.items();
         for (int i = 0; i < items.size(); i++) {
-            JsonObject itemJson = items.get(i).getAsJsonObject();
-            JsonArray cellsJson = itemJson.get("cells").getAsJsonArray();
+            JsonNode itemJson = items.get(i);
+            ArrayNode cellsJson = (ArrayNode) itemJson.get("cells");
 
             for (int j = 0; j < cellsJson.size(); j++) {
-                int cell = cellsJson.get(j).getAsInt();
+                int cell = cellsJson.get(j).asInt();
                 if (newItemCells.contains(cell)) {
-                    // Found a collision
                     return null;
                 }
             }
         }
 
-        // Convert Set to int array for InventoryItem
         int[] cellsArray = newItemCells.stream().mapToInt(Integer::intValue).toArray();
-
-        // Create new InventoryItem with calculated cells
         return new InventoryItem(newItem.getId(), cellsArray, "{}");
     }
-
 }

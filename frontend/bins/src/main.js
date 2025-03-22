@@ -8,10 +8,14 @@ import {CarbonIconsVue, LogoDiscord32, LogoGithub32, Settings32, User32, UserPro
 
 import settingsStore from '@/components/ui/settings/settings.js';
 import {initGPSSystem} from "@/components/player/GPSTracker.js";
+import ItemsApi from "@/js/items/ItemsApi.js";
+import Store from "@/js/Store.js";
+
 
 settingsStore.init();
-
+Store.updateItems();
 AuthService.validate();
+
 initGPSSystem();
 
 createApp(App)

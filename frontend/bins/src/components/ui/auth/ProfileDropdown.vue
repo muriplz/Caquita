@@ -38,7 +38,7 @@
 
 <script setup>
 import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
-import Store from "@/js/auth/store.js"
+import Store from "@/js/Store.js"
 import KofiLogo from "@/assets/icons/KofiLogo.vue";
 
 const props = defineProps({

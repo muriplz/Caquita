@@ -51,54 +51,63 @@ public class Main {
 
             config.showJavalinBanner = false;
 
-            config.router.apiBuilder(() -> {
-                path("api", () -> {
-                    path("v1", () -> {
-                        get(ctx -> ctx.result("Hello from Streetlight!"));
-
-                        path("items", () -> {
-                            get(ctx -> ctx.json(CaquitaItems.getAllItems()));
-                            get("{id}", ItemsApi::getItem);
-                        });
-
-                        path("landmarks", () -> {
-                            get(LandmarkApi::getLandmarks);
-
-                            path("types", () -> {
-                                get(LandmarkApi::getTypes);
-                            });
-                            path("{id}", () -> {
-                                get(LandmarkApi::getLandmark);
-                                patch(LandmarkApi::updateLandmark);
-                            });
-
-                            path("cans", () -> {
-                                get(TrashCanApi::getCans);
-                                put(TrashCanApi::createCan);
-                            });
-                        });
-
-                        path("auth", () -> {
-                            path("level", () -> {
-                                get("{id}", Level::getLevel);
-                                patch(Level::modifyLevel);
-                            });
-                            post("login", LoginApi::login);
-                            post("register", LoginApi::register);
-                            post("validate", LoginApi::validate);
-
-                            path("inventory", () -> {
-                                get(InventoryApi::getInventory);
-                                post(InventoryApi::addItem);
-                                delete(InventoryApi::removeItem);
-                                patch(InventoryApi::moveItem);
-
-                                post("can-place", InventoryApi::canPlaceItem);
-                            });
-                        });
-                    });
-                });
-            });
+            config.router.apiBuilder(Main::apiRoutes);
         }).start();
+    }
+
+    public static void apiRoutes() {
+        path("api/v1", () -> {
+            get(ctx -> ctx.result("Hello from Streetlight!"));
+
+            path("items", () -> {
+                get(ctx -> ctx.json(CaquitaItems.getAllItems()));
+                get("{id}", ItemsApi::getItem);
+            });
+
+            landmarkRoutes();
+
+            authRoutes();
+        });
+    }
+
+    private static void authRoutes() {
+        path("auth", () -> {
+            path("level", () -> {
+                get("{id}", Level::getLevel);
+                patch(Level::modifyLevel);
+            });
+            post("login", LoginApi::login);
+            post("register", LoginApi::register);
+            post("validate", LoginApi::validate);
+
+            path("inventory", () -> {
+                get(InventoryApi::getInventory);
+                post(InventoryApi::addItem);
+                delete(InventoryApi::removeItem);
+                patch(InventoryApi::moveItem);
+
+                post("can-place", InventoryApi::canPlaceItem);
+            });
+        });
+    }
+
+    private static void landmarkRoutes() {
+        path("landmarks", () -> {
+            get(LandmarkApi::getLandmarks);
+
+            path("types", () -> {
+                get(LandmarkApi::getTypes);
+            });
+
+            path("{id}", () -> {
+                get(LandmarkApi::getLandmark);
+                patch(LandmarkApi::updateLandmark);
+            });
+
+            path("cans", () -> {
+                get(TrashCanApi::getCans);
+                put(TrashCanApi::createCan);
+            });
+        });
     }
 }

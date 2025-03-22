@@ -24,7 +24,7 @@
 
 <script setup>
 import {onMounted} from 'vue';
-import Store from "@/js/auth/store.js";
+import Store from "@/js/Store.js";
 import LevelBar from './LevelBar.vue';
 import Levels from '@/js/auth/levels.js';
 

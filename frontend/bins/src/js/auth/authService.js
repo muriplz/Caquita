@@ -1,7 +1,5 @@
-import Store from "./store.js";
+import Store from "../Store.js";
 import {getIpAddress} from "../static.js";
-import inventoryStore from "@/components/ui/inventory/store/inventoryStore.js";
-import InventoryManager from "@/components/ui/inventory/models/InventoryManager.js";
 
 class AuthService {
     async login(username, password) {
@@ -21,8 +19,6 @@ class AuthService {
                 const { token, id, username, creation, trust, experience, beans } = await response.json();
                 this.saveToken(token);
                 await Store.setUser(id, username, creation, trust, experience, beans);
-                // Force refresh inventory data
-                await inventoryStore.fetchInventory(true);
 
                 return true;
             } else if (response.status === 400) {
@@ -82,8 +78,6 @@ class AuthService {
         if (response.status === 200) {
             const { id, username, creation, trust, experience, beans } = await response.json()
             await Store.setUser(id, username, creation, trust, experience, beans)
-            // Force refresh inventory data
-            await inventoryStore.fetchInventory(true);
 
             return true;
         } else {
@@ -110,8 +104,6 @@ class AuthService {
     logout() {
         Store.removeUser();
         document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        // Clear inventory cache when logging out
-        inventoryStore.state.inventoryManager = new InventoryManager({ width: 4, height: 4 });
     }
 }
 

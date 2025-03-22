@@ -58,7 +58,6 @@ function resetAllSettings() {
         // Clear localStorage
         localStorage.removeItem(STORAGE_KEY);
 
-        // Reset the reactive store to defaults
         const freshDefaults = JSON.parse(JSON.stringify(defaultSettings));
 
         // Update each property individually to maintain reactivity

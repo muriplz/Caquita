@@ -1,8 +1,6 @@
 package com.kryeit.auth.inventory;
 
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import java.util.UUID;
-
-public record Inventory(long id, UUID userId, JsonArray items, int height, int width) {
+public record Inventory(long id, long userId, ArrayNode items, int height, int width) {
 }

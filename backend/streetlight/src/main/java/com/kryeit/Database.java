@@ -1,5 +1,8 @@
 package com.kryeit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 import com.kryeit.auth.User;
@@ -41,14 +44,20 @@ public class Database {
     }
 
     private static void jsonMappers() {
-        JDBI.registerColumnMapper(JsonArray.class, (r, idx, ctx) -> {
+        ObjectMapper mapper = new ObjectMapper();
+
+        JDBI.registerColumnMapper(ArrayNode.class, (r, idx, ctx) -> {
             String json = r.getString(idx);
             if (json == null) return null;
-            return JsonParser.parseString(json).getAsJsonArray();
+            try {
+                return mapper.readTree(json);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Failed to parse JSON", e);
+            }
         });
 
         JDBI.registerArgument((ArgumentFactory) (type, value, config) -> {
-            if (value instanceof JsonArray) {
+            if (value instanceof ArrayNode) {
                 return Optional.of((position, statement, ctx) -> statement.setString(position, value.toString()));
             }
             return Optional.empty();

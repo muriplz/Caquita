@@ -24,11 +24,16 @@
       />
     </div>
 
-    <MenuButton
-        ref="menuButtonRef"
-        :state="menuButtonState"
-        @click="handleMenuButtonClick"
-    />
+    <a href="javascript:void(0)"
+       class="menu-toggle-button"
+       :class="{
+         'closed': !isMenuOpen && !activeComponent,
+         'open': isMenuOpen && !activeComponent,
+         'back': activeComponent
+       }"
+       @click="handleMenuButtonClick">
+      <span>{{ menuButtonText }}</span>
+    </a>
 
     <Transition name="menu-fade">
       <div v-if="isMenuOpen" class="fullscreen-menu" @click.self="handleBackgroundClick">
@@ -38,9 +43,9 @@
             class="menu-container"
             v-if="!activeComponent"
             appear>
-          <a v-if="isUserLoggedIn" key="inventory" href="javascript:void(0)" class="menu-btn" style="transition-delay: 0.05s" @click="showInventory">Inventory</a>
-          <a v-if="isUserLoggedIn" key="vitrine" href="javascript:void(0)" class="menu-btn" style="transition-delay: 0.1s" @click="showVitrine">Vitrine</a>
-          <a key="noidea" href="javascript:void(0)" class="menu-btn" :style="{transitionDelay: isUserLoggedIn ? '0.15s' : '0.05s'}" @click="showNoIdea">NoIdea</a>
+          <a v-if="isUserLoggedIn" key="inventory" href="javascript:void(0)" class="menu-button" style="transition-delay: 0.05s" @click="showInventory">Inventory</a>
+          <a v-if="isUserLoggedIn" key="vitrine" href="javascript:void(0)" class="menu-button" style="transition-delay: 0.1s" @click="showVitrine">Vitrine</a>
+          <a key="noidea" href="javascript:void(0)" class="menu-button" :style="{transitionDelay: isUserLoggedIn ? '0.15s' : '0.05s'}" @click="showNoIdea">NoIdea</a>
         </TransitionGroup>
 
         <Transition name="component-slide">
@@ -116,9 +121,8 @@ import Login from "@/components/ui/auth/Login.vue"
 import Register from "@/components/ui/auth/Register.vue"
 import Profile from "@/components/ui/auth/Profile.vue"
 import Settings from "@/components/ui/settings/Settings.vue"
-import Store from "@/js/auth/store.js"
+import Store from "@/js/Store.js"
 import About from "@/components/ui/About.vue"
-import MenuButton from "@/components/ui/MenuButton.vue"
 
 const isMenuOpen = ref(false)
 const activeComponent = ref(null)
@@ -126,7 +130,6 @@ const previousComponent = ref(null)
 const isProfileMenuOpen = ref(false)
 const isUserLoggedIn = ref(Store.getUser() !== null)
 const isSettingsSpinning = ref(false)
-const menuButtonRef = ref(null)
 
 function checkUserStatus() {
   isUserLoggedIn.value = Store.getUser() !== null
@@ -138,10 +141,10 @@ watch(isMenuOpen, (newVal) => {
   }
 })
 
-const menuButtonState = computed(() => {
-  if (activeComponent.value) return 'back'
-  if (isMenuOpen.value) return 'open'
-  return 'closed'
+const menuButtonText = computed(() => {
+  if (activeComponent.value) return 'Back'
+  if (isMenuOpen.value) return 'Close'
+  return 'Menu'
 })
 
 function handleMenuButtonClick() {
@@ -153,20 +156,13 @@ function handleMenuButtonClick() {
 }
 
 function toggleMenu() {
-  if (isMenuOpen.value) {
-    menuButtonRef.value.flipLeft()
-  } else {
-    menuButtonRef.value.flipRight()
-  }
   isMenuOpen.value = !isMenuOpen.value
 }
 
 function handleBackgroundClick() {
   if (activeComponent.value) {
-    menuButtonRef.value.flipLeft()
     closeComponent()
   } else {
-    menuButtonRef.value.flipLeft()
     isMenuOpen.value = false
   }
 }
@@ -176,17 +172,14 @@ function toggleProfileMenu() {
 }
 
 function showInventory() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'inventory'
 }
 
 function showVitrine() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'vitrine'
 }
 
 function showNoIdea() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'noidea'
 }
 
@@ -223,36 +216,30 @@ function triggerSpinAnimation() {
 }
 
 function showAbout() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'about'
 }
 
 function showLogin() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'login'
   isProfileMenuOpen.value = false
 }
 
 function showRegister() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'register'
   isProfileMenuOpen.value = false
 }
 
 function showProfile() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'profile'
   isProfileMenuOpen.value = false
 }
 
 function closeComponent() {
-  menuButtonRef.value.flipLeft()
   activeComponent.value = null
   previousComponent.value = null
 }
 
 function closeAuth() {
-  menuButtonRef.value.flipLeft()
   activeComponent.value = null
   checkUserStatus()
 }
@@ -266,17 +253,14 @@ function handleLogout() {
 }
 
 function handleShowRegister() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'register'
 }
 
 function handleShowLogin() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'login'
 }
 
 function handleShowAbout() {
-  menuButtonRef.value.flipRight()
   activeComponent.value = 'about'
 }
 </script>
@@ -287,6 +271,60 @@ function handleShowAbout() {
   top: 20px;
   left: 20px;
   z-index: 300;
+}
+
+.menu-toggle-button {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 24px;
+  cursor: pointer;
+  z-index: 300;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.menu-toggle-button.closed {
+  background-color: #333;
+}
+
+.menu-toggle-button.open {
+  background-color: #f44336;
+}
+
+.menu-toggle-button.back {
+  background-color: #42a5f5;
+}
+
+.menu-toggle-button:hover {
+  text-decoration: none;
+  color: white;
+}
+
+.menu-button {
+  display: block;
+  padding: 16px 32px;
+  background-color: white;
+  color: #333;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 200px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.menu-button:hover {
+  background-color: #f0f0f0;
+  text-decoration: none;
+  color: #333;
 }
 
 .settings-button, .profile-button {
@@ -361,27 +399,6 @@ function handleShowAbout() {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-
-.menu-btn {
-  display: block;
-  padding: 16px 32px;
-  background-color: white;
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 200px;
-  text-align: center;
-  text-decoration: none;
-}
-
-.menu-btn:hover {
-  background-color: #f0f0f0;
-  text-decoration: none;
-  color: #333;
 }
 
 .component-container {

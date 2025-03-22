@@ -1,8 +1,10 @@
 package com.kryeit.auth.inventory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kryeit.content.items.Item;
 import com.kryeit.registry.CaquitaItems;
 
@@ -10,11 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryItem {
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private String id;
     private int[] cells;
     private String nbt;
 
-    public InventoryItem(String id, int[] cells, String nbt) {
+    public InventoryItem() {
+        this.id = "";
+        this.cells = new int[0];
+        this.nbt = "{}";
+    }
+
+    public InventoryItem(@JsonProperty("id") String id,
+                         @JsonProperty("cells") int[] cells,
+                         @JsonProperty("nbt") String nbt) {
         this.id = id;
         this.cells = cells;
         this.nbt = nbt;
@@ -50,34 +62,34 @@ public class InventoryItem {
         return CaquitaItems.getItem(id);
     }
 
-    public JsonObject toJson() {
-        JsonObject json = new JsonObject();
-        json.addProperty("id", id);
-        json.addProperty("nbt", nbt);
-        JsonArray cellsArray = new JsonArray();
+    public ObjectNode toJson() {
+        ObjectNode json = MAPPER.createObjectNode();
+        json.put("id", id);
+        json.put("nbt", nbt);
+        ArrayNode cellsArray = MAPPER.createArrayNode();
         for (int cell : cells) {
             cellsArray.add(cell);
         }
-        json.add("cells", cellsArray);
+        json.set("cells", cellsArray);
         return json;
     }
 
-    public static List<InventoryItem> fromJsonArray(JsonArray json) {
+    public static List<InventoryItem> fromJsonArray(ArrayNode json) {
         List<InventoryItem> items = new ArrayList<>();
-        for (JsonElement element : json) {
+        for (JsonNode element : json) {
             items.add(fromJsonElement(element));
         }
         return items;
     }
 
-    public static InventoryItem fromJsonElement(JsonElement element) {
-        JsonObject item = element.getAsJsonObject();
-        String id = item.get("id").getAsString();
-        int[] cells = new int[item.getAsJsonArray("cells").size()];
+    public static InventoryItem fromJsonElement(JsonNode element) {
+        String id = element.get("id").asText();
+        ArrayNode cellsNode = (ArrayNode) element.get("cells");
+        int[] cells = new int[cellsNode.size()];
         for (int i = 0; i < cells.length; i++) {
-            cells[i] = item.getAsJsonArray("cells").get(i).getAsInt();
+            cells[i] = cellsNode.get(i).asInt();
         }
-        String nbt = item.get("nbt").getAsString();
+        String nbt = element.get("nbt").asText();
         return new InventoryItem(id, cells, nbt);
     }
 }

@@ -1,6 +1,6 @@
 <script setup>
 import {computed} from "vue";
-import Store from "@/js/auth/store.js";
+import Store from "@/js/Store.js";
 
 const level = computed(() => Store.getLevel());
 const progressPercentage = computed(() => level.value ? level.value.getProgressPercentage() : 0);
