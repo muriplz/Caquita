@@ -82,7 +82,6 @@ public class InventoryApi {
         long user = AuthUtils.getUser(context);
         MoveItemRequest request = context.bodyAsClass(MoveItemRequest.class);
 
-        System.out.println("Moving item to slot " + request.newSlot);
         InventoryManager manager = new InventoryManager(user);
 
         if (manager.moveItem(request.item, request.newSlot)) {

@@ -1,9 +1,10 @@
 <script setup>
-import { ref, computed, onBeforeUnmount } from "vue";
+import { ref, computed, onBeforeUnmount, inject } from "vue";
 import Store from "@/js/Store.js";
 import GridSlot from "@/components/ui/inventory/GridSlot.vue";
 import InventoryApi from "@/components/ui/inventory/js/InventoryApi.js";
 import InventoryUtils from "@/components/ui/inventory/js/InventoryUtils.js";
+import InventoryManager from "@/components/ui/inventory/js/InventoryManager.js";
 
 const props = defineProps({
   occupiedCells: {
@@ -13,9 +14,16 @@ const props = defineProps({
   items: {
     type: Array,
     required: true
+  },
+  onItemMoved: {
+    type: Function,
+    default: () => {}
   }
 });
 
+const emit = defineEmits(['item-moved', 'update:occupiedCells', 'update:items']);
+
+const inventoryManager = new InventoryManager(Store);
 const inventory = ref(Store.getInventory());
 const allItems = ref(Store.getItems());
 const dragging = ref(false);
@@ -24,13 +32,16 @@ const draggedItemData = ref(null);
 const dragStartPos = ref({ x: 0, y: 0 });
 const dragCurrentPos = ref({ x: 0, y: 0 });
 const dragOffset = ref({ x: 0, y: 0 });
-const dropTargetSlot = ref(null);
+const currentMouseSlot = ref(null); // Slot under cursor
 const isValidDrop = ref(false);
+
+const localOccupiedCells = ref({...props.occupiedCells});
+const localItems = ref([...props.items]);
 
 const itemGroups = computed(() => {
   const groups = {};
 
-  props.items.forEach(item => {
+  localItems.value.forEach(item => {
     const itemDef = getItemDefinition(item.id);
     if (!itemDef) return;
 
@@ -57,7 +68,7 @@ const slotData = computed(() => {
   for (let r = 0; r < inventory.value.height; r++) {
     for (let c = 0; c < inventory.value.width; c++) {
       const slotIndex = r * inventory.value.width + c;
-      const cell = props.occupiedCells[slotIndex];
+      const cell = localOccupiedCells.value[slotIndex];
 
       const connections = {
         top: false,
@@ -74,23 +85,23 @@ const slotData = computed(() => {
         const bottomIndex = (r + 1) * inventory.value.width + c;
         const leftIndex = r * inventory.value.width + (c - 1);
 
-        if (r > 0 && props.occupiedCells[topIndex] &&
-            props.occupiedCells[topIndex].inventoryItemId === inventoryItemId) {
+        if (r > 0 && localOccupiedCells.value[topIndex] &&
+            localOccupiedCells.value[topIndex].inventoryItemId === inventoryItemId) {
           connections.top = true;
         }
 
-        if (c < inventory.value.width - 1 && props.occupiedCells[rightIndex] &&
-            props.occupiedCells[rightIndex].inventoryItemId === inventoryItemId) {
+        if (c < inventory.value.width - 1 && localOccupiedCells.value[rightIndex] &&
+            localOccupiedCells.value[rightIndex].inventoryItemId === inventoryItemId) {
           connections.right = true;
         }
 
-        if (r < inventory.value.height - 1 && props.occupiedCells[bottomIndex] &&
-            props.occupiedCells[bottomIndex].inventoryItemId === inventoryItemId) {
+        if (r < inventory.value.height - 1 && localOccupiedCells.value[bottomIndex] &&
+            localOccupiedCells.value[bottomIndex].inventoryItemId === inventoryItemId) {
           connections.bottom = true;
         }
 
-        if (c > 0 && props.occupiedCells[leftIndex] &&
-            props.occupiedCells[leftIndex].inventoryItemId === inventoryItemId) {
+        if (c > 0 && localOccupiedCells.value[leftIndex] &&
+            localOccupiedCells.value[leftIndex].inventoryItemId === inventoryItemId) {
           connections.left = true;
         }
       }
@@ -111,6 +122,23 @@ const slotData = computed(() => {
   return result;
 });
 
+const mouseSlotPosition = computed(() => {
+  if (currentMouseSlot.value === null || !inventory.value) {
+    return null;
+  }
+
+  const invWidth = inventory.value.width || 1;
+  const row = Math.floor(currentMouseSlot.value / invWidth);
+  const col = currentMouseSlot.value % invWidth;
+
+  return {
+    gridRowStart: row + 1,
+    gridColumnStart: col + 1,
+    gridRowEnd: row + 2,
+    gridColumnEnd: col + 2
+  };
+});
+
 const getItemDefinition = (itemId) => {
   if (!itemId) return null;
   return allItems.value.find(item => item.id === itemId);
@@ -119,7 +147,7 @@ const getItemDefinition = (itemId) => {
 const startDrag = (e, inventoryItemId) => {
   e.preventDefault();
 
-  const item = props.items.find(item => item.inventoryItemId === inventoryItemId);
+  const item = localItems.value.find(item => item.inventoryItemId === inventoryItemId);
   if (!item) return;
 
   dragging.value = true;
@@ -173,7 +201,7 @@ const calculateDropSlot = (clientX, clientY) => {
       clientY < gridRect.top ||
       clientY > gridRect.bottom
   ) {
-    dropTargetSlot.value = null;
+    currentMouseSlot.value = null;
     isValidDrop.value = false;
     return;
   }
@@ -188,42 +216,150 @@ const calculateDropSlot = (clientX, clientY) => {
   const col = Math.floor(gridX / totalSlotSize);
   const row = Math.floor(gridY / totalSlotSize);
 
-  const xOffsetSlots = Math.floor(dragOffset.value.x / slotSize);
-  const yOffsetSlots = Math.floor(dragOffset.value.y / slotSize);
-
-  const targetCol = Math.max(0, col - xOffsetSlots);
-  const targetRow = Math.max(0, row - yOffsetSlots);
-
   const invWidth = inventory.value?.width || 1;
   const invHeight = inventory.value?.height || 1;
 
-  const boundedCol = Math.min(targetCol, invWidth - 1);
-  const boundedRow = Math.min(targetRow, invHeight - 1);
+  // Check if cursor is within grid bounds
+  if (row < 0 || col < 0 || row >= invHeight || col >= invWidth) {
+    currentMouseSlot.value = null;
+    isValidDrop.value = false;
+    return;
+  }
 
-  const slotIndex = boundedRow * invWidth + boundedCol;
+  const mouseSlotIndex = row * invWidth + col;
 
-  if (dropTargetSlot.value !== slotIndex) {
-    dropTargetSlot.value = slotIndex;
+  if (currentMouseSlot.value !== mouseSlotIndex) {
+    currentMouseSlot.value = mouseSlotIndex;
 
-    const item = props.items.find(item => item.inventoryItemId === draggedItemId.value);
+    const item = localItems.value.find(item => item.inventoryItemId === draggedItemId.value);
     if (item) {
       const itemDef = getItemDefinition(item.id);
       if (itemDef) {
-        const tempInventory = {
-          width: invWidth,
-          height: invHeight,
-          items: inventory.value?.items?.filter(i => i.cells[0] !== item.inventoryItemId) || []
-        };
+        // Apply the offset from where the user clicked to determine target slot
+        const xOffsetSlots = Math.floor(dragOffset.value.x / slotSize);
+        const yOffsetSlots = Math.floor(dragOffset.value.y / slotSize);
 
-        isValidDrop.value = InventoryUtils.canPlaceItem(
-            {shape: itemDef.shape},
-            boundedRow,
-            boundedCol,
-            tempInventory
-        );
+        const targetCol = Math.max(0, col - xOffsetSlots);
+        const targetRow = Math.max(0, row - yOffsetSlots);
+
+        // Check if any part of the item would go out of bounds
+        let outOfBounds = false;
+        if (itemDef.shape) {
+          const dimensions = InventoryUtils.getActualDimensions(itemDef.shape);
+
+          if (targetRow + dimensions.height > invHeight ||
+              targetCol + dimensions.width > invWidth) {
+            outOfBounds = true;
+          }
+
+          if (col - xOffsetSlots < 0 || row - yOffsetSlots < 0) {
+            outOfBounds = true;
+          }
+        }
+
+        if (outOfBounds) {
+          isValidDrop.value = false;
+        } else {
+          const tempInventory = {
+            width: invWidth,
+            height: invHeight,
+            items: inventory.value?.items?.filter(i => i.cells[0] !== item.inventoryItemId) || []
+          };
+
+          isValidDrop.value = InventoryUtils.canPlaceItem(
+              {shape: itemDef.shape},
+              targetRow,
+              targetCol,
+              tempInventory
+          );
+        }
       }
     }
   }
+};
+
+const updateClientSideInventory = (item, newSlot) => {
+  const invWidth = inventory.value?.width || 1;
+
+  // Apply offset to calculate the actual placement slot
+  const xOffsetSlots = Math.floor(dragOffset.value.x / 64);
+  const yOffsetSlots = Math.floor(dragOffset.value.y / 64);
+
+  const currentRow = Math.floor(newSlot / invWidth);
+  const currentCol = newSlot % invWidth;
+
+  const targetRow = Math.max(0, currentRow - yOffsetSlots);
+  const targetCol = Math.max(0, currentCol - xOffsetSlots);
+
+  // Ensure we stay within grid bounds
+  const finalRow = Math.min(targetRow, inventory.value.height - 1);
+  const finalCol = Math.min(targetCol, invWidth - 1);
+
+  const placementSlot = finalRow * invWidth + finalCol;
+
+  // Get current positions
+  const oldRow = Math.floor(item.inventoryItemId / invWidth);
+  const oldCol = item.inventoryItemId % invWidth;
+  const newRow = finalRow;
+  const newCol = finalCol;
+
+  // Calculate movement delta
+  const rowDelta = newRow - oldRow;
+  const colDelta = newCol - oldCol;
+
+  // Create a new occupiedCells map without the moved item
+  const newOccupiedCells = {};
+  Object.entries(localOccupiedCells.value).forEach(([index, cell]) => {
+    if (cell.inventoryItemId !== item.inventoryItemId) {
+      newOccupiedCells[index] = cell;
+    }
+  });
+
+  // Calculate new cells for the item
+  const newCells = [];
+  item.cells.forEach(cellIndex => {
+    const cellRow = Math.floor(cellIndex / invWidth);
+    const cellCol = cellIndex % invWidth;
+    const newCellIndex = (cellRow + rowDelta) * invWidth + (cellCol + colDelta);
+
+    // Add to new cells array
+    newCells.push(newCellIndex);
+
+    // Mark as occupied in the map
+    newOccupiedCells[newCellIndex] = {
+      id: item.id,
+      inventoryItemId: item.inventoryItemId + (rowDelta * invWidth) + colDelta
+    };
+  });
+
+  // Update local items
+  const updatedItems = localItems.value.map(localItem => {
+    if (localItem.inventoryItemId === item.inventoryItemId) {
+      const newItemId = item.inventoryItemId + (rowDelta * invWidth) + colDelta;
+      return {
+        ...localItem,
+        inventoryItemId: newItemId,
+        row: newRow,
+        col: newCol,
+        cells: newCells
+      };
+    }
+    return localItem;
+  });
+
+  // Update the refs
+  localOccupiedCells.value = newOccupiedCells;
+  localItems.value = updatedItems;
+
+  // Update parent component
+  emit('update:occupiedCells', newOccupiedCells);
+  emit('update:items', updatedItems);
+  emit('item-moved', item, placementSlot); // Pass the actual placement slot
+
+  return {
+    localItem: updatedItems.find(i => i.id === item.id),
+    newCells
+  };
 };
 
 const onDragEnd = async () => {
@@ -234,21 +370,43 @@ const onDragEnd = async () => {
   window.removeEventListener('mouseup', onDragEnd);
   window.removeEventListener('touchend', onDragEnd);
 
-  if (dropTargetSlot.value !== null && isValidDrop.value) {
+  if (currentMouseSlot.value !== null && isValidDrop.value) {
     try {
-      const item = props.items.find(item => item.inventoryItemId === draggedItemId.value);
+      const item = localItems.value.find(item => item.inventoryItemId === draggedItemId.value);
       const invWidth = inventory.value?.width || 1;
 
-      if (item && (item.row !== Math.floor(dropTargetSlot.value / invWidth) ||
-          item.col !== dropTargetSlot.value % invWidth)) {
+      // Apply offset to calculate the actual placement slot
+      const xOffsetSlots = Math.floor(dragOffset.value.x / 64);
+      const yOffsetSlots = Math.floor(dragOffset.value.y / 64);
 
+      const currentRow = Math.floor(currentMouseSlot.value / invWidth);
+      const currentCol = currentMouseSlot.value % invWidth;
+
+      const targetRow = Math.max(0, currentRow - yOffsetSlots);
+      const targetCol = Math.max(0, currentCol - xOffsetSlots);
+
+      const placementSlot = targetRow * invWidth + targetCol;
+
+      if (item && (item.row !== targetRow || item.col !== targetCol)) {
         const inventoryItem = inventory.value.items.find(
             invItem => invItem.cells[0] === draggedItemId.value
         );
 
         if (inventoryItem) {
-          await InventoryApi.move(inventoryItem, dropTargetSlot.value);
-          await Store.updateInventory();
+          // First update the client-side display immediately
+          const updatedItemInfo = updateClientSideInventory(item, currentMouseSlot.value);
+
+          // Then send the update to the server
+          const success = await InventoryApi.move(inventoryItem, placementSlot);
+
+          if (success) {
+            // Update the item position in the store without fetching everything again
+            inventoryManager.updateItemPosition(item, placementSlot, invWidth);
+          } else {
+            // If server request failed, revert the client-side changes
+            console.error('Server rejected the move - reverting UI');
+            updateClientSideInventory(updatedItemInfo.localItem, item.inventoryItemId);
+          }
         }
       }
     } catch (error) {
@@ -259,7 +417,7 @@ const onDragEnd = async () => {
   dragging.value = false;
   draggedItemId.value = null;
   draggedItemData.value = null;
-  dropTargetSlot.value = null;
+  currentMouseSlot.value = null;
   isValidDrop.value = false;
 };
 
@@ -281,9 +439,17 @@ onBeforeUnmount(() => {
         :index="slot.index"
         :is-occupied="slot.isOccupied"
         :connections="slot.connections"
-        :class="{ 'drop-target': dropTargetSlot === slot.index, 'valid-drop': isValidDrop && dropTargetSlot === slot.index, 'invalid-drop': !isValidDrop && dropTargetSlot === slot.index }"
     />
 
+    <!-- Drop target indicator -->
+    <div
+        v-if="currentMouseSlot !== null && mouseSlotPosition"
+        class="drop-indicator"
+        :class="{ 'valid-drop': isValidDrop, 'invalid-drop': !isValidDrop }"
+        :style="mouseSlotPosition"
+    ></div>
+
+    <!-- Item containers -->
     <div
         v-for="(item, key) in itemGroups"
         :key="`item-${key}`"
@@ -307,20 +473,20 @@ onBeforeUnmount(() => {
       />
     </div>
 
+    <!-- Dragged item ghost -->
     <div
         v-if="dragging && draggedItemData"
         class="dragged-item"
         :style="{
-      position: 'fixed',
-      left: `${dragCurrentPos.x}px`,
-      top: `${dragCurrentPos.y}px`,
-      transform: 'translate(-50%, -50%)',
-      width: `${draggedItemData.width * 64}px`,
-      height: `${draggedItemData.height * 64}px`,
-      zIndex: 1000,
-      opacity: 0.8,
-      pointerEvents: 'none'
-    }"
+          position: 'fixed',
+          left: `${dragCurrentPos.x - dragOffset.x}px`,
+          top: `${dragCurrentPos.y - dragOffset.y}px`,
+          width: `${draggedItemData.width * 64}px`,
+          height: `${draggedItemData.height * 64}px`,
+          zIndex: 1000,
+          opacity: 0.8,
+          pointerEvents: 'none'
+        }"
     >
       <img
           :src="draggedItemData.imagePath"
@@ -329,24 +495,13 @@ onBeforeUnmount(() => {
           draggable="false"
       />
     </div>
-
-    <!-- Only show the drop preview when the drop is valid -->
-    <div
-        v-if="dragging && dropTargetSlot !== null && draggedItemData && isValidDrop"
-        class="drop-preview valid-drop"
-        :style="{
-        gridRowStart: Math.floor(dropTargetSlot / (inventory.value?.width || 1)) + 1,
-        gridColumnStart: dropTargetSlot % (inventory.value?.width || 1) + 1,
-        gridRowEnd: `span ${draggedItemData.height}`,
-        gridColumnEnd: `span ${draggedItemData.width}`
-      }"
-    ></div>
   </div>
 </template>
 
 <style scoped>
 .grid-slots-wrapper {
   display: contents;
+  position: relative;
 }
 
 .item-container {
@@ -381,24 +536,23 @@ onBeforeUnmount(() => {
   opacity: 0.8;
 }
 
-.drop-target {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.drop-preview {
-  position: relative;
-  z-index: 15;
-  border: 2px dashed;
-  background-color: rgba(0, 255, 0, 0.2);
+.drop-indicator {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  z-index: 5;
+  border-radius: 24px;
   pointer-events: none;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .valid-drop {
-  border-color: rgba(0, 255, 0, 0.7);
+  background-color: rgba(0, 255, 0, 0.2);
+  border: 2px solid rgba(0, 255, 0, 0.5);
 }
 
 .invalid-drop {
-  border-color: rgba(255, 0, 0, 0.7);
   background-color: rgba(255, 0, 0, 0.2);
+  border: 2px solid rgba(255, 0, 0, 0.5);
 }
 </style>

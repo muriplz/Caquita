@@ -68,11 +68,23 @@ const processInventoryItems = () => {
     })
   }
 }
+
+const handleItemMoved = (item, newSlot) => {
+  // The GridSlots component already updates the local state
+  // We just need to ensure the Store is updated
+  Store.updateItemPosition(item, newSlot)
+}
 </script>
 
 <template>
   <div class="inventory-grid">
-    <GridSlots :occupied-cells="occupiedCells" :items="items" />
+    <GridSlots
+        :occupied-cells="occupiedCells"
+        :items="items"
+        @item-moved="handleItemMoved"
+        v-model:occupied-cells="occupiedCells"
+        v-model:items="items"
+    />
   </div>
 </template>
 
