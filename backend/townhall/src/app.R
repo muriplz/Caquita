@@ -5,9 +5,9 @@ library(ggplot2)
 
 options(shiny.port = 6998)
 
-source("ui/user_creation.R")
-source("server/user_creation.R")
-source("graph/user_creation.R")
+source("routes/user_creation/ui.R")
+source("routes/user_creation/server.R")
+source("routes/user_creation/graph.R")
 
 source("db/postgres.R")
 
