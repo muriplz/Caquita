@@ -5,6 +5,7 @@ public enum LandmarkType {
     PLASTIC,
     GLASS,
     PAPER,
+    METAL,
     ;
 
     public String getTableName() {
@@ -13,6 +14,7 @@ public enum LandmarkType {
             case PLASTIC -> "plastic";
             case GLASS -> "glass";
             case PAPER -> "paper";
+            case METAL -> "metal";
         };
     }
 }

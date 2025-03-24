@@ -5,6 +5,7 @@ import com.kryeit.content.items.Item;
 import com.kryeit.content.items.cardboard.PizzaBox;
 import com.kryeit.content.items.glass.GlassBottle;
 import com.kryeit.content.items.glass.GlassShard;
+import com.kryeit.content.items.metal.MetalChains;
 import com.kryeit.content.items.plastic.*;
 
 import java.util.Collection;
@@ -44,6 +45,9 @@ public class CaquitaItems {
 
         // CARDBOARD
         register(new PizzaBox());
+
+        // METAL
+        register(new MetalChains());
     }
 
     public static void register() {
