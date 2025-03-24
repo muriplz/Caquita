@@ -1,38 +1,34 @@
 <script setup>
-import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount, reactive } from "vue";
 import Store from "@/js/Store.js";
 
 const inventory = ref(Store.getInventory());
-const forceUpdate = ref(0); // Used to force reactivity
+const forceUpdate = ref(0);
 
-// Make component reactive to inventory changes
+// Only update when inventory changes
 watch(() => Store.getInventory(), (newInventory) => {
   inventory.value = newInventory;
-}, { deep: true });
+});
 
-// Create a 2D grid representation to track occupied cells
+// Memoize grid map calculation
 const gridMap = computed(() => {
-  // Force computed to re-evaluate when forceUpdate changes
   forceUpdate.value;
 
   const grid = [];
   const height = inventory.value?.height || 8;
   const width = inventory.value?.width || 8;
 
-  // Initialize empty grid
+  // Initialize with empty arrays
   for (let row = 0; row < height; row++) {
-    grid[row] = [];
-    for (let col = 0; col < width; col++) {
-      grid[row][col] = null;
-    }
+    grid[row] = Array(width).fill(null);
   }
 
-  // Fill with inventory items if available
+  // Fill with inventory items
   if (inventory.value?.items) {
     inventory.value.items.forEach(invItem => {
       if (invItem?.cells) {
         invItem.cells.forEach(cell => {
-          if (grid[cell.row] && grid[cell.row][cell.col] !== undefined) {
+          if (cell.row >= 0 && cell.row < height && cell.col >= 0 && cell.col < width) {
             grid[cell.row][cell.col] = invItem.id;
           }
         });
@@ -43,41 +39,22 @@ const gridMap = computed(() => {
   return grid;
 });
 
-// Listen for store events
-function handleStoreEvents(event) {
-  if (event === 'item-position-changed' || event === 'inventory-updated') {
-    // Increment forceUpdate to trigger reactivity
-    forceUpdate.value++;
-  }
-}
-
-onMounted(() => {
-  // Register listener
-  Store.addListener(handleStoreEvents);
-});
-
-onBeforeUnmount(() => {
-  // Clean up listener
-  Store.removeListener(handleStoreEvents);
-});
-
-// Get all cells (occupied and empty)
-const allCells = computed(() => {
-  // Also depend on forceUpdate to ensure reactivity
+// Optimize by only rendering cells that need to be visible
+const visibleCells = computed(() => {
   forceUpdate.value;
 
   const cells = [];
+  const grid = gridMap.value;
   const height = inventory.value?.height || 8;
   const width = inventory.value?.width || 8;
 
   for (let row = 0; row < height; row++) {
     for (let col = 0; col < width; col++) {
-      const itemId = gridMap.value[row]?.[col];
       cells.push({
         row,
         col,
-        itemId,
-        isOccupied: itemId !== null
+        itemId: grid[row][col],
+        isOccupied: grid[row][col] !== null
       });
     }
   }
@@ -85,71 +62,90 @@ const allCells = computed(() => {
   return cells;
 });
 
-// Rest of the code remains the same
-function getConnections(row, col, itemId) {
+function handleStoreEvents(event) {
+  if (event === 'item-position-changed' || event === 'inventory-updated') {
+    // Clear connection class cache when inventory changes
+    Object.keys(connectionClassCache).forEach(key => {
+      delete connectionClassCache[key];
+    });
+    forceUpdate.value++;
+  }
+}
+
+onMounted(() => {
+  Store.addListener(handleStoreEvents);
+});
+
+onBeforeUnmount(() => {
+  Store.removeListener(handleStoreEvents);
+});
+
+// Reactive cache for connection classes to ensure proper updates
+const connectionClassCache = reactive({});
+
+function getConnectionClasses(row, col) {
+  const key = `${row}-${col}`;
   const grid = gridMap.value;
+  const itemId = grid[row]?.[col];
+
+  // Return empty for non-occupied cells
+  if (!itemId) return '';
+
+  // Check cache first
+  if (connectionClassCache[key]) return connectionClassCache[key];
+
+  // Calculate connections directly from grid for reliability
   const height = inventory.value?.height || 8;
   const width = inventory.value?.width || 8;
 
-  if (!itemId) {
-    return {
-      top: false,
-      right: false,
-      bottom: false,
-      left: false
-    };
-  }
-
-  return {
+  const connections = {
     top: row > 0 && grid[row - 1]?.[col] === itemId,
     right: col < width - 1 && grid[row]?.[col + 1] === itemId,
     bottom: row < height - 1 && grid[row + 1]?.[col] === itemId,
     left: col > 0 && grid[row]?.[col - 1] === itemId
   };
-}
 
-function getConnectionClasses(connections) {
   const {top, right, bottom, left} = connections;
   const connectionCount = [top, right, bottom, left].filter(Boolean).length;
 
-  if (connectionCount === 0) return 'isolated';
+  let result = 'isolated';
 
   if (connectionCount === 1) {
-    if (top) return 'connected-top';
-    if (right) return 'connected-right';
-    if (bottom) return 'connected-bottom';
-    if (left) return 'connected-left';
+    if (top) result = 'connected-top';
+    if (right) result = 'connected-right';
+    if (bottom) result = 'connected-bottom';
+    if (left) result = 'connected-left';
+  } else if (connectionCount === 2) {
+    if (top && bottom) result = 'connected-vertical';
+    else if (left && right) result = 'connected-horizontal';
+    else if (top && right) result = 'connected-top-right';
+    else if (top && left) result = 'connected-top-left';
+    else if (bottom && right) result = 'connected-bottom-right';
+    else if (bottom && left) result = 'connected-bottom-left';
+  } else if (connectionCount === 3) {
+    if (!top) result = 'connected-three-bottom';
+    else if (!right) result = 'connected-three-left';
+    else if (!bottom) result = 'connected-three-top';
+    else if (!left) result = 'connected-three-right';
+  } else if (connectionCount === 4) {
+    result = 'connected-all';
   }
 
-  if (connectionCount === 2) {
-    if (top && bottom) return 'connected-vertical';
-    if (left && right) return 'connected-horizontal';
-    if (top && right) return 'connected-top-right';
-    if (top && left) return 'connected-top-left';
-    if (bottom && right) return 'connected-bottom-right';
-    if (bottom && left) return 'connected-bottom-left';
-  }
-
-  if (connectionCount === 3) {
-    if (!top) return 'connected-three-bottom';
-    if (!right) return 'connected-three-left';
-    if (!bottom) return 'connected-three-top';
-    if (!left) return 'connected-three-right';
-  }
-
-  return 'connected-all';
+  // Store result in cache
+  connectionClassCache[key] = result;
+  return result;
 }
 </script>
 
 <template>
   <div class="grid-slots">
     <div
-        v-for="cell in allCells"
+        v-for="cell in visibleCells"
         :key="`${cell.row}-${cell.col}`"
         class="grid-slot"
         :class="[
           cell.isOccupied ? 'occupied' : 'empty',
-          cell.isOccupied ? getConnectionClasses(getConnections(cell.row, cell.col, cell.itemId)) : ''
+          cell.isOccupied ? getConnectionClasses(cell.row, cell.col) : ''
         ]"
         :style="{
           gridRowStart: cell.row + 1,

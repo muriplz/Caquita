@@ -1,7 +1,7 @@
 <script setup>
 import {motion} from 'motion-v'
 import Store from "@/js/Store.js"
-import {ref, computed, reactive, onMounted, watch} from "vue"
+import {ref, computed, reactive, onMounted, watch, shallowRef} from "vue"
 import InventoryApi from "@/components/ui/inventory/js/InventoryApi.js"
 
 const props = defineProps({
@@ -11,44 +11,34 @@ const props = defineProps({
   }
 })
 
-const item = ref(Store.getItemById(props.inventoryItem.id))
-const cells = ref(props.inventoryItem.cells)
+const item = shallowRef(Store.getItemById(props.inventoryItem.id))
+const cells = shallowRef(props.inventoryItem.cells)
 const isDragging = ref(false)
 const dragStartOffset = ref({x: 0, y: 0})
 const GAP_SIZE = 4
 
+// Use normal watch instead of deep watch
 watch(() => props.inventoryItem.cells, (newCells) => {
   cells.value = newCells
-}, {deep: true})
+})
 
+// Memoize shape calculation
 const shape = computed(() => item.value.shape || [[1]])
 
-const getAnchorCol = computed(() => {
+// Calculate anchor positions more efficiently
+const anchorPosition = computed(() => {
+  let minRow = Infinity
   let minCol = Infinity
+  let shapeOffsetX = -1
+  let shapeOffsetY = -1
+
+  // Find min row/col in a single loop
   for (const cell of cells.value) {
+    minRow = Math.min(minRow, cell.row)
     minCol = Math.min(minCol, cell.col)
   }
 
-  let shapeOffsetX = -1
-  outerLoop: for (let x = 0; x < shape.value[0].length; x++) {
-    for (let y = 0; y < shape.value.length; y++) {
-      if (shape.value[y][x] === 1) {
-        shapeOffsetX = x
-        break outerLoop
-      }
-    }
-  }
-
-  return minCol - shapeOffsetX
-})
-
-const getAnchorRow = computed(() => {
-  let minRow = Infinity
-  for (const cell of cells.value) {
-    minRow = Math.min(minRow, cell.row)
-  }
-
-  let shapeOffsetY = -1
+  // Find shape offsets in separate loops
   outerLoop: for (let y = 0; y < shape.value.length; y++) {
     for (let x = 0; x < shape.value[y].length; x++) {
       if (shape.value[y][x] === 1) {
@@ -58,30 +48,23 @@ const getAnchorRow = computed(() => {
     }
   }
 
-  return minRow - shapeOffsetY
-})
-
-const anchorPosition = computed(() => ({
-  col: getAnchorCol.value,
-  row: getAnchorRow.value
-}))
-
-const position = computed(() => {
-  let minRow = Infinity
-  let minCol = Infinity
-
-  cells.value.forEach(cell => {
-    minRow = Math.min(minRow, cell.row)
-    minCol = Math.min(minCol, cell.col)
-  })
+  outerLoop: for (let x = 0; x < shape.value[0].length; x++) {
+    for (let y = 0; y < shape.value.length; y++) {
+      if (shape.value[y][x] === 1) {
+        shapeOffsetX = x
+        break outerLoop
+      }
+    }
+  }
 
   return {
-    x: minCol * 64 + minCol * GAP_SIZE,
-    y: minRow * 64 + minRow * GAP_SIZE
+    col: minCol - shapeOffsetX,
+    row: minRow - shapeOffsetY
   }
 })
 
-const size = computed(() => {
+// Calculate position and size in a single pass
+const positionAndSize = computed(() => {
   let minRow = Infinity
   let minCol = Infinity
   let maxRow = -Infinity
@@ -98,10 +81,24 @@ const size = computed(() => {
   const height = maxRow - minRow + 1
 
   return {
-    width: width * 64 + (width - 1) * GAP_SIZE,
-    height: height * 64 + (height - 1) * GAP_SIZE
+    position: {
+      x: minCol * 64 + minCol * GAP_SIZE,
+      y: minRow * 64 + minRow * GAP_SIZE
+    },
+    size: {
+      width: width * 64 + (width - 1) * GAP_SIZE,
+      height: height * 64 + (height - 1) * GAP_SIZE
+    },
+    minRow,
+    minCol
   }
 })
+
+// Derive position and size from the combined computation
+const position = computed(() => positionAndSize.value.position)
+const size = computed(() => positionAndSize.value.size)
+const getMinRow = computed(() => positionAndSize.value.minRow)
+const getMinCol = computed(() => positionAndSize.value.minCol)
 
 const image = `/images/items/${item.value.id.split(':').join('/')}.png`
 
@@ -128,6 +125,7 @@ const originalPosition = reactive({
   y: 0
 })
 
+// Only update position when not dragging
 watch(position, (newPos) => {
   if (!isDragging.value) {
     animatedPosition.x = newPos.x
@@ -135,39 +133,41 @@ watch(position, (newPos) => {
   }
 })
 
+// Use a passive event flag for better touch performance
 function handleCellInteraction(event) {
-  event.target.dataset.validCellClick = 'true';
+  event.target.dataset.validCellClick = 'true'
 }
 
 function handleDragStart(event, info) {
-  const validCellClick = event.target.closest('.hit-areas-wrapper')?.querySelector('[data-valid-cell-click="true"]');
+  const validCellClick = event.target.closest('.hit-areas-wrapper')?.querySelector('[data-valid-cell-click="true"]')
 
   if (validCellClick) {
-    validCellClick.dataset.validCellClick = '';
+    validCellClick.dataset.validCellClick = ''
 
-    // Get coordinates from either mouse or touch event
-    const clickX = info.point.x;
-    const clickY = info.point.y;
+    const clickX = info.point.x
+    const clickY = info.point.y
 
-    isDragging.value = true;
+    isDragging.value = true
 
-    originalPosition.x = animatedPosition.x;
-    originalPosition.y = animatedPosition.y;
+    originalPosition.x = animatedPosition.x
+    originalPosition.y = animatedPosition.y
 
     dragStartOffset.value = {
       x: clickX - animatedPosition.x,
       y: clickY - animatedPosition.y
-    };
+    }
   } else {
-    isDragging.value = false;
-    return false;
+    isDragging.value = false
+    return false
   }
 }
 
+// More efficient grid/pixel conversions
 function pixelToGridPosition(pixelX, pixelY) {
-  const col = Math.round(pixelX / (64 + GAP_SIZE))
-  const row = Math.round(pixelY / (64 + GAP_SIZE))
-  return { col, row }
+  return {
+    col: Math.round(pixelX / (64 + GAP_SIZE)),
+    row: Math.round(pixelY / (64 + GAP_SIZE))
+  }
 }
 
 function gridToPixelPosition(col, row) {
@@ -177,11 +177,12 @@ function gridToPixelPosition(col, row) {
   }
 }
 
+// Pre-calculate cell changes
 function calculateNewCells(oldCells, deltaCol, deltaRow) {
   return oldCells.map(cell => ({
     col: cell.col + deltaCol,
     row: cell.row + deltaRow
-  }));
+  }))
 }
 
 async function handleDragEnd(event, info) {
@@ -195,8 +196,8 @@ async function handleDragEnd(event, info) {
 
     const topLeftPos = pixelToGridPosition(currentX, currentY)
 
-    const newAnchorCol = topLeftPos.col - (getMinCol() - anchorPosition.value.col)
-    const newAnchorRow = topLeftPos.row - (getMinRow() - anchorPosition.value.row)
+    const newAnchorCol = topLeftPos.col - (getMinCol.value - anchorPosition.value.col)
+    const newAnchorRow = topLeftPos.row - (getMinRow.value - anchorPosition.value.row)
 
     const deltaCol = newAnchorCol - anchorPosition.value.col
     const deltaRow = newAnchorRow - anchorPosition.value.row
@@ -222,7 +223,6 @@ async function handleDragEnd(event, info) {
       originalPosition.x = snappedPixelPos.x
       originalPosition.y = snappedPixelPos.y
     } else {
-      console.warn("Server rejected move, reverting")
       animatedPosition.x = originalPosition.x
       animatedPosition.y = originalPosition.y
     }
@@ -233,22 +233,6 @@ async function handleDragEnd(event, info) {
   } finally {
     isDragging.value = false
   }
-}
-
-function getMinRow() {
-  let minRow = Infinity
-  cells.value.forEach(cell => {
-    minRow = Math.min(minRow, cell.row)
-  })
-  return minRow
-}
-
-function getMinCol() {
-  let minCol = Infinity
-  cells.value.forEach(cell => {
-    minCol = Math.min(minCol, cell.col)
-  })
-  return minCol
 }
 
 onMounted(() => {
@@ -266,42 +250,41 @@ onMounted(() => {
       width: `${size.width}px`,
       height: `${size.height}px`,
       position: 'absolute',
-      zIndex: isDragging ? 20 : 10
+      zIndex: isDragging ? 20 : 10,
+      willChange: 'transform'
     }"
       :animate="{
       x: isDragging ? undefined : animatedPosition.x,
       y: isDragging ? undefined : animatedPosition.y,
       transition: {
         type: 'spring',
-        stiffness: 500,
-        damping: 30
+        stiffness: 300,
+        damping: 25
       }
     }"
       drag
       :drag-constraints="inventoryConstraints"
-      :drag-elastic="0.2"
+      :drag-elastic="0.1"
       :drag-momentum="false"
       :dragTransition="{
-      power: 0.1,
-      timeConstant: 250
+      power: 0.05,
+      timeConstant: 200
     }"
       @dragStart="handleDragStart"
       @dragEnd="handleDragEnd"
   >
-    <div class="hit-areas-wrapper" :style="{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }">
+    <!-- Optimize hit detection with fewer elements -->
+    <div class="hit-areas-wrapper">
       <div
           v-for="cell in cells"
           :key="`${cell.row}-${cell.col}`"
           class="cell-hit-area"
           :style="{
-          position: 'absolute',
-          width: '64px',
-          height: '64px',
-          left: `${(cell.col - getMinCol()) * (64 + GAP_SIZE)}px`,
-          top: `${(cell.row - getMinRow()) * (64 + GAP_SIZE)}px`
+          left: `${(cell.col - getMinCol) * (64 + GAP_SIZE)}px`,
+          top: `${(cell.row - getMinRow) * (64 + GAP_SIZE)}px`
         }"
-          @mousedown="handleCellInteraction"
-          @touchstart="handleCellInteraction"
+          @mousedown.passive="handleCellInteraction"
+          @touchstart.passive="handleCellInteraction"
       ></div>
     </div>
 
@@ -310,9 +293,7 @@ onMounted(() => {
         :alt="item.id"
         :style="{
         width: `${size.width}px`,
-        height: `${size.height}px`,
-        objectFit: 'contain',
-        pointerEvents: 'none'
+        height: `${size.height}px`
       }"
     />
   </motion.div>
@@ -323,6 +304,15 @@ onMounted(() => {
   cursor: default;
   user-select: none;
   pointer-events: none;
+  transform: translateZ(0);
+}
+
+.hit-areas-wrapper {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .cell-hit-area {
@@ -330,6 +320,9 @@ onMounted(() => {
   background-color: rgba(255, 255, 255, 0.01);
   z-index: 2;
   pointer-events: all;
+  position: absolute;
+  width: 64px;
+  height: 64px;
 }
 
 .cell-hit-area:active {

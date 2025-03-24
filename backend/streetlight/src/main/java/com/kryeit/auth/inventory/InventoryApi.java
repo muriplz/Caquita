@@ -76,7 +76,7 @@ public class InventoryApi {
         Database.getJdbi().useHandle(handle -> {
             handle.createUpdate("INSERT INTO inventories (user_id, items, height, width) VALUES (:user_id, cast(:items as jsonb), :height, :width)")
                     .bind("user_id", user)
-                    .bind("height", 10)
+                    .bind("height", 8)
                     .bind("width", 5)
                     .bind("items", items)
                     .execute();
