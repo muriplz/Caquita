@@ -27,6 +27,8 @@ dependencies {
     implementation("de.mkammerer.snowflake-id:snowflake-id:0.0.2")
     implementation("io.javalin.community.ssl:ssl-plugin:6.3.0")
     implementation("org.postgresql:postgresql:42.7.4")
+    // Geospatial support for PostgreSQL
+    implementation("net.postgis:postgis-jdbc:2.5.1")
 
     implementation("com.auth0:java-jwt:4.4.0")
     implementation("org.mindrot:jbcrypt:0.4")

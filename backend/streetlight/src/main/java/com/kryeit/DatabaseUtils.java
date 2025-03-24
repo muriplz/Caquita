@@ -37,8 +37,7 @@ public class DatabaseUtils {
                 CREATE TABLE IF NOT EXISTS landmarks (
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(255) NOT NULL,
-                    lat DOUBLE PRECISION NOT NULL,
-                    lon DOUBLE PRECISION NOT NULL,
+                    position GEOMETRY(POINT, 4326) NOT NULL,
                     type VARCHAR(255) NOT NULL
                 )
             """);
@@ -50,6 +49,12 @@ public class DatabaseUtils {
                     type VARCHAR(255) NOT NULL,
                     features JSONB NOT NULL DEFAULT '[]'
                 )
+            """);
+
+            // Create spatial index for faster queries
+            handle.execute("""
+                CREATE INDEX IF NOT EXISTS landmarks_position_idx
+                ON landmarks USING GIST(position)
             """);
 
             return null;

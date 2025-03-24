@@ -7,6 +7,7 @@ import {onMounted, onUnmounted, ref} from 'vue'
 import InfinitePlane from "../components/InfinitePlane.vue"
 import {getGPSStatus} from "../components/player/GPSTracker.js"
 import MapCanvas from "@/components/MapCanvas.vue";
+import Footer from "@/components/Footer.vue";
 
 const showDebugInfo = ref(false)
 const gpsInfo = ref({})
@@ -48,6 +49,8 @@ onUnmounted(() => {
       <InfinitePlane/>
       <TresDirectionalLight :position="[10, 10, 10]" :intensity="0.8" cast-shadow/>
     </TresCanvas>
+    <Footer />
+
   </div>
 </template>
 

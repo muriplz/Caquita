@@ -30,9 +30,17 @@ public class TrashCanApi {
 
         List<Landmark> landmarks = Database.getJdbi().withHandle(handle ->
                 handle.createQuery("""
-                    SELECT * FROM landmarks
-                    WHERE id IN (SELECT landmark_id FROM cans)
-                    AND ST_Distance_Sphere(landmark_position, ST_MakePoint(:lon, :lat)) < :radius
+                    SELECT l.id, l.name,
+                           ST_X(l.position::geometry) as lon,
+                           ST_Y(l.position::geometry) as lat,
+                           l.type
+                    FROM landmarks l
+                    JOIN cans c ON l.id = c.id
+                    WHERE ST_DWithin(
+                        l.position,
+                        ST_SetSRID(ST_MakePoint(:lon, :lat), 4326),
+                        :radius
+                    )
                     """)
                         .bind("lat", lat)
                         .bind("lon", lon)
@@ -63,28 +71,28 @@ public class TrashCanApi {
 
         long id = Database.getJdbi().withHandle(handle -> {
             handle.createUpdate("""
-                INSERT INTO landmarks (landmark_position)
-                VALUES (:name, ST_MakePoint(:lon, :lat), :type)
+                INSERT INTO landmarks (name, position, type)
+                VALUES (:name, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), :type)
+                RETURNING id
                 """)
                     .bind("name", name)
                     .bind("lat", lat)
                     .bind("lon", lon)
-                    .bind("type", LandmarkType.TRASH_CAN)
+                    .bind("type", LandmarkType.TRASH_CAN.name())
                     .execute();
 
-            return handle.createQuery("SELECT LAST_INSERT_ID()")
+            return handle.createQuery("SELECT lastval()")
                     .mapTo(Long.class)
                     .one();
         });
 
         Database.getJdbi().useHandle(handle ->
                 handle.createUpdate("""
-                        INSERT INTO cans (id, type, features)
-                        VALUES (:id, :type, :features)
-                        """)
+                    INSERT INTO cans (id, type, features)
+                    VALUES (:id, :type, '[]'::jsonb)
+                    """)
                         .bind("id", id)
-                        .bind("type", ResourceType.OTHER)
-                        .bind("features", List.of())
+                        .bind("type", ResourceType.OTHER.name())
                         .execute()
         );
 

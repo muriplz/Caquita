@@ -28,7 +28,18 @@ public class LandmarkApi {
         double radius = body.getDouble("radius");
 
         List<Landmark> landmarks = Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT * FROM landmarks WHERE ST_Distance_Sphere(landmark_position, ST_MakePoint(:lon, :lat)) < :radius")
+                handle.createQuery("""
+                    SELECT id, name,
+                           ST_X(position::geometry) as lon,
+                           ST_Y(position::geometry) as lat,
+                           type
+                    FROM landmarks
+                    WHERE ST_DWithin(
+                        position,
+                        ST_SetSRID(ST_MakePoint(:lon, :lat), 4326),
+                        :radius
+                    )
+                    """)
                         .bind("lat", lat)
                         .bind("lon", lon)
                         .bind("radius", radius)
@@ -50,7 +61,14 @@ public class LandmarkApi {
         long id = Long.parseLong(ctx.pathParam("id"));
 
         Landmark landmark = Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT * FROM landmarks WHERE id = :id")
+                handle.createQuery("""
+                    SELECT id, name,
+                           ST_X(position::geometry) as lon,
+                           ST_Y(position::geometry) as lat,
+                           type
+                    FROM landmarks
+                    WHERE id = :id
+                    """)
                         .bind("id", id)
                         .mapToBean(Landmark.class)
                         .one()
@@ -78,7 +96,13 @@ public class LandmarkApi {
         String tableName = LandmarkType.TRASH_CAN.getTableName();
 
         Database.getJdbi().useHandle(handle ->
-                handle.createUpdate("UPDATE landmarks SET name = :name, landmark_position = ST_MakePoint(:lon, :lat), type = :type WHERE id = :id")
+                handle.createUpdate("""
+                    UPDATE landmarks
+                    SET name = :name,
+                        position = ST_SetSRID(ST_MakePoint(:lon, :lat), 4326),
+                        type = :type
+                    WHERE id = :id
+                    """)
                         .bind("name", landmark.name())
                         .bind("lat", landmark.lat())
                         .bind("lon", landmark.lon())
