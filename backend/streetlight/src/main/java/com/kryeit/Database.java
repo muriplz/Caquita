@@ -3,8 +3,6 @@ package com.kryeit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import com.kryeit.auth.User;
 import com.kryeit.auth.inventory.Inventory;
 import com.kryeit.landmark.Landmark;
@@ -12,6 +10,8 @@ import com.kryeit.landmark.can.TrashCan;
 import com.kryeit.landmark.forum.Message;
 import com.kryeit.landmark.forum.Reply;
 import com.kryeit.landmark.forum.petitions.Petition;
+import com.kryeit.landmark.forum.petitions.PetitionMessage;
+import com.kryeit.landmark.forum.petitions.PetitionReply;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jdbi.v3.core.Jdbi;
@@ -46,8 +46,8 @@ public class Database {
         JDBI.registerRowMapper(ConstructorMapper.factory(Message.class));
         JDBI.registerRowMapper(ConstructorMapper.factory(Reply.class));
 
-        JDBI.registerRowMapper(ConstructorMapper.factory(com.kryeit.landmark.forum.petitions.Message.class));
-        JDBI.registerRowMapper(ConstructorMapper.factory(com.kryeit.landmark.forum.petitions.Reply.class));
+        JDBI.registerRowMapper(ConstructorMapper.factory(PetitionMessage.class));
+        JDBI.registerRowMapper(ConstructorMapper.factory(PetitionReply.class));
         JDBI.registerRowMapper(ConstructorMapper.factory(Petition.class));
         // FORUMS END
 

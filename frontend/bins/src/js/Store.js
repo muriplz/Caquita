@@ -2,16 +2,17 @@ import User from './auth/user.js';
 import Levels from "@/js/auth/levels.js";
 import InventoryApi from "@/components/ui/inventory/js/InventoryApi.js";
 import ItemsApi from "@/js/items/ItemsApi.js";
+import {reactive} from "vue";
 
 class Store {
     constructor() {
-        this.state = {
+        this.state = reactive({
             user: null,
             level: null,
             inventory: null,
             items: null
-        };
-        this.inventoryManager = null;
+        });
+        this.listeners = new Set()
     }
 
     async setUser(id, username, creation, trust, experience, beans) {
@@ -26,6 +27,7 @@ class Store {
 
     async updateInventory() {
         this.state.inventory = await InventoryApi.get();
+        this.notifyListeners('inventory-updated');
         return this.state.inventory;
     }
 
@@ -51,6 +53,10 @@ class Store {
 
         // Update the item's cells
         this.state.inventory.items[index].cells = newCells;
+
+        // Notify listeners about the position change
+        this.notifyListeners('item-position-changed');
+
         return true;
     }
 
@@ -86,6 +92,18 @@ class Store {
 
     getItemById(id) {
         return this.state.items.find(item => item.id === id);
+    }
+
+    addListener(callback) {
+        this.listeners.add(callback)
+    }
+
+    removeListener(callback) {
+        this.listeners.delete(callback)
+    }
+
+    notifyListeners(event) {
+        this.listeners.forEach(callback => callback(event))
     }
 }
 

@@ -1,8 +1,9 @@
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import Store from "@/js/Store.js";
 
 const inventory = ref(Store.getInventory());
+const forceUpdate = ref(0); // Used to force reactivity
 
 // Make component reactive to inventory changes
 watch(() => Store.getInventory(), (newInventory) => {
@@ -11,6 +12,9 @@ watch(() => Store.getInventory(), (newInventory) => {
 
 // Create a 2D grid representation to track occupied cells
 const gridMap = computed(() => {
+  // Force computed to re-evaluate when forceUpdate changes
+  forceUpdate.value;
+
   const grid = [];
   const height = inventory.value?.height || 8;
   const width = inventory.value?.width || 8;
@@ -39,8 +43,29 @@ const gridMap = computed(() => {
   return grid;
 });
 
+// Listen for store events
+function handleStoreEvents(event) {
+  if (event === 'item-position-changed' || event === 'inventory-updated') {
+    // Increment forceUpdate to trigger reactivity
+    forceUpdate.value++;
+  }
+}
+
+onMounted(() => {
+  // Register listener
+  Store.addListener(handleStoreEvents);
+});
+
+onBeforeUnmount(() => {
+  // Clean up listener
+  Store.removeListener(handleStoreEvents);
+});
+
 // Get all cells (occupied and empty)
 const allCells = computed(() => {
+  // Also depend on forceUpdate to ensure reactivity
+  forceUpdate.value;
+
   const cells = [];
   const height = inventory.value?.height || 8;
   const width = inventory.value?.width || 8;
@@ -60,7 +85,7 @@ const allCells = computed(() => {
   return cells;
 });
 
-// Determine connections for each cell
+// Rest of the code remains the same
 function getConnections(row, col, itemId) {
   const grid = gridMap.value;
   const height = inventory.value?.height || 8;
@@ -83,7 +108,6 @@ function getConnections(row, col, itemId) {
   };
 }
 
-// Get CSS classes based on connections
 function getConnectionClasses(connections) {
   const {top, right, bottom, left} = connections;
   const connectionCount = [top, right, bottom, left].filter(Boolean).length;

@@ -24,7 +24,8 @@ public class InventoryManager {
     }
 
     public InventoryItem addItem(Item item, int col, int row) {
-        InventoryItem placedItem = calculatePlacement(item, col, row);
+        InventoryItem newItem = new InventoryItem(item.getId(), null, "{}");
+        InventoryItem placedItem = calculatePlacement(newItem, col, row);
         if (placedItem == null)
             return null;
 
@@ -67,23 +68,19 @@ public class InventoryManager {
 
         int previousCol = previousInventoryItem.getAnchorCol();
         int previousRow = previousInventoryItem.getAnchorRow();
-        
-        // Convert previous cells to Cell objects
+
         List<Cell> previousCellList = new ArrayList<>();
         for (JsonNode cellNode : previousCells) {
             previousCellList.add(Cell.of(cellNode));
         }
 
-        // Calculate offsets
         int colOffset = newCol - previousCol;
         int rowOffset = newRow - previousRow;
 
-        // Create new cells using Cell objects
         List<Cell> newCellList = new ArrayList<>();
         for (Cell cell : previousCellList) {
             Cell newCell = new Cell(cell.col() + colOffset, cell.row() + rowOffset);
 
-            // Check boundaries
             if (newCell.col() < 0 || newCell.col() >= inventory.width() ||
                     newCell.row() < 0 || newCell.row() >= inventory.height()) {
                 return null;
@@ -92,45 +89,23 @@ public class InventoryManager {
             newCellList.add(newCell);
         }
 
-        // Create a set of previous cell positions for quick lookup
-        Set<Cell> previousCellPositions = new HashSet<>(previousCellList);
+        Set<Cell> newCellSet = new HashSet<>(newCellList);
 
-        // First, collect all cells from other items
-        Map<Cell, Boolean> otherItemCells = new HashMap<>();
         for (JsonNode inventoryItem : inventory.items()) {
             ArrayNode itemCellsNode = (ArrayNode) inventoryItem.get("cells");
 
-            // Skip if this is the same item we're moving
             if (itemCellsNode.equals(previousCells)) {
                 continue;
             }
 
-            // Add all cells from other items
             for (JsonNode cellNode : itemCellsNode) {
                 Cell cell = Cell.of(cellNode);
-                otherItemCells.put(cell, false);
-            }
-        }
-
-        // Check for collisions
-        boolean hasInvalidCollision = false;
-
-        for (Cell newCell : newCellList) {
-            if (otherItemCells.containsKey(newCell)) {
-                // If this cell wasn't previously occupied by this item, it's an invalid collision
-                if (!previousCellPositions.contains(newCell)) {
-                    hasInvalidCollision = true;
-                    break;
+                if (newCellSet.contains(cell)) {
+                    return null;
                 }
             }
         }
 
-        // If there are invalid collisions, return null
-        if (hasInvalidCollision) {
-            return null;
-        }
-
-        // Convert new cells back to JsonNode
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode newCellsNode = mapper.createArrayNode();
         for (Cell cell : newCellList) {
@@ -152,8 +127,8 @@ public class InventoryManager {
         });
     }
 
-    public InventoryItem calculatePlacement(Item newItem, int col, int row) {
-        List<int[]> newItemShape = newItem.getShape();
+    public InventoryItem calculatePlacement(InventoryItem newItem, int col, int row) {
+        List<int[]> newItemShape = newItem.toItem().getShape();
 
         // Create cells for the new item
         List<Cell> newItemCells = new ArrayList<>();
@@ -172,17 +147,25 @@ public class InventoryManager {
             }
         }
 
+        // Convert new cells to a set for quick lookups
+        Set<Cell> newCellSet = new HashSet<>(newItemCells);
+
         // Check for collisions with existing items
         for (JsonNode inventoryItem : inventory.items()) {
+            String itemId = inventoryItem.get("id").asText();
+
+            // If this is the same item we're replacing, skip collision check
+            if (itemId.equals(newItem.id())) {
+                continue;
+            }
+
             ArrayNode cellsJson = (ArrayNode) inventoryItem.get("cells");
 
             for (JsonNode cellNode : cellsJson) {
                 Cell existingCell = Cell.of(cellNode);
 
-                for (Cell newCell : newItemCells) {
-                    if (existingCell.equals(newCell)) {
-                        return null;
-                    }
+                if (newCellSet.contains(existingCell)) {
+                    return null;
                 }
             }
         }
@@ -197,6 +180,6 @@ public class InventoryManager {
             cellsNode.add(cellNode);
         }
 
-        return new InventoryItem(newItem.getId(), cellsNode, "{}");
+        return new InventoryItem(newItem.id(), cellsNode, "{}");
     }
 }

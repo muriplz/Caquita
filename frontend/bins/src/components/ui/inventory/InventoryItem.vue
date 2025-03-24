@@ -152,22 +152,40 @@ watch(position, (newPos) => {
   }
 })
 
-// Handle drag start
+function handleCellMouseDown(event) {
+  // This marks that a valid cell was clicked
+  // We'll check this in handleDragStart
+  event.target.dataset.validCellClick = 'true';
+}
+
+// Modify handleDragStart
 function handleDragStart(event, info) {
-  isDragging.value = true
+  // Check if the mousedown event came from a valid cell
+  const validCellClick = event.target.closest('.hit-areas-wrapper')?.querySelector('[data-valid-cell-click="true"]');
 
-  // Store the original position for returning on failed drops
-  originalPosition.x = position.value.x
-  originalPosition.y = position.value.y
+  if (validCellClick) {
+    // Reset the marker
+    validCellClick.dataset.validCellClick = '';
 
-  // Calculate offset from anchor to click position
-  const clickX = info.point.x
-  const clickY = info.point.y
+    // Get the click position
+    const clickX = info.point.x;
+    const clickY = info.point.y;
 
-  // Store offset from click to top-left corner of item
-  dragStartOffset.value = {
-    x: clickX - position.value.x,
-    y: clickY - position.value.y
+    isDragging.value = true;
+
+    // Store the original position
+    originalPosition.x = animatedPosition.x;
+    originalPosition.y = animatedPosition.y;
+
+    // Store offset from click to top-left corner of item
+    dragStartOffset.value = {
+      x: clickX - animatedPosition.x,
+      y: clickY - animatedPosition.y
+    };
+  } else {
+    // Prevent the drag operation
+    isDragging.value = false;
+    return false;
   }
 }
 
@@ -198,96 +216,101 @@ function calculateNewCells(oldCells, deltaCol, deltaRow) {
 // Handle drag end
 async function handleDragEnd(event, info) {
   try {
-    // Convert drag position to grid coordinates by accounting for drag offset
-    const topLeftX = info.point.x - dragStartOffset.value.x
-    const topLeftY = info.point.y - dragStartOffset.value.y
-
-    // Calculate which grid cell we're over, accounting for gaps
-    const { col: topLeftCol, row: topLeftRow } = pixelToGridPosition(topLeftX, topLeftY)
-
-    // Calculate the original position in grid coordinates
-    const { col: origCol, row: origRow } = pixelToGridPosition(position.value.x, position.value.y)
-
-    // Calculate the movement from original position
-    const deltaCol = topLeftCol - origCol
-    const deltaRow = topLeftRow - origRow
-
-    // Skip if no movement
-    if (deltaCol === 0 && deltaRow === 0) {
-      returnToOriginalPosition()
+    // Only process if we're actually dragging
+    if (!isDragging.value) {
       return
     }
 
-    // Calculate the new position for the anchor based on the movement
-    const newAnchorCol = anchorPosition.value.col + deltaCol
-    const newAnchorRow = anchorPosition.value.row + deltaRow
+    // Get current dragged position (where user dropped the item)
+    const currentX = info.point.x - dragStartOffset.value.x
+    const currentY = info.point.y - dragStartOffset.value.y
+
+    // Convert to grid coordinates using the top-left corner
+    const topLeftPos = pixelToGridPosition(currentX, currentY)
+
+    // Calculate the new anchor position directly
+    // Instead of calculating delta movement first
+    const newAnchorCol = topLeftPos.col - (getMinCol() - anchorPosition.value.col)
+    const newAnchorRow = topLeftPos.row - (getMinRow() - anchorPosition.value.row)
 
     console.log("Original anchor:", anchorPosition.value)
-    console.log("Delta movement:", { col: deltaCol, row: deltaRow })
+    console.log("New grid position:", topLeftPos)
     console.log("New anchor position:", { col: newAnchorCol, row: newAnchorRow })
 
-    // Check if placement is valid using the raw inventory coordinates
-    const canPlace = await InventoryApi.canPlace(props.inventoryItem, newAnchorCol, newAnchorRow)
-    console.log("Can place:", canPlace)
+    // Calculate how many grid cells we moved
+    const deltaCol = newAnchorCol - anchorPosition.value.col
+    const deltaRow = newAnchorRow - anchorPosition.value.row
 
-    if (canPlace) {
-      // Calculate the new cells before making the API call
-      const newCells = calculateNewCells(cells.value, deltaCol, deltaRow)
+    // Skip if no movement
+    if (deltaCol === 0 && deltaRow === 0) {
+      // Snap back to grid position and exit
+      animatedPosition.x = originalPosition.x
+      animatedPosition.y = originalPosition.y
+      isDragging.value = false
+      return
+    }
 
-      // Make a clone of the item with new cells for client-side update
-      const updatedItem = {
-        ...props.inventoryItem,
-        cells: newCells
-      }
+    // Calculate the new cells
+    const newCells = calculateNewCells(cells.value, deltaCol, deltaRow)
 
-      // Get new pixel position accounting for grid gaps
-      const newPixelPos = gridToPixelPosition(topLeftCol, topLeftRow)
+    // Update visual position
+    const snappedPixelPos = gridToPixelPosition(topLeftPos.col, topLeftPos.row)
+    animatedPosition.x = snappedPixelPos.x
+    animatedPosition.y = snappedPixelPos.y
 
-      // Update animated position to the new position
-      animatedPosition.x = newPixelPos.x
-      animatedPosition.y = newPixelPos.y
+    // Send move request to server
+    const result = await InventoryApi.move(props.inventoryItem, newAnchorCol, newAnchorRow)
+    console.log("Move result:", result)
 
-      // Update the item in the store immediately for responsive UI
-      Store.updateItemPosition(props.inventoryItem, newCells)
-
-      // Update local cells reference
+    if (result) {
+      // Update local cells reference on success
       cells.value = newCells
 
-      // Move item using the raw inventory coordinates (server update)
-      const result = await InventoryApi.move(props.inventoryItem, newAnchorCol, newAnchorRow)
-      console.log("Move result:", result)
+      // Update the item in the store
+      Store.updateItemPosition(props.inventoryItem, newCells)
 
-      // If server update failed, revert changes
-      if (!result) {
-        console.warn("Server update failed, reverting changes")
-        Store.updateItemPosition(updatedItem, props.inventoryItem.cells)
-        cells.value = props.inventoryItem.cells
-        returnToOriginalPosition()
-      }
+      // On successful move, update the originalPosition to the new position
+      originalPosition.x = snappedPixelPos.x
+      originalPosition.y = snappedPixelPos.y
     } else {
-      // Return to original position if can't place
-      returnToOriginalPosition()
+      // If server rejects the move, revert all changes
+      console.warn("Server rejected move, reverting")
+
+      // Revert to original position
+      animatedPosition.x = originalPosition.x
+      animatedPosition.y = originalPosition.y
     }
   } catch (error) {
     console.error('Error moving item:', error)
     // Return to original position on error
-    returnToOriginalPosition()
+    animatedPosition.x = originalPosition.x
+    animatedPosition.y = originalPosition.y
   } finally {
     isDragging.value = false
   }
 }
 
-// Helper to return item to original position
-function returnToOriginalPosition() {
-  animatedPosition.x = originalPosition.x
-  animatedPosition.y = originalPosition.y
-  isDragging.value = false
+function getMinRow() {
+  let minRow = Infinity
+  cells.value.forEach(cell => {
+    minRow = Math.min(minRow, cell.row)
+  })
+  return minRow
 }
 
+function getMinCol() {
+  let minCol = Infinity
+  cells.value.forEach(cell => {
+    minCol = Math.min(minCol, cell.col)
+  })
+  return minCol
+}
 // Initialize animated position
 onMounted(() => {
   animatedPosition.x = position.value.x
   animatedPosition.y = position.value.y
+  originalPosition.x = position.value.x
+  originalPosition.y = position.value.y
 })
 </script>
 
@@ -320,13 +343,31 @@ onMounted(() => {
       @dragStart="handleDragStart"
       @dragEnd="handleDragEnd"
   >
+    <!-- Create a wrapper that contains just the cell hit areas -->
+    <div class="hit-areas-wrapper" :style="{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }">
+      <div
+          v-for="cell in cells"
+          :key="`${cell.row}-${cell.col}`"
+          class="cell-hit-area"
+          :style="{
+          position: 'absolute',
+          width: '64px',
+          height: '64px',
+          left: `${(cell.col - getMinCol()) * (64 + GAP_SIZE)}px`,
+          top: `${(cell.row - getMinRow()) * (64 + GAP_SIZE)}px`
+        }"
+          @mousedown="handleCellMouseDown"
+      ></div>
+    </div>
+
     <img
         :src="image"
         :alt="item.id"
         :style="{
         width: `${size.width}px`,
         height: `${size.height}px`,
-        objectFit: 'contain'
+        objectFit: 'contain',
+        pointerEvents: 'none'
       }"
     />
   </motion.div>
@@ -334,16 +375,25 @@ onMounted(() => {
 
 <style scoped>
 .inventory-item {
-  cursor: grab;
+  cursor: default;
   user-select: none;
 }
 
-.inventory-item:active {
+.cell-hit-area {
+  cursor: grab;
+  background-color: rgba(255, 255, 255, 0.01); /* Nearly invisible but allows clicking */
+  z-index: 2; /* Ensure hit areas are above the image */
+}
+
+.cell-hit-area:active {
   cursor: grabbing;
 }
 
 .inventory-item img {
   image-rendering: pixelated;
   pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>

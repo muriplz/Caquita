@@ -99,7 +99,6 @@ public class InventoryApi {
         MoveItemRequest request = context.bodyAsClass(MoveItemRequest.class);
 
         InventoryManager manager = new InventoryManager(user);
-
         InventoryItem item = manager.moveItem(request.item, request.newCol, request.newRow);
 
         if (item != null) {
@@ -113,7 +112,6 @@ public class InventoryApi {
         long user = AuthUtils.getUser(context);
 
         CanPlaceItemRequest request = context.bodyAsClass(CanPlaceItemRequest.class);
-        System.out.println(request);
         InventoryManager manager = new InventoryManager(user);
 
         if (manager.calculateMovePlacement(request.item, request.col, request.row) != null) {
