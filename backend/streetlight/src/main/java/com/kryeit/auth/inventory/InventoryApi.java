@@ -26,13 +26,28 @@ public class InventoryApi {
     }
 
     public static void initInventory(long user) {
-        InventoryItem item = new InventoryItem(
-                "plastic:tupper",
-                new int[]{0, 1, 2, 3}
+        ArrayNode bottlePos = MAPPER.createArrayNode();
+        bottlePos.add(MAPPER.createObjectNode().put("col", 0).put("row", 0));
+        bottlePos.add(MAPPER.createObjectNode().put("col", 0).put("row", 1));
+
+        ArrayNode pizzaBoxPos = MAPPER.createArrayNode();
+        pizzaBoxPos.add(MAPPER.createObjectNode().put("col", 1).put("row", 2));
+        pizzaBoxPos.add(MAPPER.createObjectNode().put("col", 1).put("row", 1));
+        pizzaBoxPos.add(MAPPER.createObjectNode().put("col", 0).put("row", 2));
+
+        InventoryItem bottle = new InventoryItem(
+                "glass:bottle",
+                bottlePos
+        );
+
+        InventoryItem pizzaBox = new InventoryItem(
+                "cardboard:pizza_box",
+                pizzaBoxPos
         );
 
         ArrayNode items = MAPPER.createArrayNode();
-        items.add(item.toJson());
+        items.add(bottle.toJson());
+        items.add(pizzaBox.toJson());
 
         Database.getJdbi().useHandle(handle -> {
             handle.createUpdate("INSERT INTO inventories (user_id, items, height, width) VALUES (:user_id, cast(:items as jsonb), :height, :width)")
@@ -58,11 +73,12 @@ public class InventoryApi {
         AddItemRequest request = context.bodyAsClass(AddItemRequest.class);
         InventoryManager manager = new InventoryManager(user);
 
-        boolean success = manager.addItem(request.item, request.slot);
-        if (!success) {
-            throw new BadRequestResponse("Cannot add item at the specified position");
+        InventoryItem item = manager.addItem(request.item, request.col, request.row);
+        if (item != null) {
+            context.status(200).json(item);
+        } else {
+            throw new BadRequestResponse("Failed to add item");
         }
-        context.status(200);
     }
 
     public static void removeItem(@NotNull Context context) {
@@ -84,8 +100,10 @@ public class InventoryApi {
 
         InventoryManager manager = new InventoryManager(user);
 
-        if (manager.moveItem(request.item, request.newSlot)) {
-            context.status(200);
+        InventoryItem item = manager.moveItem(request.item, request.newCol, request.newRow);
+
+        if (item != null) {
+            context.status(200).json(item);
         } else {
             throw new BadRequestResponse("Failed to move item");
         }
@@ -95,17 +113,18 @@ public class InventoryApi {
         long user = AuthUtils.getUser(context);
 
         CanPlaceItemRequest request = context.bodyAsClass(CanPlaceItemRequest.class);
+        System.out.println(request);
         InventoryManager manager = new InventoryManager(user);
 
-        if (manager.calculatePlacement(request.item, request.slot) != null) {
+        if (manager.calculateMovePlacement(request.item, request.col, request.row) != null) {
             context.status(200);
         } else {
             throw new BadRequestResponse("Cannot place item at the specified position");
         }
     }
 
-    record AddItemRequest(Item item, int slot) {}
+    record AddItemRequest(Item item, int col, int row) {}
     record RemoveItemRequest(InventoryItem item) {}
-    record MoveItemRequest(InventoryItem item, int newSlot) {}
-    record CanPlaceItemRequest(Item item, int slot) {}
+    record MoveItemRequest(InventoryItem item, int newCol, int newRow) {}
+    record CanPlaceItemRequest(InventoryItem item, int col, int row) {}
 }

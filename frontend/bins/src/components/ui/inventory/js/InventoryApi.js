@@ -46,7 +46,7 @@ export default class InventoryApi {
         return await response.json();
     }
 
-    static async move(inventoryItem, newSlot) {
+    static async move(inventoryItem, newCol, newRow) {
         const response = await fetch(`${API_URL}`, {
             method: 'PATCH',
             credentials: 'include',
@@ -55,14 +55,16 @@ export default class InventoryApi {
             },
             body: JSON.stringify({
                 item: inventoryItem,
-                newSlot: newSlot
+                newCol: newCol,
+                newRow: newRow
             })
         })
 
-        return response.status === 200
+        if (!response.ok) return false;
+        return await response.json();
     }
 
-    static async canPlace(item, slot) {
+    static async canPlace(inventoryItem, col, row) {
         const response = await fetch(`${API_URL}/can-place`, {
             method: 'POST',
             credentials: 'include',
@@ -70,12 +72,12 @@ export default class InventoryApi {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                item: item,
-                slot: slot
+                item: inventoryItem,
+                col: col,
+                row: row
             })
         })
 
-        if (!response.ok) throw new Error(response.status);
-        return await response.json();
+        return response.status === 200
     }
 }

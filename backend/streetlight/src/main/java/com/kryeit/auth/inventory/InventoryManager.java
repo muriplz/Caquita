@@ -1,14 +1,13 @@
 package com.kryeit.auth.inventory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kryeit.Database;
 import com.kryeit.content.items.Item;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class InventoryManager {
     private long user;
@@ -24,14 +23,14 @@ public class InventoryManager {
         );
     }
 
-    public boolean addItem(Item item, int slot) {
-        InventoryItem placedItem = calculatePlacement(item, slot);
+    public InventoryItem addItem(Item item, int col, int row) {
+        InventoryItem placedItem = calculatePlacement(item, col, row);
         if (placedItem == null)
-            return false;
+            return null;
 
         inventory.items().add(placedItem.toJson());
         updateInventory();
-        return true;
+        return placedItem;
     }
 
     public boolean removeItem(InventoryItem item) {
@@ -50,68 +49,98 @@ public class InventoryManager {
         return true;
     }
 
-    public boolean moveItem(InventoryItem item, int newSlot) {
-        InventoryItem placedItem = calculateMovePlacement(item, newSlot);
+    public InventoryItem moveItem(InventoryItem item, int newCol, int newRow) {
+        InventoryItem placedItem = calculateMovePlacement(item, newCol, newRow);
 
         if (placedItem == null)
-            return false;
+            return null;
 
         removeItem(item);
         inventory.items().add(placedItem.toJson());
         updateInventory();
-        return true;
+        return placedItem;
     }
 
-    public InventoryItem calculateMovePlacement(InventoryItem existingItem, int newSlot) {
-        Item itemType = existingItem.toItem();
-        int startX = newSlot % inventory.width();
-        int startY = newSlot / inventory.width();
+    public InventoryItem calculateMovePlacement(InventoryItem previousInventoryItem, int newCol, int newRow) {
+        Item item = previousInventoryItem.toItem();
+        ArrayNode previousCells = previousInventoryItem.cells();
 
-        List<int[]> itemShape = itemType.getShape();
+        int previousCol = previousInventoryItem.getAnchorCol();
+        int previousRow = previousInventoryItem.getAnchorRow();
+        
+        // Convert previous cells to Cell objects
+        List<Cell> previousCellList = new ArrayList<>();
+        for (JsonNode cellNode : previousCells) {
+            previousCellList.add(Cell.of(cellNode));
+        }
 
-        Set<Integer> newItemCells = new HashSet<>();
-        for (int y = 0; y < itemShape.size(); y++) {
-            for (int x = 0; x < itemShape.get(y).length; x++) {
-                if (itemShape.get(y)[x] == 1) {
-                    int cellX = startX + x;
-                    int cellY = startY + y;
+        // Calculate offsets
+        int colOffset = newCol - previousCol;
+        int rowOffset = newRow - previousRow;
 
-                    if (cellX >= inventory.width() || cellY >= inventory.height()) {
-                        return null;
-                    }
+        // Create new cells using Cell objects
+        List<Cell> newCellList = new ArrayList<>();
+        for (Cell cell : previousCellList) {
+            Cell newCell = new Cell(cell.col() + colOffset, cell.row() + rowOffset);
 
-                    int cellSlot = cellY * inventory.width() + cellX;
-                    newItemCells.add(cellSlot);
-                }
+            // Check boundaries
+            if (newCell.col() < 0 || newCell.col() >= inventory.width() ||
+                    newCell.row() < 0 || newCell.row() >= inventory.height()) {
+                return null;
             }
+
+            newCellList.add(newCell);
         }
 
-        Set<Integer> existingItemCells = new HashSet<>();
-        for (int cell : existingItem.cells()) {
-            existingItemCells.add(cell);
-        }
+        // Create a set of previous cell positions for quick lookup
+        Set<Cell> previousCellPositions = new HashSet<>(previousCellList);
 
-        ArrayNode items = inventory.items();
-        for (int i = 0; i < items.size(); i++) {
-            JsonNode itemJson = items.get(i);
-            String currentItemId = itemJson.get("id").asText();
+        // First, collect all cells from other items
+        Map<Cell, Boolean> otherItemCells = new HashMap<>();
+        for (JsonNode inventoryItem : inventory.items()) {
+            ArrayNode itemCellsNode = (ArrayNode) inventoryItem.get("cells");
 
-            // Skip checking collision with the item being moved
-            if (currentItemId.equals(existingItem.id())) {
+            // Skip if this is the same item we're moving
+            if (itemCellsNode.equals(previousCells)) {
                 continue;
             }
 
-            ArrayNode cellsJson = (ArrayNode) itemJson.get("cells");
-            for (int j = 0; j < cellsJson.size(); j++) {
-                int cell = cellsJson.get(j).asInt();
-                if (newItemCells.contains(cell)) {
-                    return null;
+            // Add all cells from other items
+            for (JsonNode cellNode : itemCellsNode) {
+                Cell cell = Cell.of(cellNode);
+                otherItemCells.put(cell, false);
+            }
+        }
+
+        // Check for collisions
+        boolean hasInvalidCollision = false;
+
+        for (Cell newCell : newCellList) {
+            if (otherItemCells.containsKey(newCell)) {
+                // If this cell wasn't previously occupied by this item, it's an invalid collision
+                if (!previousCellPositions.contains(newCell)) {
+                    hasInvalidCollision = true;
+                    break;
                 }
             }
         }
 
-        int[] cellsArray = newItemCells.stream().mapToInt(Integer::intValue).toArray();
-        return new InventoryItem(itemType.getId(), cellsArray, existingItem.nbt());
+        // If there are invalid collisions, return null
+        if (hasInvalidCollision) {
+            return null;
+        }
+
+        // Convert new cells back to JsonNode
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode newCellsNode = mapper.createArrayNode();
+        for (Cell cell : newCellList) {
+            ObjectNode cellNode = mapper.createObjectNode();
+            cellNode.put("col", cell.col());
+            cellNode.put("row", cell.row());
+            newCellsNode.add(cellNode);
+        }
+
+        return new InventoryItem(item.getId(), newCellsNode, previousInventoryItem.nbt());
     }
 
     public void updateInventory() {
@@ -123,43 +152,51 @@ public class InventoryManager {
         });
     }
 
-    public InventoryItem calculatePlacement(Item newItem, int slot) {
-        int startX = slot % inventory.width();
-        int startY = slot / inventory.width();
-
+    public InventoryItem calculatePlacement(Item newItem, int col, int row) {
         List<int[]> newItemShape = newItem.getShape();
 
-        Set<Integer> newItemCells = new HashSet<>();
+        // Create cells for the new item
+        List<Cell> newItemCells = new ArrayList<>();
         for (int y = 0; y < newItemShape.size(); y++) {
             for (int x = 0; x < newItemShape.get(y).length; x++) {
                 if (newItemShape.get(y)[x] == 1) {
-                    int cellX = startX + x;
-                    int cellY = startY + y;
+                    int cellCol = col + x;
+                    int cellRow = row + y;
 
-                    if (cellX >= inventory.width() || cellY >= inventory.height()) {
+                    if (cellCol >= inventory.width() || cellRow >= inventory.height()) {
                         return null;
                     }
 
-                    int cellSlot = cellY * inventory.width() + cellX;
-                    newItemCells.add(cellSlot);
+                    newItemCells.add(new Cell(cellCol, cellRow));
                 }
             }
         }
 
-        ArrayNode items = inventory.items();
-        for (int i = 0; i < items.size(); i++) {
-            JsonNode itemJson = items.get(i);
-            ArrayNode cellsJson = (ArrayNode) itemJson.get("cells");
+        // Check for collisions with existing items
+        for (JsonNode inventoryItem : inventory.items()) {
+            ArrayNode cellsJson = (ArrayNode) inventoryItem.get("cells");
 
-            for (int j = 0; j < cellsJson.size(); j++) {
-                int cell = cellsJson.get(j).asInt();
-                if (newItemCells.contains(cell)) {
-                    return null;
+            for (JsonNode cellNode : cellsJson) {
+                Cell existingCell = Cell.of(cellNode);
+
+                for (Cell newCell : newItemCells) {
+                    if (existingCell.equals(newCell)) {
+                        return null;
+                    }
                 }
             }
         }
 
-        int[] cellsArray = newItemCells.stream().mapToInt(Integer::intValue).toArray();
-        return new InventoryItem(newItem.getId(), cellsArray, "{}");
+        // Convert new cells to JsonNode
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode cellsNode = mapper.createArrayNode();
+        for (Cell cell : newItemCells) {
+            ObjectNode cellNode = mapper.createObjectNode();
+            cellNode.put("col", cell.col());
+            cellNode.put("row", cell.row());
+            cellsNode.add(cellNode);
+        }
+
+        return new InventoryItem(newItem.getId(), cellsNode, "{}");
     }
 }

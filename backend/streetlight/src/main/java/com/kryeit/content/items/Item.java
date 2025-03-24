@@ -1,5 +1,6 @@
 package com.kryeit.content.items;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kryeit.landmark.LandmarkType;
 import com.kryeit.recycling.DisposalOutcome;
 import com.kryeit.recycling.RecyclingReward;
@@ -17,10 +18,24 @@ public abstract class Item {
 
     private final String nbt;
 
-    protected Item(String id, List<int[]> shape, Rarity rarity,
-                   ResourceType resourceType, Map<LandmarkType, DisposalOutcome> disposalOutcomes,
-                   RecyclingReward recyclingReward,
-                   String nbt) {
+    // Empty constructor for Jackson's json
+    private Item() {
+        this.id = "";
+        this.shape = List.of();
+        this.rarity = Rarity.COMMON;
+        this.resourceType = ResourceType.OTHER;
+        this.disposalOutcomes = Map.of();
+        this.recyclingReward = RecyclingReward.builder().build();
+        this.nbt = "{}";
+    }
+
+    protected Item(@JsonProperty("id") String id,
+                   @JsonProperty("shape") List<int[]> shape,
+                   @JsonProperty("rarity") Rarity rarity,
+                   @JsonProperty("resourceType") ResourceType resourceType,
+                   @JsonProperty("disposalOutcomes") Map<LandmarkType, DisposalOutcome> disposalOutcomes,
+                   @JsonProperty("recyclingReward") RecyclingReward recyclingReward,
+                   @JsonProperty("nbt") String nbt) {
         this.id = id;
         this.shape = shape;
         this.rarity = rarity;
@@ -75,5 +90,32 @@ public abstract class Item {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public int greatestWidth() {
+        return shape.stream()
+                .mapToInt(row -> {
+                    int maxWidth = 0;
+                    int currentWidth = 0;
+                    for (int cell : row) {
+                        if (cell == 1) {
+                            currentWidth++;
+                            if (currentWidth > maxWidth) {
+                                maxWidth = currentWidth;
+                            }
+                        } else {
+                            currentWidth = 0;
+                        }
+                    }
+                    return maxWidth;
+                })
+                .max()
+                .orElse(0);
+    }
+
+    public int greatestHeight() {
+        return (int) shape.stream()
+                .filter(row -> Arrays.stream(row).anyMatch(cell -> cell == 1))
+                .count();
     }
 }

@@ -2,7 +2,6 @@ import User from './auth/user.js';
 import Levels from "@/js/auth/levels.js";
 import InventoryApi from "@/components/ui/inventory/js/InventoryApi.js";
 import ItemsApi from "@/js/items/ItemsApi.js";
-import InventoryManager from "@/components/ui/inventory/js/InventoryManager.js";
 
 class Store {
     constructor() {
@@ -27,9 +26,6 @@ class Store {
 
     async updateInventory() {
         this.state.inventory = await InventoryApi.get();
-        if (!this.inventoryManager) {
-            this.inventoryManager = new InventoryManager(this);
-        }
         return this.state.inventory;
     }
 
@@ -39,25 +35,23 @@ class Store {
     }
 
     // Update an item's position without fetching the entire inventory
-    updateItemPosition(item, newSlot) {
-        if (!this.inventoryManager) {
-            this.inventoryManager = new InventoryManager(this);
+    updateItemPosition(inventoryItem, newCells) {
+        if (!this.state.inventory || !this.state.inventory.items) {
+            return false;
         }
 
-        const gridWidth = this.state.inventory?.width || 1;
-        return this.inventoryManager.updateItemPosition(item, newSlot, gridWidth);
-    }
-
-    // Get processed inventory data for UI consumption
-    getProcessedInventory() {
-        if (!this.inventoryManager) {
-            this.inventoryManager = new InventoryManager(this);
-        }
-
-        return this.inventoryManager.processInventoryItems(
-            this.state.inventory,
-            this.state.items
+        // Find the item in the inventory
+        const index = this.state.inventory.items.findIndex(item =>
+            item.id === inventoryItem.id
         );
+
+        if (index === -1) {
+            return false;
+        }
+
+        // Update the item's cells
+        this.state.inventory.items[index].cells = newCells;
+        return true;
     }
 
     removeUser() {
@@ -88,6 +82,10 @@ class Store {
 
     getItems() {
         return this.state.items;
+    }
+
+    getItemById(id) {
+        return this.state.items.find(item => item.id === id);
     }
 }
 

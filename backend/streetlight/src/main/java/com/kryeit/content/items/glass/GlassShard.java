@@ -17,7 +17,7 @@ public class GlassShard extends ResourceItem<GlassClassification> {
         this(GlassClassification.MIXED);
     }
 
-    public GlassShard(GlassClassification glassType) {
+    public GlassShard(GlassClassification classification) {
         super(
                 "glass:shard",
                 List.of(
@@ -25,14 +25,14 @@ public class GlassShard extends ResourceItem<GlassClassification> {
                 ),
                 Rarity.JUNK,
                 ResourceType.GLASS,
-                glassType,
-                createDisposalMap(glassType),
-                createRecyclingReward(glassType),
+                classification,
+                createDisposalMap(classification),
+                createRecyclingReward(classification),
                 "{}"
         );
     }
 
-    private static Map<LandmarkType, DisposalOutcome> createDisposalMap(GlassClassification glassType) {
+    private static Map<LandmarkType, DisposalOutcome> createDisposalMap(GlassClassification classification) {
         Map<LandmarkType, DisposalOutcome> outcomes = new EnumMap<>(LandmarkType.class);
 
         outcomes.put(LandmarkType.GLASS, DisposalOutcome.DECENT);
@@ -41,7 +41,7 @@ public class GlassShard extends ResourceItem<GlassClassification> {
         return outcomes;
     }
 
-    private static RecyclingReward createRecyclingReward(GlassClassification glassType) {
+    private static RecyclingReward createRecyclingReward(GlassClassification classification) {
         return RecyclingReward.builder()
                 .setDefaultReward(DisposalOutcome.CORRECT, 5)
                 .setDefaultReward(DisposalOutcome.DECENT, 1)

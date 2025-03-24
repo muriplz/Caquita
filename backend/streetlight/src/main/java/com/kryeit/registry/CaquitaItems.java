@@ -2,6 +2,7 @@ package com.kryeit.registry;
 
 
 import com.kryeit.content.items.Item;
+import com.kryeit.content.items.cardboard.PizzaBox;
 import com.kryeit.content.items.glass.GlassBottle;
 import com.kryeit.content.items.glass.GlassShard;
 import com.kryeit.content.items.plastic.PlasticBottle;
@@ -42,6 +43,9 @@ public class CaquitaItems {
         register(new PlasticCap());
         register(new PlasticTupper());
         register(new PlasticGloves());
+
+        // CARDBOARD
+        register(new PizzaBox());
     }
 
     public static void register() {

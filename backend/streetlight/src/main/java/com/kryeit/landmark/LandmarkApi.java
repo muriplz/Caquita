@@ -1,6 +1,7 @@
 package com.kryeit.landmark;
 
 import com.kryeit.Database;
+import com.kryeit.auth.AuthUtils;
 import io.javalin.http.Context;
 import org.json.JSONObject;
 
@@ -45,6 +46,7 @@ public class LandmarkApi {
      * @param ctx the Javalin HTTP context
      */
     public static void getLandmark(Context ctx) {
+        AuthUtils.getUser(ctx);
         long id = Long.parseLong(ctx.pathParam("id"));
 
         Landmark landmark = Database.getJdbi().withHandle(handle ->

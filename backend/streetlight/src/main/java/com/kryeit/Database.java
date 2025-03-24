@@ -9,6 +9,9 @@ import com.kryeit.auth.User;
 import com.kryeit.auth.inventory.Inventory;
 import com.kryeit.landmark.Landmark;
 import com.kryeit.landmark.can.TrashCan;
+import com.kryeit.landmark.forum.Message;
+import com.kryeit.landmark.forum.Reply;
+import com.kryeit.landmark.forum.petitions.Petition;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jdbi.v3.core.Jdbi;
@@ -38,6 +41,15 @@ public class Database {
 
         JDBI.registerRowMapper(ConstructorMapper.factory(TrashCan.class));
         // LANDMARKS END
+
+        // FORUMS
+        JDBI.registerRowMapper(ConstructorMapper.factory(Message.class));
+        JDBI.registerRowMapper(ConstructorMapper.factory(Reply.class));
+
+        JDBI.registerRowMapper(ConstructorMapper.factory(com.kryeit.landmark.forum.petitions.Message.class));
+        JDBI.registerRowMapper(ConstructorMapper.factory(com.kryeit.landmark.forum.petitions.Reply.class));
+        JDBI.registerRowMapper(ConstructorMapper.factory(Petition.class));
+        // FORUMS END
 
         jsonMappers();
         JDBI.installPlugin(new Jackson2Plugin());

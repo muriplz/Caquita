@@ -17,7 +17,7 @@ public class GlassBottle extends ResourceItem<GlassClassification> {
         this(GlassClassification.CLEAR);
     }
 
-    public GlassBottle(GlassClassification glassType) {
+    public GlassBottle(GlassClassification classification) {
         super(
                 "glass:bottle",
                 List.of(
@@ -26,32 +26,32 @@ public class GlassBottle extends ResourceItem<GlassClassification> {
                 ),
                 Rarity.COMMON,
                 ResourceType.GLASS,
-                glassType,
-                createDisposalMap(glassType),
-                createRecyclingReward(glassType),
+                classification,
+                createDisposalMap(classification),
+                createRecyclingReward(classification),
                 "{}"
         );
     }
 
-    private static Map<LandmarkType, DisposalOutcome> createDisposalMap(GlassClassification glassType) {
+    private static Map<LandmarkType, DisposalOutcome> createDisposalMap(GlassClassification classification) {
         Map<LandmarkType, DisposalOutcome> outcomes = new EnumMap<>(LandmarkType.class);
 
         outcomes.put(LandmarkType.GLASS,
-                glassType.isRecyclable() ? DisposalOutcome.CORRECT : DisposalOutcome.DECENT);
+                classification.isRecyclable() ? DisposalOutcome.CORRECT : DisposalOutcome.DECENT);
 
         outcomes.put(LandmarkType.TRASH_CAN,
-                glassType.isRecyclable() ? DisposalOutcome.WRONG : DisposalOutcome.DECENT);
+                classification.isRecyclable() ? DisposalOutcome.WRONG : DisposalOutcome.DECENT);
 
         return outcomes;
     }
 
-    private static RecyclingReward createRecyclingReward(GlassClassification glassType) {
+    private static RecyclingReward createRecyclingReward(GlassClassification classification) {
         RecyclingReward.Builder builder = RecyclingReward.builder()
                 .setDefaultReward(DisposalOutcome.CORRECT, 15)
                 .setDefaultReward(DisposalOutcome.DECENT, 1)
                 .setDefaultReward(DisposalOutcome.WRONG, -10);
 
-        if (glassType == GlassClassification.CLEAR) {
+        if (classification == GlassClassification.CLEAR) {
             builder.addLandmarkReward(LandmarkType.GLASS, DisposalOutcome.CORRECT, 20);
         }
 

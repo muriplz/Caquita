@@ -17,7 +17,7 @@ public class PlasticBottle extends ResourceItem<PlasticClassification> {
         this(PlasticClassification.PET);
     }
 
-    public PlasticBottle(PlasticClassification plasticType) {
+    public PlasticBottle(PlasticClassification classification) {
         super(
                 "plastic:bottle",
                 List.of(
@@ -26,26 +26,26 @@ public class PlasticBottle extends ResourceItem<PlasticClassification> {
                 ),
                 Rarity.COMMON,
                 ResourceType.PLASTIC,
-                plasticType,
-                createDisposalMap(plasticType),
-                createRecyclingReward(plasticType),
+                classification,
+                createDisposalMap(classification),
+                createRecyclingReward(classification),
                 "{}"
         );
     }
 
-    private static Map<LandmarkType, DisposalOutcome> createDisposalMap(PlasticClassification plasticType) {
+    private static Map<LandmarkType, DisposalOutcome> createDisposalMap(PlasticClassification classification) {
         Map<LandmarkType, DisposalOutcome> outcomes = new EnumMap<>(LandmarkType.class);
 
         outcomes.put(LandmarkType.PLASTIC,
-                plasticType.isRecyclable() ? DisposalOutcome.CORRECT : DisposalOutcome.DECENT);
+                classification.isRecyclable() ? DisposalOutcome.CORRECT : DisposalOutcome.DECENT);
 
         outcomes.put(LandmarkType.TRASH_CAN,
-                plasticType.isRecyclable() ? DisposalOutcome.WRONG : DisposalOutcome.DECENT);
+                classification.isRecyclable() ? DisposalOutcome.WRONG : DisposalOutcome.DECENT);
 
         return outcomes;
     }
 
-    private static RecyclingReward createRecyclingReward(PlasticClassification plasticType) {
+    private static RecyclingReward createRecyclingReward(PlasticClassification classification) {
         RecyclingReward.Builder builder = RecyclingReward.builder()
                 .setDefaultReward(DisposalOutcome.CORRECT, 20)
                 .setDefaultReward(DisposalOutcome.DECENT, 5)

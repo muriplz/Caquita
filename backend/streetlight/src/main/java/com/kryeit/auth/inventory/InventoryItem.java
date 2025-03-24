@@ -11,28 +11,29 @@ import com.kryeit.registry.CaquitaItems;
 import java.util.ArrayList;
 import java.util.List;
 
+// "cells": [{"column": 3, "row": 4}, {"column": 3, "row": 5}, {"column": 3, "row": 6}]
 public class InventoryItem {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private String id;
-    private int[] cells;
+    private ArrayNode cells;
     private String nbt;
 
     public InventoryItem() {
         this.id = "";
-        this.cells = new int[0];
+        this.cells = MAPPER.createArrayNode();
         this.nbt = "{}";
     }
 
     public InventoryItem(@JsonProperty("id") String id,
-                         @JsonProperty("cells") int[] cells,
+                         @JsonProperty("cells") ArrayNode cells,
                          @JsonProperty("nbt") String nbt) {
         this.id = id;
         this.cells = cells;
         this.nbt = nbt;
     }
 
-    public InventoryItem(String id, int[] cells) {
+    public InventoryItem(String id, ArrayNode cells) {
         this.id = id;
         this.cells = cells;
         this.nbt = "{}";
@@ -42,7 +43,7 @@ public class InventoryItem {
         return id;
     }
 
-    public int[] cells() {
+    public ArrayNode cells() {
         return cells;
     }
 
@@ -50,7 +51,7 @@ public class InventoryItem {
         return nbt;
     }
 
-    public void setCells(int[] cells) {
+    public void setCells(ArrayNode cells) {
         this.cells = cells;
     }
 
@@ -67,7 +68,7 @@ public class InventoryItem {
         json.put("id", id);
         json.put("nbt", nbt);
         ArrayNode cellsArray = MAPPER.createArrayNode();
-        for (int cell : cells) {
+        for (JsonNode cell : cells) {
             cellsArray.add(cell);
         }
         json.set("cells", cellsArray);
@@ -85,11 +86,59 @@ public class InventoryItem {
     public static InventoryItem fromJsonElement(JsonNode element) {
         String id = element.get("id").asText();
         ArrayNode cellsNode = (ArrayNode) element.get("cells");
-        int[] cells = new int[cellsNode.size()];
-        for (int i = 0; i < cells.length; i++) {
-            cells[i] = cellsNode.get(i).asInt();
+        ArrayNode cells = MAPPER.createArrayNode();
+        for (int i = 0; i < cellsNode.size(); i++) {
+            cells.add(cellsNode.get(i).asInt());
         }
         String nbt = element.get("nbt").asText();
         return new InventoryItem(id, cells, nbt);
+    }
+
+    public int getAnchorCol() {
+        List<int[]> shape = toItem().getShape();
+
+        ArrayNode cellsArray = cells();
+
+        int minCol = Integer.MAX_VALUE;
+        for (JsonNode cell : cellsArray) {
+            minCol = Math.min(minCol, cell.get("col").asInt());
+        }
+
+        int shapeOffsetX = -1;
+        outerLoop:
+        for (int x = 0; x < shape.get(0).length; x++) {
+            for (int[] ints : shape) {
+                if (ints[x] == 1) {
+                    shapeOffsetX = x;
+                    break outerLoop;
+                }
+            }
+        }
+
+        return minCol - shapeOffsetX;
+    }
+
+    public int getAnchorRow() {
+        List<int[]> shape = toItem().getShape();
+
+        ArrayNode cellsArray = cells();
+
+        int minRow = Integer.MAX_VALUE;
+        for (JsonNode cell : cellsArray) {
+            minRow = Math.min(minRow, cell.get("row").asInt());
+        }
+
+        int shapeOffsetY = -1;
+        outerLoop:
+        for (int y = 0; y < shape.size(); y++) {
+            for (int x = 0; x < shape.get(y).length; x++) {
+                if (shape.get(y)[x] == 1) {
+                    shapeOffsetY = y;
+                    break outerLoop;
+                }
+            }
+        }
+
+        return minRow - shapeOffsetY;
     }
 }

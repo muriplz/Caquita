@@ -55,4 +55,76 @@ public class DatabaseUtils {
             return null;
         });
     }
+
+    public static void createForumTables() {
+        Jdbi jdbi = Database.getJdbi();
+
+        jdbi.withHandle(handle -> {
+            // Create posts table
+            handle.execute("""
+                CREATE TABLE IF NOT EXISTS messages (
+                    id SERIAL PRIMARY KEY,
+                    landmark_id BIGINT NOT NULL,
+                    user_id BIGINT NOT NULL,
+                    content VARCHAR(255) NOT NULL,
+                    creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id),
+                    FOREIGN KEY (landmark_id) REFERENCES landmarks(id)
+                )
+            """);
+
+            // Create comments table
+            handle.execute("""
+                CREATE TABLE IF NOT EXISTS replies (
+                    id SERIAL PRIMARY KEY,
+                    message_id BIGINT NOT NULL,
+                    user_id BIGINT NOT NULL,
+                    content TEXT NOT NULL,
+                    creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                    FOREIGN KEY (message_id) REFERENCES messages(id),
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """);
+
+            handle.execute("""
+                CREATE TABLE IF NOT EXISTS petitions (
+                    id SERIAL PRIMARY KEY,
+                    user_id BIGINT NOT NULL,
+                    lat DOUBLE PRECISION NOT NULL,
+                    lon DOUBLE PRECISION NOT NULL,
+                    landmark_info JSONB NOT NULL,
+                    accepted BOOLEAN NOT NULL,
+                    creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                    edition TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """);
+
+            handle.execute("""
+                CREATE TABLE IF NOT EXISTS petition_messages (
+                    id SERIAL PRIMARY KEY,
+                    petition_id BIGINT NOT NULL,
+                    user_id BIGINT NOT NULL,
+                    content VARCHAR(255) NOT NULL,
+                    creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id),
+                    FOREIGN KEY (landmark_id) REFERENCES petitions(id)
+                )
+            """);
+
+            handle.execute("""
+                CREATE TABLE IF NOT EXISTS petition_replies (
+                    id SERIAL PRIMARY KEY,
+                    message_id BIGINT NOT NULL,
+                    user_id BIGINT NOT NULL,
+                    content TEXT NOT NULL,
+                    creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+                    FOREIGN KEY (message_id) REFERENCES messages(id),
+                    FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """);
+
+            return null;
+        });
+    }
 }

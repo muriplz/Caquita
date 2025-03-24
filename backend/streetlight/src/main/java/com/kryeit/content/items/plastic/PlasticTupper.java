@@ -17,7 +17,7 @@ public class PlasticTupper extends ResourceItem<PlasticClassification> {
         this(PlasticClassification.PP);
     }
 
-    public PlasticTupper(PlasticClassification plasticType) {
+    public PlasticTupper(PlasticClassification classification) {
         super(
                 "plastic:tupper",
                 List.of(
@@ -26,26 +26,26 @@ public class PlasticTupper extends ResourceItem<PlasticClassification> {
                 ),
                 Rarity.UNCOMMON,
                 ResourceType.PLASTIC,
-                plasticType,
-                createDisposalMap(plasticType),
-                createRecyclingReward(plasticType),
+                classification,
+                createDisposalMap(classification),
+                createRecyclingReward(classification),
                 "{}"
         );
     }
 
-    private static Map<LandmarkType, DisposalOutcome> createDisposalMap(PlasticClassification plasticType) {
+    private static Map<LandmarkType, DisposalOutcome> createDisposalMap(PlasticClassification classification) {
         Map<LandmarkType, DisposalOutcome> outcomes = new EnumMap<>(LandmarkType.class);
 
         outcomes.put(LandmarkType.PLASTIC,
-                plasticType.isRecyclable() ? DisposalOutcome.CORRECT : DisposalOutcome.DECENT);
+                classification.isRecyclable() ? DisposalOutcome.CORRECT : DisposalOutcome.DECENT);
 
         outcomes.put(LandmarkType.TRASH_CAN,
-                plasticType.isRecyclable() ? DisposalOutcome.WRONG : DisposalOutcome.DECENT);
+                classification.isRecyclable() ? DisposalOutcome.WRONG : DisposalOutcome.DECENT);
 
         return outcomes;
     }
 
-    private static RecyclingReward createRecyclingReward(PlasticClassification plasticType) {
+    private static RecyclingReward createRecyclingReward(PlasticClassification classification) {
         RecyclingReward.Builder builder = RecyclingReward.builder()
                 .setDefaultReward(DisposalOutcome.CORRECT, 25)
                 .setDefaultReward(DisposalOutcome.DECENT, 8)

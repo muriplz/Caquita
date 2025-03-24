@@ -7,6 +7,13 @@
          @click="showSettings">
         <img src="/images/ui/settings.png" alt="Settings" class="settings-icon" />
       </a>
+
+      <a v-if="isAdmin"
+         href="javascript:void(0)"
+         class="admin-button"
+         @click="showContributing">
+        <span class="admin-icon">+</span>
+      </a>
     </div>
 
     <div v-if="isMenuOpen" class="profile-container">
@@ -50,7 +57,7 @@
 
         <Transition name="component-slide">
           <div v-if="activeComponent === 'inventory'" class="component-container" @click.self="closeComponent">
-            <inventory :cell-size="60" />
+            <inventory />
           </div>
         </Transition>
 
@@ -75,6 +82,36 @@
         <Transition name="component-slide">
           <div v-if="activeComponent === 'about'" class="component-container" @click.self="closeComponent">
             <About @close="closeComponent" />
+          </div>
+        </Transition>
+
+        <Transition name="component-slide">
+          <div v-if="activeComponent === 'contributing'" class="component-container centered-container" @click.self="closeComponent">
+            <Contributing @openMaterial="showMaterial" @close="closeComponent" />
+          </div>
+        </Transition>
+
+        <Transition name="component-slide">
+          <div v-if="activeComponent === 'cans'" class="component-container centered-container" @click.self="closeComponent">
+            <Cans @close="closeComponent" />
+          </div>
+        </Transition>
+
+        <Transition name="component-slide">
+          <div v-if="activeComponent === 'plastic'" class="component-container centered-container" @click.self="closeComponent">
+            <Plastic @close="closeComponent" />
+          </div>
+        </Transition>
+
+        <Transition name="component-slide">
+          <div v-if="activeComponent === 'paper'" class="component-container centered-container" @click.self="closeComponent">
+            <Paper @close="closeComponent" />
+          </div>
+        </Transition>
+
+        <Transition name="component-slide">
+          <div v-if="activeComponent === 'glass'" class="component-container centered-container" @click.self="closeComponent">
+            <Glass @close="closeComponent" />
           </div>
         </Transition>
 
@@ -123,6 +160,11 @@ import Profile from "@/components/ui/auth/Profile.vue"
 import Settings from "@/components/ui/settings/Settings.vue"
 import Store from "@/js/Store.js"
 import About from "@/components/ui/About.vue"
+import Contributing from "@/components/ui/Contributing.vue"
+import Cans from "@/components/ui/contributing/Cans.vue"
+import Plastic from "@/components/ui/contributing/Plastic.vue"
+import Paper from "@/components/ui/contributing/Paper.vue"
+import Glass from "@/components/ui/contributing/Glass.vue"
 
 const isMenuOpen = ref(false)
 const activeComponent = ref(null)
@@ -130,6 +172,7 @@ const previousComponent = ref(null)
 const isProfileMenuOpen = ref(false)
 const isUserLoggedIn = ref(Store.getUser() !== null)
 const isSettingsSpinning = ref(false)
+const isAdmin = computed(() => Store.getUser()?.trust === "ADMINISTRATOR")
 
 function checkUserStatus() {
   isUserLoggedIn.value = Store.getUser() !== null
@@ -205,6 +248,14 @@ function showSettings() {
   }
 }
 
+function showContributing() {
+  activeComponent.value = 'contributing'
+}
+
+function showMaterial(type) {
+  activeComponent.value = type
+}
+
 let spinTimeout;
 
 function triggerSpinAnimation() {
@@ -271,6 +322,9 @@ function handleShowAbout() {
   top: 20px;
   left: 20px;
   z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .menu-toggle-button {
@@ -342,6 +396,29 @@ function handleShowAbout() {
 
 .settings-button:hover, .profile-button:hover {
   opacity: 0.8;
+}
+
+.admin-button {
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.admin-button:hover {
+  transform: scale(1.1);
+}
+
+.admin-icon {
+  font-size: 20px;
+  color: #333;
+  font-weight: bold;
 }
 
 .profile-icon {
