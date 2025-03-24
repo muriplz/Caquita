@@ -35,6 +35,18 @@ public class InventoryApi {
         pizzaBoxPos.add(MAPPER.createObjectNode().put("col", 1).put("row", 1));
         pizzaBoxPos.add(MAPPER.createObjectNode().put("col", 0).put("row", 2));
 
+        ArrayNode pipePos = MAPPER.createArrayNode();
+        pipePos.add(MAPPER.createObjectNode().put("col", 2).put("row", 1));
+        pipePos.add(MAPPER.createObjectNode().put("col", 2).put("row", 0));
+        pipePos.add(MAPPER.createObjectNode().put("col", 3).put("row", 0));
+        pipePos.add(MAPPER.createObjectNode().put("col", 4).put("row", 0));
+
+        ArrayNode tupperPos = MAPPER.createArrayNode();
+        tupperPos.add(MAPPER.createObjectNode().put("col", 3).put("row", 1));
+        tupperPos.add(MAPPER.createObjectNode().put("col", 4).put("row", 1));
+        tupperPos.add(MAPPER.createObjectNode().put("col", 3).put("row", 2));
+        tupperPos.add(MAPPER.createObjectNode().put("col", 4).put("row", 2));
+
         InventoryItem bottle = new InventoryItem(
                 "glass:bottle",
                 bottlePos
@@ -45,15 +57,27 @@ public class InventoryApi {
                 pizzaBoxPos
         );
 
+        InventoryItem pipe = new InventoryItem(
+                "plastic:pipe",
+                pipePos
+        );
+
+        InventoryItem tupper = new InventoryItem(
+                "plastic:tupper",
+                tupperPos
+        );
+
         ArrayNode items = MAPPER.createArrayNode();
         items.add(bottle.toJson());
         items.add(pizzaBox.toJson());
+        items.add(pipe.toJson());
+        items.add(tupper.toJson());
 
         Database.getJdbi().useHandle(handle -> {
             handle.createUpdate("INSERT INTO inventories (user_id, items, height, width) VALUES (:user_id, cast(:items as jsonb), :height, :width)")
                     .bind("user_id", user)
-                    .bind("height", 3)
-                    .bind("width", 2)
+                    .bind("height", 10)
+                    .bind("width", 5)
                     .bind("items", items)
                     .execute();
         });

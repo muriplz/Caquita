@@ -198,10 +198,6 @@ async function handleDragEnd(event, info) {
     const newAnchorCol = topLeftPos.col - (getMinCol() - anchorPosition.value.col)
     const newAnchorRow = topLeftPos.row - (getMinRow() - anchorPosition.value.row)
 
-    console.log("Original anchor:", anchorPosition.value)
-    console.log("New grid position:", topLeftPos)
-    console.log("New anchor position:", { col: newAnchorCol, row: newAnchorRow })
-
     const deltaCol = newAnchorCol - anchorPosition.value.col
     const deltaRow = newAnchorRow - anchorPosition.value.row
 
@@ -219,7 +215,6 @@ async function handleDragEnd(event, info) {
     animatedPosition.y = snappedPixelPos.y
 
     const result = await InventoryApi.move(props.inventoryItem, newAnchorCol, newAnchorRow)
-    console.log("Move result:", result)
 
     if (result) {
       cells.value = newCells
