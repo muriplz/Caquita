@@ -58,7 +58,7 @@ const gridTemplateRows = computed(() => {
 .inventory-container {
   padding: 8px;
   background-color: #373737;
-  border-radius: 4px;
+  border-radius: 16px;
   width: fit-content;
 }
 

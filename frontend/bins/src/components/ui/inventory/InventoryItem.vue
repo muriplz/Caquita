@@ -14,31 +14,27 @@ const props = defineProps({
 const item = shallowRef(Store.getItemById(props.inventoryItem.id))
 const cells = shallowRef(props.inventoryItem.cells)
 const isDragging = ref(false)
+const isInitialRender = ref(true)
 const dragStartOffset = ref({x: 0, y: 0})
 const GAP_SIZE = 4
 
-// Use normal watch instead of deep watch
 watch(() => props.inventoryItem.cells, (newCells) => {
   cells.value = newCells
 })
 
-// Memoize shape calculation
 const shape = computed(() => item.value.shape || [[1]])
 
-// Calculate anchor positions more efficiently
 const anchorPosition = computed(() => {
   let minRow = Infinity
   let minCol = Infinity
   let shapeOffsetX = -1
   let shapeOffsetY = -1
 
-  // Find min row/col in a single loop
   for (const cell of cells.value) {
     minRow = Math.min(minRow, cell.row)
     minCol = Math.min(minCol, cell.col)
   }
 
-  // Find shape offsets in separate loops
   outerLoop: for (let y = 0; y < shape.value.length; y++) {
     for (let x = 0; x < shape.value[y].length; x++) {
       if (shape.value[y][x] === 1) {
@@ -63,7 +59,6 @@ const anchorPosition = computed(() => {
   }
 })
 
-// Calculate position and size in a single pass
 const positionAndSize = computed(() => {
   let minRow = Infinity
   let minCol = Infinity
@@ -94,7 +89,6 @@ const positionAndSize = computed(() => {
   }
 })
 
-// Derive position and size from the combined computation
 const position = computed(() => positionAndSize.value.position)
 const size = computed(() => positionAndSize.value.size)
 const getMinRow = computed(() => positionAndSize.value.minRow)
@@ -125,7 +119,19 @@ const originalPosition = reactive({
   y: 0
 })
 
-// Only update position when not dragging
+// Calculate transition dynamically based on whether it's initial render
+const getTransition = computed(() => {
+  if (isInitialRender.value) {
+    return {duration: 0}
+  }
+
+  return {
+    type: 'spring',
+    stiffness: 300,
+    damping: 25
+  }
+})
+
 watch(position, (newPos) => {
   if (!isDragging.value) {
     animatedPosition.x = newPos.x
@@ -133,7 +139,6 @@ watch(position, (newPos) => {
   }
 })
 
-// Use a passive event flag for better touch performance
 function handleCellInteraction(event) {
   event.target.dataset.validCellClick = 'true'
 }
@@ -162,7 +167,6 @@ function handleDragStart(event, info) {
   }
 }
 
-// More efficient grid/pixel conversions
 function pixelToGridPosition(pixelX, pixelY) {
   return {
     col: Math.round(pixelX / (64 + GAP_SIZE)),
@@ -177,7 +181,6 @@ function gridToPixelPosition(col, row) {
   }
 }
 
-// Pre-calculate cell changes
 function calculateNewCells(oldCells, deltaCol, deltaRow) {
   return oldCells.map(cell => ({
     col: cell.col + deltaCol,
@@ -240,6 +243,11 @@ onMounted(() => {
   animatedPosition.y = position.value.y
   originalPosition.x = position.value.x
   originalPosition.y = position.value.y
+
+  // Set initial position without animation, then allow animations for later changes
+  setTimeout(() => {
+    isInitialRender.value = false
+  }, 50)
 })
 </script>
 
@@ -251,16 +259,14 @@ onMounted(() => {
       height: `${size.height}px`,
       position: 'absolute',
       zIndex: isDragging ? 20 : 10,
-      willChange: 'transform'
+      willChange: 'transform',
+      transform: isInitialRender ?
+        `translate3d(${animatedPosition.x}px, ${animatedPosition.y}px, 0)` : undefined
     }"
       :animate="{
       x: isDragging ? undefined : animatedPosition.x,
       y: isDragging ? undefined : animatedPosition.y,
-      transition: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 25
-      }
+      transition: getTransition
     }"
       drag
       :drag-constraints="inventoryConstraints"
@@ -273,7 +279,6 @@ onMounted(() => {
       @dragStart="handleDragStart"
       @dragEnd="handleDragEnd"
   >
-    <!-- Optimize hit detection with fewer elements -->
     <div class="hit-areas-wrapper">
       <div
           v-for="cell in cells"
