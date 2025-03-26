@@ -85,7 +85,7 @@ public class Main {
                 post(InventoryApi::addItem);
                 delete(InventoryApi::removeItem);
                 patch(InventoryApi::moveItem);
-
+                post("rotate", InventoryApi::rotateItem);
                 post("can-place", InventoryApi::canPlaceItem);
             });
         });

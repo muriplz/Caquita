@@ -8,6 +8,7 @@ import InfinitePlane from "../components/InfinitePlane.vue"
 import {getGPSStatus} from "../components/player/GPSTracker.js"
 import MapCanvas from "@/components/MapCanvas.vue";
 import Footer from "@/components/Footer.vue";
+import Altar from "@/components/landmarks/Altar.vue";
 
 const showDebugInfo = ref(false)
 const gpsInfo = ref({})
@@ -44,6 +45,7 @@ onUnmounted(() => {
       <Stats v-if="showDebugInfo"/>
       <TresPerspectiveCamera :args="[25, 1, 0.1, 1000]"/>
       <PlayerEntity/>
+      <Altar/>
       <OrbitControls/>
       <MapCanvas />
       <InfinitePlane/>

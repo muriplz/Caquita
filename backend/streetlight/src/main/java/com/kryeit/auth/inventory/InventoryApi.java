@@ -49,22 +49,30 @@ public class InventoryApi {
 
         InventoryItem bottle = new InventoryItem(
                 "glass:bottle",
-                bottlePos
+                bottlePos,
+                Orientation.UP,
+                "{}"
         );
 
         InventoryItem pizzaBox = new InventoryItem(
                 "cardboard:pizza_box",
-                pizzaBoxPos
+                pizzaBoxPos,
+                Orientation.UP,
+                "{}"
         );
 
         InventoryItem pipe = new InventoryItem(
                 "plastic:pipe",
-                pipePos
+                pipePos,
+                Orientation.UP,
+                "{}"
         );
 
         InventoryItem tupper = new InventoryItem(
                 "plastic:tupper",
-                tupperPos
+                tupperPos,
+                Orientation.UP,
+                "{}"
         );
 
         ArrayNode items = MAPPER.createArrayNode();
@@ -132,6 +140,30 @@ public class InventoryApi {
         }
     }
 
+    public static void rotateItem(@NotNull Context context) {
+        try {
+            long user = AuthUtils.getUser(context);
+            RotateItemRequest request = context.bodyAsClass(RotateItemRequest.class);
+            System.out.println("Rotation request: item=" + request.item.id() +
+                    ", clockwise=" + request.clockwise +
+                    ", heldCol=" + request.heldCol +
+                    ", heldRow=" + request.heldRow);
+
+            InventoryManager manager = new InventoryManager(user);
+            InventoryItem item = manager.rotateItem(request.item, request.clockwise, request.heldCol, request.heldRow);
+
+            if (item != null) {
+                context.status(200).json(item);
+            } else {
+                throw new BadRequestResponse("Failed to rotate item");
+            }
+        } catch (Exception e) {
+            System.out.println("Exception in rotateItem: " + e.getMessage());
+            e.printStackTrace();
+            throw new BadRequestResponse("Error processing rotation: " + e.getMessage());
+        }
+    }
+
     public static void canPlaceItem(@NotNull Context context) {
         long user = AuthUtils.getUser(context);
 
@@ -148,5 +180,6 @@ public class InventoryApi {
     record AddItemRequest(Item item, int col, int row) {}
     record RemoveItemRequest(InventoryItem item) {}
     record MoveItemRequest(InventoryItem item, int newCol, int newRow) {}
+    record RotateItemRequest(InventoryItem item, boolean clockwise, int heldCol, int heldRow) {}
     record CanPlaceItemRequest(InventoryItem item, int col, int row) {}
 }

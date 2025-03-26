@@ -1,0 +1,14 @@
+{
+  "ui.menu": "Menu",
+  "ui.settings": "Settings",
+  "ui.language": "Language",
+  "ui.about": "About",
+  "ui.help": "Help",
+  "landmark": "Landmark",
+  "landmark.can": "Trash can",
+  "landmark.plastic": "Plastic bin",
+  "landmark.glass": "Glass bin",
+  "landmark.paper": "Paper bin",
+  "landmark.cardboard": "Cardboard bin"
+
+}

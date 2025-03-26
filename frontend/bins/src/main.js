@@ -10,7 +10,23 @@ import settingsStore from '@/components/ui/settings/settings.js';
 import {initGPSSystem} from "@/components/player/GPSTracker.js";
 import ItemsApi from "@/js/items/ItemsApi.js";
 import Store from "@/js/Store.js";
+import {createI18n} from "vue-i18n";
 
+import enMessages from '/i18n/en_us.json'
+import esMessages from '/i18n/es_es.json'
+
+const browserLanguage = navigator.language.split('-')[0];
+const savedLanguage = localStorage.getItem('language') || browserLanguage || 'en';
+
+export const i18n = createI18n({
+    locale: savedLanguage,
+    fallbackLocale: 'en',
+    globalInjection: true,
+    messages: {
+        en: enMessages,
+        es: esMessages
+    }
+})
 
 settingsStore.init();
 Store.updateItems();
@@ -19,6 +35,7 @@ AuthService.validate();
 initGPSSystem();
 
 createApp(App)
+    .use(i18n)
     .use(router)
     .use(
         CarbonIconsVue,

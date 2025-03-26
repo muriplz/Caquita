@@ -24,7 +24,7 @@ public class InventoryManager {
     }
 
     public InventoryItem addItem(Item item, int col, int row) {
-        InventoryItem newItem = new InventoryItem(item.getId(), null, "{}");
+        InventoryItem newItem = new InventoryItem(item.getId(), null, Orientation.UP, "{}");
         InventoryItem placedItem = calculatePlacement(newItem, col, row);
         if (placedItem == null)
             return null;
@@ -60,6 +60,135 @@ public class InventoryManager {
         inventory.items().add(placedItem.toJson());
         updateInventory();
         return placedItem;
+    }
+
+    public InventoryItem rotateItem(InventoryItem item, boolean clockwise, int heldCol, int heldRow) {
+        System.out.println("Rotating item: " + item.id() +
+                ", clockwise: " + clockwise +
+                ", heldCol: " + heldCol +
+                ", heldRow: " + heldRow);
+        System.out.println("Current orientation: " + item.orientation());
+
+        // Create a new orientation based on rotation direction
+        Orientation newOrientation = item.orientation().rotate(clockwise);
+        System.out.println("New orientation: " + newOrientation);
+
+        // Get the item from registry to get its shape
+        Item itemObject = item.toItem();
+        if (itemObject == null) {
+            System.out.println("Failed to get item from registry: " + item.id());
+            return null;
+        }
+
+        // Get the current cells
+        List<Cell> currentCells = new ArrayList<>();
+        ArrayNode cellsArray = item.cells();
+        for (JsonNode cellNode : cellsArray) {
+            currentCells.add(Cell.of(cellNode));
+        }
+
+        // Find the cell closest to the held position (this will be our pivot)
+        Cell pivotCell = findNearestCell(currentCells, heldCol, heldRow);
+        System.out.println("Pivot cell: col=" + pivotCell.col() + ", row=" + pivotCell.row());
+
+        // Calculate new cells after rotation around the pivot
+        List<Cell> newCells = rotateAroundPivot(currentCells, pivotCell, clockwise);
+
+        // Check that all new cells are within boundaries
+        for (Cell cell : newCells) {
+            if (cell.col() < 0 || cell.col() >= inventory.width() ||
+                    cell.row() < 0 || cell.row() >= inventory.height()) {
+                System.out.println("Rotation would place item out of bounds");
+                return null;
+            }
+        }
+
+        // Check for collisions with other items
+        Set<Cell> newCellSet = new HashSet<>(newCells);
+        for (JsonNode inventoryItem : inventory.items()) {
+            String id = inventoryItem.get("id").asText();
+
+            // Skip the item we're rotating
+            if (id.equals(item.id())) {
+                continue;
+            }
+
+            ArrayNode cellsNode = (ArrayNode) inventoryItem.get("cells");
+            for (JsonNode cellNode : cellsNode) {
+                Cell cell = Cell.of(cellNode);
+                if (newCellSet.contains(cell)) {
+                    System.out.println("Rotation would cause collision with another item");
+                    return null;
+                }
+            }
+        }
+
+        // Create JSON for new cells
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode cellsNode = mapper.createArrayNode();
+        for (Cell cell : newCells) {
+            ObjectNode cellNode = mapper.createObjectNode();
+            cellNode.put("col", cell.col());
+            cellNode.put("row", cell.row());
+            cellsNode.add(cellNode);
+        }
+
+        // Create the rotated item
+        InventoryItem rotatedItem = new InventoryItem(item.id(), cellsNode, newOrientation, item.nbt());
+
+        // Update inventory
+        removeItem(item);
+        inventory.items().add(rotatedItem.toJson());
+        updateInventory();
+
+        System.out.println("Rotation successful, new cells: " + rotatedItem.cells().size());
+        return rotatedItem;
+    }
+
+    private Cell findNearestCell(List<Cell> cells, int heldCol, int heldRow) {
+        Cell closest = cells.get(0);
+        int minDistance = Integer.MAX_VALUE;
+
+        for (Cell cell : cells) {
+            int dx = cell.col() - heldCol;
+            int dy = cell.row() - heldRow;
+            int distance = dx * dx + dy * dy;  // squared distance is fine for comparison
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closest = cell;
+            }
+        }
+
+        return closest;
+    }
+
+    private List<Cell> rotateAroundPivot(List<Cell> cells, Cell pivot, boolean clockwise) {
+        List<Cell> rotatedCells = new ArrayList<>();
+
+        for (Cell cell : cells) {
+            // Translate cell coordinates to be relative to pivot
+            int relX = cell.col() - pivot.col();
+            int relY = cell.row() - pivot.row();
+
+            // Rotate by 90 degrees around origin (0,0)
+            int newRelX, newRelY;
+            if (clockwise) {
+                newRelX = relY;
+                newRelY = -relX;
+            } else {
+                newRelX = -relY;
+                newRelY = relX;
+            }
+
+            // Translate back to original coordinate system
+            int newCol = pivot.col() + newRelX;
+            int newRow = pivot.row() + newRelY;
+
+            rotatedCells.add(new Cell(newCol, newRow));
+        }
+
+        return rotatedCells;
     }
 
     public InventoryItem calculateMovePlacement(InventoryItem previousInventoryItem, int newCol, int newRow) {
@@ -115,7 +244,7 @@ public class InventoryManager {
             newCellsNode.add(cellNode);
         }
 
-        return new InventoryItem(item.getId(), newCellsNode, previousInventoryItem.nbt());
+        return new InventoryItem(item.getId(), newCellsNode, previousInventoryItem.orientation(), previousInventoryItem.nbt());
     }
 
     public void updateInventory() {
@@ -128,17 +257,19 @@ public class InventoryManager {
     }
 
     public InventoryItem calculatePlacement(InventoryItem newItem, int col, int row) {
-        List<int[]> newItemShape = newItem.toItem().getShape();
+        Item item = newItem.toItem();
+        List<int[]> itemShape = getTransformedShape(item.getShape(), newItem.orientation());
 
         // Create cells for the new item
         List<Cell> newItemCells = new ArrayList<>();
-        for (int y = 0; y < newItemShape.size(); y++) {
-            for (int x = 0; x < newItemShape.get(y).length; x++) {
-                if (newItemShape.get(y)[x] == 1) {
+        for (int y = 0; y < itemShape.size(); y++) {
+            for (int x = 0; x < itemShape.get(y).length; x++) {
+                if (itemShape.get(y)[x] == 1) {
                     int cellCol = col + x;
                     int cellRow = row + y;
 
-                    if (cellCol >= inventory.width() || cellRow >= inventory.height()) {
+                    if (cellCol < 0 || cellCol >= inventory.width() ||
+                            cellRow < 0 || cellRow >= inventory.height()) {
                         return null;
                     }
 
@@ -155,7 +286,8 @@ public class InventoryManager {
             String itemId = inventoryItem.get("id").asText();
 
             // If this is the same item we're replacing, skip collision check
-            if (itemId.equals(newItem.id())) {
+            if (itemId.equals(newItem.id()) && inventoryItem.has("cells") &&
+                    newItem.cells() != null && inventoryItem.get("cells").equals(newItem.cells())) {
                 continue;
             }
 
@@ -180,6 +312,57 @@ public class InventoryManager {
             cellsNode.add(cellNode);
         }
 
-        return new InventoryItem(newItem.id(), cellsNode, "{}");
+        return new InventoryItem(newItem.id(), cellsNode, newItem.orientation(), newItem.nbt());
+    }
+
+    private List<int[]> getTransformedShape(List<int[]> originalShape, Orientation orientation) {
+        if (orientation == Orientation.UP) {
+            return originalShape;
+        }
+
+        int height = originalShape.size();
+        int width = height > 0 ? originalShape.get(0).length : 0;
+
+        List<int[]> transformedShape = new ArrayList<>();
+
+        switch (orientation) {
+            case DOWN:
+                // Rotate 180 degrees
+                for (int y = 0; y < height; y++) {
+                    int[] row = new int[width];
+                    for (int x = 0; x < width; x++) {
+                        row[x] = originalShape.get(height - 1 - y)[width - 1 - x];
+                    }
+                    transformedShape.add(row);
+                }
+                break;
+
+            case LEFT:
+                // Rotate 90 degrees counterclockwise
+                for (int x = width - 1; x >= 0; x--) {
+                    int[] row = new int[height];
+                    for (int y = 0; y < height; y++) {
+                        row[y] = originalShape.get(y)[x];
+                    }
+                    transformedShape.add(row);
+                }
+                break;
+
+            case RIGHT:
+                // Rotate 90 degrees clockwise
+                for (int x = 0; x < width; x++) {
+                    int[] row = new int[height];
+                    for (int y = 0; y < height; y++) {
+                        row[y] = originalShape.get(height - 1 - y)[x];
+                    }
+                    transformedShape.add(row);
+                }
+                break;
+
+            default:
+                return originalShape;
+        }
+
+        return transformedShape;
     }
 }

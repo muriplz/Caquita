@@ -38,16 +38,18 @@ public class DatabaseUtils {
                     id SERIAL PRIMARY KEY,
                     name VARCHAR(255) NOT NULL,
                     position GEOMETRY(POINT, 4326) NOT NULL,
-                    type VARCHAR(255) NOT NULL
+                    type VARCHAR(255) NOT NULL,
+                    experience INTEGER NOT NULL DEFAULT 0
                 )
             """);
 
             // Create trash_cans table
             handle.execute("""
                 CREATE TABLE IF NOT EXISTS cans (
-                    id SERIAL PRIMARY KEY,
+                    id BIGINT PRIMARY KEY,
                     type VARCHAR(255) NOT NULL,
-                    features JSONB NOT NULL DEFAULT '[]'
+                    features JSONB NOT NULL DEFAULT '[]',
+                    FOREIGN KEY (id) REFERENCES landmarks(id)
                 )
             """);
 

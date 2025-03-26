@@ -64,6 +64,37 @@ export default class InventoryApi {
         return await response.json();
     }
 
+    static async rotate(inventoryItem, clockwise, heldCol, heldRow) {
+        console.log(`Rotating item around position (${heldCol}, ${heldRow})`);
+
+        try {
+            const response = await fetch(`${API_URL}/rotate`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    item: inventoryItem,
+                    clockwise: clockwise,
+                    heldCol: heldCol,
+                    heldRow: heldRow
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Rotation failed:", errorText);
+                return false;
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Error during rotation API call:", error);
+            return false;
+        }
+    }
+
     static async canPlace(inventoryItem, col, row) {
         const response = await fetch(`${API_URL}/can-place`, {
             method: 'POST',

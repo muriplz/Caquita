@@ -11,31 +11,35 @@ import com.kryeit.registry.CaquitaItems;
 import java.util.ArrayList;
 import java.util.List;
 
-// "cells": [{"column": 3, "row": 4}, {"column": 3, "row": 5}, {"column": 3, "row": 6}]
 public class InventoryItem {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private String id;
     private ArrayNode cells;
+    private Orientation orientation;
     private String nbt;
 
     public InventoryItem() {
         this.id = "";
         this.cells = MAPPER.createArrayNode();
+        this.orientation = Orientation.UP;
         this.nbt = "{}";
     }
 
     public InventoryItem(@JsonProperty("id") String id,
                          @JsonProperty("cells") ArrayNode cells,
+                         @JsonProperty("orientation") Orientation orientation,
                          @JsonProperty("nbt") String nbt) {
         this.id = id;
         this.cells = cells;
+        this.orientation = orientation;
         this.nbt = nbt;
     }
 
     public InventoryItem(String id, ArrayNode cells) {
         this.id = id;
         this.cells = cells;
+        this.orientation = Orientation.UP;
         this.nbt = "{}";
     }
 
@@ -47,16 +51,12 @@ public class InventoryItem {
         return cells;
     }
 
+    public Orientation orientation() {
+        return orientation;
+    }
+
     public String nbt() {
         return nbt;
-    }
-
-    public void setCells(ArrayNode cells) {
-        this.cells = cells;
-    }
-
-    public void setNbt(String nbt) {
-        this.nbt = nbt;
     }
 
     public Item toItem() {
@@ -67,6 +67,7 @@ public class InventoryItem {
         ObjectNode json = MAPPER.createObjectNode();
         json.put("id", id);
         json.put("nbt", nbt);
+        json.put("orientation", orientation != null ? orientation.name() : "UP");
         ArrayNode cellsArray = MAPPER.createArrayNode();
         for (JsonNode cell : cells) {
             cellsArray.add(cell);
@@ -90,8 +91,11 @@ public class InventoryItem {
         for (int i = 0; i < cellsNode.size(); i++) {
             cells.add(cellsNode.get(i).asInt());
         }
+        Orientation orientation = element.has("orientation") ?
+                Orientation.valueOf(element.get("orientation").asText()) :
+                Orientation.UP;
         String nbt = element.get("nbt").asText();
-        return new InventoryItem(id, cells, nbt);
+        return new InventoryItem(id, cells, orientation, nbt);
     }
 
     public int getAnchorCol() {

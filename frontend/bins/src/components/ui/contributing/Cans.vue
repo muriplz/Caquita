@@ -5,11 +5,13 @@
     </div>
     <div class="material-content">
       <p>Hello World!</p>
+      <TopDownMapSection />
     </div>
   </div>
 </template>
 
 <script setup>
+import TopDownMapSection from "@/components/ui/contributing/TopDownMapSection.vue";
 </script>
 
 <style scoped>

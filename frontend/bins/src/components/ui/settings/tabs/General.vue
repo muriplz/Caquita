@@ -9,26 +9,46 @@
   <div class="setting-item">
     <span class="setting-label">Language</span>
     <select v-model="language" class="select-dropdown">
-      <option value="en">English</option>
-      <option value="fr">French</option>
-      <option value="es">Spanish</option>
-      <option value="de">German</option>
+      <option v-for="lang in languages" :key="lang.locale" :value="lang.locale">{{ lang.language }}</option>
     </select>
   </div>
 </template>
 
 <script setup>
-import {computed} from 'vue';
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import ToggleSwitch from '../ToggleSwitch.vue';
 import settingsManager from '@/components/ui/settings/settings.js';
 import AdditionalInfo from "@/components/ui/settings/AdditionalInfo.vue";
 
+const { locale } = useI18n();
+
+const languages = [
+  {
+    language: 'English',
+    locale: 'en'
+  },
+  {
+    language: 'Español',
+    locale: 'es'
+  }
+];
+
 const gpsEnabled = computed(() => settingsManager.settings.general.gpsEnabled);
 
+const browserLanguage = navigator.language.split('-')[0];
+const savedLanguage = ref(localStorage.getItem('language') || browserLanguage || 'en');
+
 const language = computed({
-  get: () => settingsManager.settings.general.language,
-  set: (value) => { settingsManager.settings.general.language = value; }
+  get: () => savedLanguage.value,
+  set: (value) => { setLanguage(value); }
 });
+
+function setLanguage(value) {
+  savedLanguage.value = value;
+  locale.value = value;
+  localStorage.setItem('language', value);
+}
 
 function toggleGPS(value) {
   if (value) {

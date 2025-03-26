@@ -29,7 +29,10 @@ const gridMap = computed(() => {
       if (invItem?.cells) {
         invItem.cells.forEach(cell => {
           if (cell.row >= 0 && cell.row < height && cell.col >= 0 && cell.col < width) {
-            grid[cell.row][cell.col] = invItem.id;
+            grid[cell.row][cell.col] = {
+              id: invItem.id,
+              orientation: invItem.orientation || 'UP'
+            };
           }
         });
       }
@@ -53,7 +56,7 @@ const visibleCells = computed(() => {
       cells.push({
         row,
         col,
-        itemId: grid[row][col],
+        itemInfo: grid[row][col],
         isOccupied: grid[row][col] !== null
       });
     }
@@ -63,7 +66,9 @@ const visibleCells = computed(() => {
 });
 
 function handleStoreEvents(event) {
-  if (event === 'item-position-changed' || event === 'inventory-updated') {
+  if (event === 'item-position-changed' ||
+      event === 'item-orientation-changed' ||
+      event === 'inventory-updated') {
     // Clear connection class cache when inventory changes
     Object.keys(connectionClassCache).forEach(key => {
       delete connectionClassCache[key];
@@ -86,10 +91,10 @@ const connectionClassCache = reactive({});
 function getConnectionClasses(row, col) {
   const key = `${row}-${col}`;
   const grid = gridMap.value;
-  const itemId = grid[row]?.[col];
+  const itemInfo = grid[row]?.[col];
 
   // Return empty for non-occupied cells
-  if (!itemId) return '';
+  if (!itemInfo) return '';
 
   // Check cache first
   if (connectionClassCache[key]) return connectionClassCache[key];
@@ -99,10 +104,10 @@ function getConnectionClasses(row, col) {
   const width = inventory.value?.width || 8;
 
   const connections = {
-    top: row > 0 && grid[row - 1]?.[col] === itemId,
-    right: col < width - 1 && grid[row]?.[col + 1] === itemId,
-    bottom: row < height - 1 && grid[row + 1]?.[col] === itemId,
-    left: col > 0 && grid[row]?.[col - 1] === itemId
+    top: row > 0 && grid[row - 1]?.[col]?.id === itemInfo.id,
+    right: col < width - 1 && grid[row]?.[col + 1]?.id === itemInfo.id,
+    bottom: row < height - 1 && grid[row + 1]?.[col]?.id === itemInfo.id,
+    left: col > 0 && grid[row]?.[col - 1]?.id === itemInfo.id
   };
 
   const {top, right, bottom, left} = connections;
@@ -145,7 +150,8 @@ function getConnectionClasses(row, col) {
         class="grid-slot"
         :class="[
           cell.isOccupied ? 'occupied' : 'empty',
-          cell.isOccupied ? getConnectionClasses(cell.row, cell.col) : ''
+          cell.isOccupied ? getConnectionClasses(cell.row, cell.col) : '',
+          cell.isOccupied ? `item-orientation-${cell.itemInfo.orientation.toLowerCase()}` : ''
         ]"
         :style="{
           gridRowStart: cell.row + 1,
@@ -262,5 +268,22 @@ function getConnectionClasses(row, col) {
 
 .connected-all {
   border-radius: 0;
+}
+
+/* Additional styles for orientation can be added later */
+.item-orientation-up {
+  /* Default orientation, no specific styles needed */
+}
+
+.item-orientation-right {
+  /* Will be implemented later */
+}
+
+.item-orientation-down {
+  /* Will be implemented later */
+}
+
+.item-orientation-left {
+  /* Will be implemented later */
 }
 </style>

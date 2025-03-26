@@ -6,8 +6,7 @@ const STORAGE_KEY = 'user-settings';
 // Default settings structure
 const defaultSettings = {
     general: {
-        gpsEnabled: false,
-        language: 'en',
+        gpsEnabled: false
     },
     controls: {
         cameraSensitivityX: 5,

@@ -60,6 +60,33 @@ class Store {
         return true;
     }
 
+    // Update an item's orientation without fetching the entire inventory
+    updateItemOrientation(inventoryItem, newOrientation, newCells) {
+        if (!this.state.inventory || !this.state.inventory.items) {
+            return false;
+        }
+
+        // Find the item in the inventory
+        const index = this.state.inventory.items.findIndex(item =>
+            item.id === inventoryItem.id
+        );
+
+        if (index === -1) {
+            return false;
+        }
+
+        // Update the item's orientation and cells
+        this.state.inventory.items[index].orientation = newOrientation;
+        if (newCells) {
+            this.state.inventory.items[index].cells = newCells;
+        }
+
+        // Notify listeners about the orientation change
+        this.notifyListeners('item-orientation-changed');
+
+        return true;
+    }
+
     removeUser() {
         this.state.user = null;
         this.removeLevel();

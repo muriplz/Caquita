@@ -1,13 +1,25 @@
 <template>
   <div class="contributing-modal">
     <div class="contributing-header">
-      <h2>Select Material Type</h2>
+      <h2>Select Landmark Type</h2>
     </div>
     <div class="material-grid">
-      <div class="material-icon" @click="openMaterial('cans')">C</div>
-      <div class="material-icon" @click="openMaterial('plastic')">P</div>
-      <div class="material-icon" @click="openMaterial('paper')">P</div>
-      <div class="material-icon" @click="openMaterial('glass')">G</div>
+      <div @click="openMaterial('cans')">
+        <img class="landmark-icon" src="@/assets/landmarks/can.svg" alt="Landmark" />
+        <p>Cans</p>
+      </div>
+      <div @click="openMaterial('plastic')">
+        <img class="landmark-icon" src="@/assets/landmarks/plastic.svg" alt="Landmark" />
+        <p>Plastic</p>
+      </div>
+      <div @click="openMaterial('cardboard')">
+        <img class="landmark-icon" src="@/assets/landmarks/cardboard.svg" alt="Landmark" />
+        <p>Cardboard</p>
+      </div>
+      <div class="material-icon" @click="openMaterial('glass')">
+        <img class="landmark-icon" src="@/assets/landmarks/glass.svg" alt="Landmark" />
+        <p>Glass</p>
+      </div>
     </div>
   </div>
 </template>
@@ -22,26 +34,19 @@ function openMaterial(type) {
 
 <style scoped>
 .contributing-modal {
-  background-color: white;
-  padding: 30px;
-  border-radius: 12px;
-  max-width: 400px;
-  min-width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  background-color: #373737;
+  padding: 16px;
+  border-radius: 24px;
 }
 
 .contributing-header {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .contributing-header h2 {
   margin: 0;
   font-size: 24px;
-  color: #333;
 }
 
 .material-grid {
@@ -51,20 +56,10 @@ function openMaterial(type) {
   gap: 20px;
 }
 
-.material-icon {
-  width: 80px;
-  height: 80px;
-  background-color: #f0f0f0;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 32px;
-  font-weight: bold;
-  color: #333;
-  cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
-  margin: 0 auto;
+.landmark-icon {
+  width: 100px;
+  height: 100px;
+
 }
 
 .material-icon:hover {
