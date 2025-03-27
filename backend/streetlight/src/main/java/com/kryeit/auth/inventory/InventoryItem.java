@@ -11,52 +11,18 @@ import com.kryeit.registry.CaquitaItems;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InventoryItem {
+public record InventoryItem(@JsonProperty("id") String id,
+                            @JsonProperty("cells") ArrayNode cells,
+                            @JsonProperty("orientation") Orientation orientation,
+                            @JsonProperty("nbt") String nbt) {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private String id;
-    private ArrayNode cells;
-    private Orientation orientation;
-    private String nbt;
-
     public InventoryItem() {
-        this.id = "";
-        this.cells = MAPPER.createArrayNode();
-        this.orientation = Orientation.UP;
-        this.nbt = "{}";
-    }
-
-    public InventoryItem(@JsonProperty("id") String id,
-                         @JsonProperty("cells") ArrayNode cells,
-                         @JsonProperty("orientation") Orientation orientation,
-                         @JsonProperty("nbt") String nbt) {
-        this.id = id;
-        this.cells = cells;
-        this.orientation = orientation;
-        this.nbt = nbt;
+        this("", MAPPER.createArrayNode(), Orientation.UP, "{}");
     }
 
     public InventoryItem(String id, ArrayNode cells) {
-        this.id = id;
-        this.cells = cells;
-        this.orientation = Orientation.UP;
-        this.nbt = "{}";
-    }
-
-    public String id() {
-        return id;
-    }
-
-    public ArrayNode cells() {
-        return cells;
-    }
-
-    public Orientation orientation() {
-        return orientation;
-    }
-
-    public String nbt() {
-        return nbt;
+        this(id, cells, Orientation.UP, "{}");
     }
 
     public Item toItem() {
@@ -74,28 +40,6 @@ public class InventoryItem {
         }
         json.set("cells", cellsArray);
         return json;
-    }
-
-    public static List<InventoryItem> fromJsonArray(ArrayNode json) {
-        List<InventoryItem> items = new ArrayList<>();
-        for (JsonNode element : json) {
-            items.add(fromJsonElement(element));
-        }
-        return items;
-    }
-
-    public static InventoryItem fromJsonElement(JsonNode element) {
-        String id = element.get("id").asText();
-        ArrayNode cellsNode = (ArrayNode) element.get("cells");
-        ArrayNode cells = MAPPER.createArrayNode();
-        for (int i = 0; i < cellsNode.size(); i++) {
-            cells.add(cellsNode.get(i).asInt());
-        }
-        Orientation orientation = element.has("orientation") ?
-                Orientation.valueOf(element.get("orientation").asText()) :
-                Orientation.UP;
-        String nbt = element.get("nbt").asText();
-        return new InventoryItem(id, cells, orientation, nbt);
     }
 
     public int getAnchorCol() {

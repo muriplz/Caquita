@@ -55,11 +55,11 @@ public class LoginApi {
         );
 
         if (user == null) {
-            ctx.status(402).result("User not found.");
+            ctx.status(460).result("User not found.");
             return;
         }
 
-        if (user != null && BCrypt.checkpw(password, user.password())) {
+        if (BCrypt.checkpw(password, user.password())) {
             String token = Jwt.generateToken(user.id());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);

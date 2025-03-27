@@ -1,4 +1,4 @@
-import { reactive, ref } from 'vue';
+import {reactive, ref} from 'vue';
 import * as THREE from 'three';
 
 // Player position data

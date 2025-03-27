@@ -4,7 +4,7 @@ import {positionData} from "@/components/player/playerControls.js";
 import {Cylinder} from "@tresjs/cientos";
 import {ref} from "vue";
 
-const color = ref('orange')
+const color = ref('gray')
 
 </script>
 

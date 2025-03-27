@@ -1,6 +1,6 @@
 import {ref, watch} from 'vue';
 import {latLonToWorld, resetWorldOrigin, setWorldOrigin} from '@/js/map/TileConversion.js';
-import {position, positionData, moveTo, isMoving} from './playerControls.js';
+import {isMoving, moveTo, position, positionData} from './playerControls.js';
 import settingsStore from '@/components/ui/settings/settings.js';
 
 // Status tracking

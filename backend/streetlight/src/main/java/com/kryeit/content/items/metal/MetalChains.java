@@ -2,7 +2,6 @@ package com.kryeit.content.items.metal;
 
 import com.kryeit.content.items.Rarity;
 import com.kryeit.content.items.ResourceItem;
-import com.kryeit.content.items.glass.GlassClassification;
 import com.kryeit.landmark.LandmarkType;
 import com.kryeit.recycling.DisposalOutcome;
 import com.kryeit.recycling.RecyclingReward;

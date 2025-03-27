@@ -2,7 +2,6 @@ package com.kryeit.content.items.cardboard;
 
 import com.kryeit.content.items.Rarity;
 import com.kryeit.content.items.ResourceItem;
-import com.kryeit.content.items.plastic.PlasticClassification;
 import com.kryeit.landmark.LandmarkType;
 import com.kryeit.recycling.DisposalOutcome;
 import com.kryeit.recycling.RecyclingReward;

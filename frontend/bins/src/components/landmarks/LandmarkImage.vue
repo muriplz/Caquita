@@ -11,8 +11,8 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
-import { useTexture } from '@tresjs/core'
+import {ref, watch} from 'vue'
+import {useTexture} from '@tresjs/core'
 
 const props = defineProps({
   src: {

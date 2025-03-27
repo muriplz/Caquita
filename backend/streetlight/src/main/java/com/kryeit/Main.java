@@ -74,8 +74,8 @@ public class Main {
         path("auth", () -> {
             path("level", () -> {
                 get("{id}", Level::getLevel);
-                patch(Level::modifyLevel);
             });
+
             post("login", LoginApi::login);
             post("register", LoginApi::register);
             post("validate", LoginApi::validate);

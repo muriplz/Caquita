@@ -1,5 +1,5 @@
-import { teleport, position } from './playerControls.js';
-import { worldToLatLon, latLonToWorld } from '@/js/map/TileConversion.js';
+import {position, teleport} from './playerControls.js';
+import {latLonToWorld, worldToLatLon} from '@/js/map/TileConversion.js';
 
 /**
  * Utility for teleporting the player with smooth horizontal animations

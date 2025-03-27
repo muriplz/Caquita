@@ -1,12 +1,11 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
-import { mapLibreManager } from '../js/map/MapLibreManager.js';
-import { positionData } from './player/playerControls.js';
-import { worldToLatLon, latLonToWorld, TILE_SIZE } from '../js/map/TileConversion.js';
-import { getGPSStatus, isTracking } from './player/GPSTracker.js';
+import {computed, onMounted, onUnmounted, ref, watch} from 'vue';
+import {mapLibreManager} from '../js/map/MapLibreManager.js';
+import {positionData} from './player/playerControls.js';
+import {TILE_SIZE, worldToLatLon} from '../js/map/TileConversion.js';
+import {getGPSStatus, isTracking} from './player/GPSTracker.js';
 import * as THREE from 'three';
-import settingsManager from '@/components/ui/settings/settings.js';
-import {tileLoader, TileLoader} from "@/js/map/TileLoader.js";
+import {tileLoader} from "@/js/map/TileLoader.js";
 
 const mapTexture = ref(null);
 const material = ref(null);

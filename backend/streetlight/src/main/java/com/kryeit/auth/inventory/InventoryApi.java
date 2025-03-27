@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.kryeit.Database;
 import com.kryeit.auth.AuthUtils;
+import com.kryeit.auth.Level;
 import com.kryeit.content.items.Item;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
@@ -141,26 +142,17 @@ public class InventoryApi {
     }
 
     public static void rotateItem(@NotNull Context context) {
-        try {
-            long user = AuthUtils.getUser(context);
-            RotateItemRequest request = context.bodyAsClass(RotateItemRequest.class);
-            System.out.println("Rotation request: item=" + request.item.id() +
-                    ", clockwise=" + request.clockwise +
-                    ", heldCol=" + request.heldCol +
-                    ", heldRow=" + request.heldRow);
+        long user = AuthUtils.getUser(context);
+        RotateItemRequest request = context.bodyAsClass(RotateItemRequest.class);
 
-            InventoryManager manager = new InventoryManager(user);
-            InventoryItem item = manager.rotateItem(request.item, request.clockwise, request.heldCol, request.heldRow);
+        InventoryManager manager = new InventoryManager(user);
+        InventoryItem item = manager.rotateItem(request.item, request.clockwise, request.heldCol, request.heldRow);
 
-            if (item != null) {
-                context.status(200).json(item);
-            } else {
-                throw new BadRequestResponse("Failed to rotate item");
-            }
-        } catch (Exception e) {
-            System.out.println("Exception in rotateItem: " + e.getMessage());
-            e.printStackTrace();
-            throw new BadRequestResponse("Error processing rotation: " + e.getMessage());
+        Level.modifyLevel(user, 10);
+        if (item != null) {
+            context.status(200).json(item);
+        } else {
+            throw new BadRequestResponse("Failed to rotate item");
         }
     }
 

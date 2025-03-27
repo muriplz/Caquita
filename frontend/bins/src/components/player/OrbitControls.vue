@@ -1,7 +1,7 @@
 <script setup>
 import {BaseCameraControls, CameraControls} from '@tresjs/cientos'
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
-import {positionData, removeControls, setCameraInstance, isMoving} from './playerControls.js'
+import {isMoving, positionData, removeControls, setCameraInstance} from './playerControls.js'
 import settingsManager from '@/components/ui/settings/settings.js'
 import TeleportUtility from './TeleportUtility.js'
 

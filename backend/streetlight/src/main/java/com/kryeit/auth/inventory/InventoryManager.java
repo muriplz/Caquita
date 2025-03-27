@@ -7,7 +7,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kryeit.Database;
 import com.kryeit.content.items.Item;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class InventoryManager {
     private long user;
@@ -63,20 +66,13 @@ public class InventoryManager {
     }
 
     public InventoryItem rotateItem(InventoryItem item, boolean clockwise, int heldCol, int heldRow) {
-        System.out.println("Rotating item: " + item.id() +
-                ", clockwise: " + clockwise +
-                ", heldCol: " + heldCol +
-                ", heldRow: " + heldRow);
-        System.out.println("Current orientation: " + item.orientation());
 
         // Create a new orientation based on rotation direction
         Orientation newOrientation = item.orientation().rotate(clockwise);
-        System.out.println("New orientation: " + newOrientation);
 
         // Get the item from registry to get its shape
         Item itemObject = item.toItem();
         if (itemObject == null) {
-            System.out.println("Failed to get item from registry: " + item.id());
             return null;
         }
 
@@ -89,7 +85,6 @@ public class InventoryManager {
 
         // Find the cell closest to the held position (this will be our pivot)
         Cell pivotCell = findNearestCell(currentCells, heldCol, heldRow);
-        System.out.println("Pivot cell: col=" + pivotCell.col() + ", row=" + pivotCell.row());
 
         // Calculate new cells after rotation around the pivot
         List<Cell> newCells = rotateAroundPivot(currentCells, pivotCell, clockwise);
@@ -98,7 +93,6 @@ public class InventoryManager {
         for (Cell cell : newCells) {
             if (cell.col() < 0 || cell.col() >= inventory.width() ||
                     cell.row() < 0 || cell.row() >= inventory.height()) {
-                System.out.println("Rotation would place item out of bounds");
                 return null;
             }
         }
@@ -117,7 +111,6 @@ public class InventoryManager {
             for (JsonNode cellNode : cellsNode) {
                 Cell cell = Cell.of(cellNode);
                 if (newCellSet.contains(cell)) {
-                    System.out.println("Rotation would cause collision with another item");
                     return null;
                 }
             }
@@ -141,7 +134,6 @@ public class InventoryManager {
         inventory.items().add(rotatedItem.toJson());
         updateInventory();
 
-        System.out.println("Rotation successful, new cells: " + rotatedItem.cells().size());
         return rotatedItem;
     }
 
