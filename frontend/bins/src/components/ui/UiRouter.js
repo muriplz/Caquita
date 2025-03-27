@@ -81,34 +81,6 @@ const screens = {
         showProfileButton: true,
         parent: 'MAIN_MENU'
     },
-    CANS: {
-        name: 'CANS',
-        showSettingsButton: true,
-        showPlusButton: false,
-        showProfileButton: true,
-        parent: 'CONTRIBUTING'
-    },
-    PLASTIC: {
-        name: 'PLASTIC',
-        showSettingsButton: true,
-        showPlusButton: false,
-        showProfileButton: true,
-        parent: 'CONTRIBUTING'
-    },
-    CARDBOARD: {
-        name: 'CARDBOARD',
-        showSettingsButton: true,
-        showPlusButton: false,
-        showProfileButton: true,
-        parent: 'CONTRIBUTING'
-    },
-    GLASS: {
-        name: 'GLASS',
-        showSettingsButton: true,
-        showPlusButton: false,
-        showProfileButton: true,
-        parent: 'MAIN_MENU'
-    },
     PROFILE: {
         name: 'PROFILE',
         showSettingsButton: true,

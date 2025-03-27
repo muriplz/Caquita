@@ -108,10 +108,6 @@ import Settings from "@/components/ui/settings/Settings.vue"
 import Store from "@/js/Store.js"
 import About from "@/components/ui/About.vue"
 import Contributing from "@/components/ui/Contributing.vue"
-import Cans from "@/components/ui/contributing/Cans.vue"
-import Plastic from "@/components/ui/contributing/Plastic.vue"
-import Cardboard from "@/components/ui/contributing/Cardboard.vue"
-import Glass from "@/components/ui/contributing/Glass.vue"
 import MenuButton from "@/components/ui/MenuButton.vue"
 import uiRouter from "./UIRouter.js"
 
@@ -128,10 +124,6 @@ const screenComponents = {
   SETTINGS: markRaw(Settings),
   ABOUT: markRaw(About),
   CONTRIBUTING: markRaw(Contributing),
-  CANS: markRaw(Cans),
-  PLASTIC: markRaw(Plastic),
-  CARDBOARD: markRaw(Cardboard),
-  GLASS: markRaw(Glass),
   PROFILE: markRaw(Profile)
 }
 
