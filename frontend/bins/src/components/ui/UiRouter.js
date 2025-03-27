@@ -82,6 +82,13 @@ const screens = {
         showPlusButton: false,
         showProfileButton: true,
         parent: 'MAIN_MENU'
+    },
+    ITEM_INFO: {
+        name: 'ITEM_INFO',
+        showSettingsButton: true,
+        showPlusButton: false,
+        showProfileButton: true,
+        parent: 'INVENTORY'
     }
 }
 

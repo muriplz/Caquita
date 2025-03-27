@@ -25,6 +25,8 @@ declare module 'vue' {
     Inventory: typeof import('./src/components/ui/inventory/Inventory.vue')['default']
     InventoryGrid: typeof import('./src/components/ui/inventory/InventoryGrid.vue')['default']
     InventoryItem: typeof import('./src/components/ui/inventory/InventoryItem.vue')['default']
+    ItemInfo: typeof import('./src/components/ui/inventory/ItemInfo.vue')['default']
+    ItemInfoScreen: typeof import('./src/components/ui/inventory/ItemInfoScreen.vue')['default']
     LandmarkImage: typeof import('./src/components/landmarks/LandmarkImage.vue')['default']
     LevelBar: typeof import('./src/components/ui/auth/LevelBar.vue')['default']
     Login: typeof import('./src/components/ui/auth/Login.vue')['default']

@@ -1,8 +1,26 @@
+<template>
+  <div class="inventory-container">
+    <div ref="gridRef" class="inventory-grid" :style="gridStyle">
+      <!-- Visual layer for connected slots -->
+      <GridSlots />
+
+      <!-- Draggable items -->
+      <InventoryItem
+          v-for="item in inventoryItems"
+          :key="item.id"
+          :inventory-item="item"
+          @itemClicked="showItemInfo"
+      />
+    </div>
+  </div>
+</template>
+
 <script setup>
 import {computed, ref, watch} from "vue"
 import Store from "@/js/Store.js"
 import InventoryItem from "./InventoryItem.vue"
 import GridSlots from "./GridSlots.vue"
+import uiRouter from "../UIRouter.js"
 
 const inventory = ref(Store.getInventory())
 const inventoryItems = computed(() => inventory.value?.items || [])
@@ -36,23 +54,15 @@ const gridTemplateRows = computed(() => {
   const height = inventory.value?.height || 8
   return `repeat(${height}, 64px)`
 })
+
+// Method to show item info
+function showItemInfo(item) {
+  if (item) {
+    Store.selectedInventoryItem = item
+    uiRouter.navigate('ITEM_INFO')
+  }
+}
 </script>
-
-<template>
-  <div class="inventory-container">
-    <div ref="gridRef" class="inventory-grid" :style="gridStyle">
-      <!-- Visual layer for connected slots -->
-      <GridSlots />
-
-      <!-- Draggable items -->
-      <InventoryItem
-          v-for="item in inventoryItems"
-          :key="item.id"
-          :inventory-item="item"
-      />
-    </div>
-  </div>
-</template>
 
 <style scoped>
 .inventory-container {

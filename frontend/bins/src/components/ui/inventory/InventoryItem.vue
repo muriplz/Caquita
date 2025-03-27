@@ -37,11 +37,11 @@
         }"
           @mousedown.passive="handleCellInteraction"
           @touchstart.passive="handleCellInteraction"
-          @mousedown="startPressTimer"
-          @mouseup="clearPressTimer"
+          @mousedown="handleMouseDown"
+          @mouseup="handleMouseUp"
           @mouseleave="clearPressTimer"
-          @touchstart="startPressTimer"
-          @touchend="clearPressTimer"
+          @touchstart="handleTouchStart"
+          @touchend="handleTouchEnd"
           @touchcancel="clearPressTimer"
       ></div>
     </div>
@@ -88,6 +88,8 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['itemClicked'])
+
 // Core state
 const item = shallowRef(Store.getItemById(props.inventoryItem.id))
 const cells = ref(props.inventoryItem.cells || [])
@@ -95,11 +97,18 @@ const orientation = ref(props.inventoryItem.orientation || 'UP')
 const isDragging = ref(false)
 const isInitialRender = ref(true)
 const dragStartOffset = ref({x: 0, y: 0})
+const dragStartPoint = ref(null)
 const GAP_SIZE = 4
+
+// State for click handling
+const isClicking = ref(false)
+const clickStartTime = ref(0)
+const clickStartPosition = ref(null)
+const clickThreshold = 5 // pixels
+const longPressThreshold = 800 // milliseconds
 
 // Rotation state
 const pressTimer = ref(null)
-const longPressDuration = 800
 const rotationEl = ref(null)
 const currentRotationDegrees = ref(0)
 
@@ -257,21 +266,102 @@ function handleCellInteraction(event) {
   event.target.dataset.validCellClick = 'true'
 }
 
-// Long press for rotation
-function startPressTimer(event) {
+// Improved click/press handling
+function handleMouseDown(event) {
   if (isDragging.value) return
+
+  const pageX = event.pageX || event.clientX
+  const pageY = event.pageY || event.clientY
+
+  clickStartPosition.value = { x: pageX, y: pageY }
+  clickStartTime.value = Date.now()
+  isClicking.value = true
+
+  // Start long press timer
+  clearTimeout(pressTimer.value)
+  pressTimer.value = setTimeout(() => {
+    if (isClicking.value) {
+      isClicking.value = false
+      rotateItem(event)
+    }
+  }, longPressThreshold)
+}
+
+function handleMouseUp(event) {
+  if (!isClicking.value) return
 
   clearTimeout(pressTimer.value)
 
-  pressTimer.value = setTimeout(() => {
-    if (!isDragging.value) {
-      rotateItem(event)
+  const pageX = event.pageX || event.clientX
+  const pageY = event.pageY || event.clientY
+  const moveDistance = clickStartPosition.value ?
+      Math.sqrt(
+          Math.pow(pageX - clickStartPosition.value.x, 2) +
+          Math.pow(pageY - clickStartPosition.value.y, 2)
+      ) : Number.MAX_SAFE_INTEGER
+
+  const pressDuration = Date.now() - clickStartTime.value
+
+  // If short press and minimal movement, trigger click
+  if (moveDistance < clickThreshold && pressDuration < longPressThreshold) {
+    emit('itemClicked', props.inventoryItem)
+  }
+
+  isClicking.value = false
+}
+
+function handleTouchStart(event) {
+  if (isDragging.value) return
+
+  const touch = event.touches[0]
+  if (touch) {
+    const pageX = touch.pageX
+    const pageY = touch.pageY
+
+    clickStartPosition.value = { x: pageX, y: pageY }
+    clickStartTime.value = Date.now()
+    isClicking.value = true
+
+    // Start long press timer
+    clearTimeout(pressTimer.value)
+    pressTimer.value = setTimeout(() => {
+      if (isClicking.value) {
+        isClicking.value = false
+        rotateItem(event)
+      }
+    }, longPressThreshold)
+  }
+}
+
+function handleTouchEnd(event) {
+  if (!isClicking.value) return
+
+  clearTimeout(pressTimer.value)
+
+  // Get final position if available
+  const touch = event.changedTouches[0]
+  if (touch && clickStartPosition.value) {
+    const pageX = touch.pageX
+    const pageY = touch.pageY
+    const moveDistance = Math.sqrt(
+        Math.pow(pageX - clickStartPosition.value.x, 2) +
+        Math.pow(pageY - clickStartPosition.value.y, 2)
+    )
+
+    const pressDuration = Date.now() - clickStartTime.value
+
+    // If short press and minimal movement, trigger click
+    if (moveDistance < clickThreshold && pressDuration < longPressThreshold) {
+      emit('itemClicked', props.inventoryItem)
     }
-  }, longPressDuration)
+  }
+
+  isClicking.value = false
 }
 
 function clearPressTimer() {
   clearTimeout(pressTimer.value)
+  isClicking.value = false
 }
 
 // Handle rotation
@@ -321,6 +411,7 @@ async function rotateItem(event) {
 // Handle drag start
 function handleDragStart(event, info) {
   clearPressTimer()
+  isClicking.value = false // Cancel any potential click when drag starts
 
   const validCellClick = event.target.closest('.hit-areas-wrapper')?.querySelector('[data-valid-cell-click="true"]')
 
@@ -330,6 +421,7 @@ function handleDragStart(event, info) {
     const clickX = info.point.x
     const clickY = info.point.y
 
+    dragStartPoint.value = { x: clickX, y: clickY }
     isDragging.value = true
 
     originalPosition.x = animatedPosition.x
@@ -376,6 +468,8 @@ async function handleDragEnd(event, info) {
       return
     }
 
+    // No more click detection in drag end - we now handle clicks separately
+
     const currentX = info.point.x - dragStartOffset.value.x
     const currentY = info.point.y - dragStartOffset.value.y
 
@@ -417,6 +511,7 @@ async function handleDragEnd(event, info) {
     animatedPosition.y = originalPosition.y
   } finally {
     isDragging.value = false
+    dragStartPoint.value = null
   }
 }
 

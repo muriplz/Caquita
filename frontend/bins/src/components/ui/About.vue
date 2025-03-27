@@ -2,6 +2,7 @@
   <div class="about-form">
     <div class="about-header">
       <h2>About Us</h2>
+      <ChangelogMarkdown/>
     </div>
 
     <div class="about-content">
@@ -15,6 +16,7 @@
 </template>
 
 <script setup>
+import ChangelogMarkdown from "@/components/ChangelogMarkdown.vue";
 </script>
 
 <style scoped>

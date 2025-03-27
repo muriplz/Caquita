@@ -94,6 +94,7 @@ import About from "@/components/ui/About.vue"
 import Contributing from "@/components/ui/Contributing.vue"
 import MenuButton from "@/components/ui/MenuButton.vue"
 import uiRouter from "./UIRouter.js"
+import ItemInfoScreen from "@/components/ui/inventory/ItemInfoScreen.vue";
 
 const isDevelopment = process.env.NODE_ENV === 'development' || true;
 
@@ -105,7 +106,8 @@ const screenComponents = {
   SETTINGS: markRaw(Settings),
   ABOUT: markRaw(About),
   CONTRIBUTING: markRaw(Contributing),
-  PROFILE: markRaw(Profile)
+  PROFILE: markRaw(Profile),
+  ITEM_INFO: markRaw(ItemInfoScreen)
 }
 
 const centeredScreens = ['SETTINGS', 'CONTRIBUTING']

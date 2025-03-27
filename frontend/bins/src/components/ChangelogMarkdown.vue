@@ -116,11 +116,9 @@ const parsedMarkdown = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
 
 .modal-content {
@@ -203,6 +201,7 @@ const parsedMarkdown = computed(() => {
 
 .markdown-content {
   line-height: 1.6;
+  text-align: left;
 }
 
 .markdown-content :deep(h1) {
