@@ -4,8 +4,7 @@
       <h2>Cans</h2>
     </div>
     <div class="material-content">
-      <p>Hello World!</p>
-      <TopDownMapSection />
+      <TopDownMapSection :initialLat="37.7749" :initialLng="-122.4194" />
     </div>
   </div>
 </template>

@@ -1,0 +1,5 @@
+{
+  "cron-expression": "*/10 * * 2 *",
+  "name": "Carnaval de Cádiz",
+  "Etc": "Etc"
+}

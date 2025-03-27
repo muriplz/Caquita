@@ -3,7 +3,7 @@ import {createRouter, createWebHistory} from 'vue-router';
 import MapView from '../views/MapView.vue';
 import Onboarding from "@/views/Onboarding.vue";
 import HomeView from "@/views/HomeView.vue";
-import AuthService from "@/js/auth/authService.js";
+import AuthService from "@/js/auth/AuthService.js";
 import LoginView from "@/views/LoginView.vue";
 
 const routes = [

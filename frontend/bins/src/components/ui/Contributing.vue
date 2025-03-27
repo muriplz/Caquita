@@ -1,30 +1,18 @@
 <template>
   <div class="contributing-modal">
     <div class="contributing-header">
-      <h2>Select Landmark Type</h2>
+      <h2>Contribute!</h2>
     </div>
-    <div class="material-grid">
-      <div @click="openMaterial('cans')">
-        <img class="landmark-icon" src="@/assets/landmarks/can.svg" alt="Landmark" />
-        <p>Cans</p>
-      </div>
-      <div @click="openMaterial('plastic')">
-        <img class="landmark-icon" src="@/assets/landmarks/plastic.svg" alt="Landmark" />
-        <p>Plastic</p>
-      </div>
-      <div @click="openMaterial('cardboard')">
-        <img class="landmark-icon" src="@/assets/landmarks/cardboard.svg" alt="Landmark" />
-        <p>Cardboard</p>
-      </div>
-      <div class="material-icon" @click="openMaterial('glass')">
-        <img class="landmark-icon" src="@/assets/landmarks/glass.svg" alt="Landmark" />
-        <p>Glass</p>
-      </div>
-    </div>
+    <p>
+      The contributions are submitted through our Petition Portal, called
+      <a href="https://landmarks.caquita.app"  target="_blank" rel="noopener noreferrer">Landmarks</a>.
+    </p>
   </div>
 </template>
 
 <script setup>
+import {getIpAddress} from "@/js/static.js";
+
 const emit = defineEmits(['openMaterial', 'close']);
 
 function openMaterial(type) {
@@ -34,9 +22,10 @@ function openMaterial(type) {
 
 <style scoped>
 .contributing-modal {
-  background-color: #373737;
+  background-color: #ffffff;
   padding: 16px;
-  border-radius: 24px;
+  margin: 0 8px;
+  border: 4px solid #373737;
 }
 
 .contributing-header {
@@ -47,6 +36,11 @@ function openMaterial(type) {
 .contributing-header h2 {
   margin: 0;
   font-size: 24px;
+  color: #373737;
+}
+
+p {
+  color: #373737;
 }
 
 .material-grid {
@@ -57,9 +51,8 @@ function openMaterial(type) {
 }
 
 .landmark-icon {
-  width: 100px;
   height: 100px;
-
+  image-rendering: pixelated;
 }
 
 .material-icon:hover {
