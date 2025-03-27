@@ -1,8 +1,8 @@
 <script setup>
-import { Box, ScrollControls, Stars } from '@tresjs/cientos'
-import { TresCanvas, useRenderLoop } from '@tresjs/core'
-import { useControls } from '@tresjs/leches'
-import { ref } from 'vue'
+import {Box, ScrollControls, Stars} from '@tresjs/cientos'
+import {TresCanvas, useRenderLoop} from '@tresjs/core'
+import {useControls} from '@tresjs/leches'
+import {ref} from 'vue'
 import '@tresjs/leches/styles'
 
 const boxRef = ref()

@@ -1,19 +1,23 @@
-@import url('https://fonts.cdnfonts.com/css/minecraftia');
-
-*, *::before, *::after {
-  font-family: 'MinecraftiaRegular', sans-serif;
+@font-face {
+  font-family: 'Minecraftia';
+  src: url('/fonts/Minecraftia.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 :root {
-  font-family: 'MinecraftiaRegular', sans-serif;
-  color: #fff;
+  font-family: 'Minecraftia', sans-serif;
+  color: black;
   background-color: #242424;
+  line-height: 1;
 }
 
 a {
   color: #646cff;
   text-decoration: none;
 }
+
 a:hover {
   color: #535bf2;
 }
@@ -27,6 +31,7 @@ body {
 
 h1 {
   font-size: 3.2em;
+  margin: 0;
 }
 
 button {
@@ -36,7 +41,11 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 button:hover {
   border-color: #646cff;
 }
@@ -53,17 +62,31 @@ button:hover {
   -ms-tap-highlight-color: transparent;
   tap-highlight-color: transparent;
   user-select: none;
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #fff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Fix for pixelated font alignment issues */
+.menu-toggle-button span,
+button span,
+a span {
+  display: inline-block;
+  transform: translateY(-2px);
+}
+
+/* Fix buttons and other interactive elements */
+.menu-toggle-button,
+button,
+.settings-button,
+.profile-button,
+.admin-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fix line-height issues */
+p, h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: 1.2;
 }
