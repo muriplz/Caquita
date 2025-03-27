@@ -26,7 +26,7 @@
 import {onMounted} from 'vue';
 import Store from "@/js/Store.js";
 import LevelBar from './LevelBar.vue';
-import Levels from '@/js/auth/levels.js';
+import Levels from '@/js/auth/Levels.js';
 
 onMounted(async () => {
   if (Store.getUser() && !Store.getLevel()) {

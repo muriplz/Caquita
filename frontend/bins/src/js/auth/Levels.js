@@ -1,7 +1,7 @@
-// levels.js
-import {getIpAddress} from "@/js/static.js";
+// Levels.js
+import {getIpAddress} from "@/js/Static.js";
 import Store from "@/js/Store.js";
-import Level from "@/js/auth/level.js";
+import Level from "@/js/auth/Level.js";
 
 const API_URL = getIpAddress() + '/api/v1/auth/level';
 

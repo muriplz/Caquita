@@ -1,4 +1,4 @@
-// level.js
+// Level.js
 class Level {
     constructor(data) {
         this.level = data.level;

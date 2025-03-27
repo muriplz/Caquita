@@ -1,4 +1,4 @@
-import {getIpAddress} from "@/js/static.js";
+import {getIpAddress} from "@/js/Static.js";
 
 const API_URL = getIpAddress() + '/api/v1/items';
 

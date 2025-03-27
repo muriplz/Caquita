@@ -3,6 +3,7 @@ import {motion} from 'motion-v'
 import {ref} from 'vue';
 import {useRouter} from 'vue-router';
 import AuthService from '@/js/auth/AuthService.js';
+import ChangelogMarkdown from "@/components/ChangelogMarkdown.vue";
 
 const username = ref('');
 const password = ref('');
@@ -84,6 +85,7 @@ const closeCreateAccountModal = () => {
         :class="{ 'disabled': loading }"
         src="/images/ui/confirm_button.png"
     />
+    <ChangelogMarkdown/>
 
     <!-- Create Account Modal -->
     <div v-if="showCreateAccountModal" class="modal-overlay">

@@ -1,4 +1,4 @@
-import {getIpAddress} from "../static.js";
+import {getIpAddress} from "../Static.js";
 
 class Cans {
 

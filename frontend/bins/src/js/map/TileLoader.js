@@ -1,4 +1,4 @@
-import {getIpAddress} from "../static.js";
+import {getIpAddress} from "../Static.js";
 import * as THREE from 'three';
 
 export class TileLoader {

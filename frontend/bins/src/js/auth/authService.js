@@ -1,5 +1,5 @@
 import Store from "../Store.js";
-import {getIpAddress} from "../static.js";
+import {getIpAddress} from "../Static.js";
 import router from "@/router/index.js";
 
 class AuthService {

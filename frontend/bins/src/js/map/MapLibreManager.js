@@ -1,5 +1,5 @@
 import maplibregl from 'maplibre-gl';
-import {getCoordinates} from './coordinates.js';
+import {getCoordinates} from './Coordinates.js';
 import {DEFAULT_ZOOM} from './TileConversion.js';
 
 class MapLibreManager {

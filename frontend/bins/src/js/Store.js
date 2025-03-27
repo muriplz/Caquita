@@ -1,5 +1,5 @@
-import User from './auth/user.js';
-import Levels from "@/js/auth/levels.js";
+import User from './auth/User.js';
+import Levels from "@/js/auth/Levels.js";
 import InventoryApi from "@/components/ui/inventory/js/InventoryApi.js";
 import ItemsApi from "@/js/items/ItemsApi.js";
 import {reactive} from "vue";

@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import {getIpAddress} from "@/js/static.js";
+import {getIpAddress} from "@/js/Static.js";
 
 const emit = defineEmits(['openMaterial', 'close']);
 
