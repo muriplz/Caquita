@@ -6,7 +6,7 @@
 
 <script setup>
 import InventoryGrid from "./InventoryGrid.vue"
-import {onBeforeMount, onMounted} from "vue"
+import {onBeforeMount} from "vue"
 import Store from "@/js/Store.js"
 
 onBeforeMount(() => {

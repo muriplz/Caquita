@@ -1,11 +1,10 @@
 <script setup>
-import Menu from "./ui/Menu.vue";
+import ScreenManager from "./ui/ScreenManager.vue";
 </script>
 
 <template>
   <footer>
-    <Menu/>
-
+    <ScreenManager/>
   </footer>
 </template>
 

@@ -1,6 +1,5 @@
 import {getIpAddress} from "../static.js";
 import * as THREE from 'three';
-import settingsManager from '@/components/ui/settings/settings.js';
 
 export class TileLoader {
     constructor() {

@@ -5,6 +5,8 @@
 </template>
 
 <script setup>
+
+const emit = defineEmits(['click']);
 const props = defineProps({
   label: {
     type: String,
@@ -15,9 +17,6 @@ const props = defineProps({
     default: '0s'
   }
 });
-
-const emit = defineEmits(['click']);
-
 function handleClick() {
   emit('click');
 }
@@ -28,9 +27,8 @@ function handleClick() {
   display: block;
   padding: 16px 32px;
   background-color: white;
-  color: #333;
-  border: none;
-  border-radius: 8px;
+  color: black;
+  border: 3px solid black;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
@@ -40,14 +38,4 @@ function handleClick() {
   transition: transform 0.2s, background-color 0.2s;
 }
 
-.section-button:hover {
-  background-color: #f0f0f0;
-  transform: scale(1.05);
-  text-decoration: none;
-  color: #333;
-}
-
-.section-button:active {
-  transform: scale(0.98);
-}
 </style>

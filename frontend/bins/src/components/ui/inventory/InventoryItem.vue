@@ -78,9 +78,8 @@
 <script setup>
 import {motion} from 'motion-v'
 import Store from "@/js/Store.js"
-import {ref, computed, reactive, onMounted, watch, shallowRef, nextTick} from "vue"
+import {computed, onMounted, reactive, ref, shallowRef, watch} from "vue"
 import InventoryApi from "@/components/ui/inventory/js/InventoryApi.js"
-import {getIpAddress} from "@/js/static.js";
 
 const props = defineProps({
   inventoryItem: {
@@ -102,9 +101,7 @@ const GAP_SIZE = 4
 const pressTimer = ref(null)
 const longPressDuration = 800
 const rotationEl = ref(null)
-const lastRotationDirection = ref(true) // true = clockwise
 const currentRotationDegrees = ref(0)
-const rotationCount = ref(0)
 
 // Track if the item is rotated sideways (for image sizing)
 const isRotated = computed(() => {
@@ -120,48 +117,9 @@ watch(() => props.inventoryItem.cells, (newCells) => {
 watch(() => props.inventoryItem.orientation, (newOrientation, oldOrientation) => {
   if (newOrientation) {
     orientation.value = newOrientation
-
-    // Apply continuous rotation
-    applyRotation(oldOrientation, newOrientation)
+    currentRotationDegrees.value = getOrientationDegrees(newOrientation)
   }
 })
-
-// Apply rotation with continuous direction
-function applyRotation(oldOrientation, newOrientation) {
-  if (!oldOrientation || oldOrientation === newOrientation) {
-    // Initial setting or no change
-    currentRotationDegrees.value = getOrientationDegrees(newOrientation)
-    return
-  }
-
-  const oldDegrees = getOrientationDegrees(oldOrientation)
-  const newDegrees = getOrientationDegrees(newOrientation)
-
-  // Determine if we're going clockwise or counterclockwise
-  // This logic checks if we're rotating from RIGHT (270) to UP (0)
-  // or from LEFT (90) to DOWN (180), etc.
-  if ((oldDegrees === 270 && newDegrees === 0) ||
-      (oldDegrees === 0 && newDegrees === 90) ||
-      (oldDegrees === 90 && newDegrees === 180) ||
-      (oldDegrees === 180 && newDegrees === 270)) {
-    // Clockwise
-    lastRotationDirection.value = true
-  } else {
-    // Counterclockwise
-    lastRotationDirection.value = false
-  }
-
-  // For continuous rotation in the same direction
-  if (lastRotationDirection.value) {
-    // Clockwise - always add 90 degrees
-    rotationCount.value++
-    currentRotationDegrees.value = rotationCount.value * 90
-  } else {
-    // Counterclockwise - always subtract 90 degrees
-    rotationCount.value--
-    currentRotationDegrees.value = rotationCount.value * 90
-  }
-}
 
 // Get rotation degrees based on orientation
 function getOrientationDegrees(orientationValue) {
@@ -337,9 +295,6 @@ async function rotateItem(event) {
     // Store current orientation for rotation animation
     const currentOrient = orientation.value || 'UP'
 
-    // Set rotation direction to clockwise (matches our visual expectations)
-    lastRotationDirection.value = true
-
     // Prepare data for API
     const itemClone = {
       id: props.inventoryItem.id,
@@ -476,12 +431,6 @@ onMounted(() => {
   // Set initial rotation degrees
   currentRotationDegrees.value = getOrientationDegrees(orientation.value)
 
-  // Initialize rotation count based on current orientation
-  if (orientation.value === 'RIGHT') rotationCount.value = 3
-  else if (orientation.value === 'DOWN') rotationCount.value = 2
-  else if (orientation.value === 'LEFT') rotationCount.value = 1
-  else rotationCount.value = 0
-
   // Set initial render to false after a short delay
   setTimeout(() => {
     isInitialRender.value = false
@@ -508,7 +457,6 @@ onMounted(() => {
 
 .cell-hit-area {
   cursor: grab;
-  background-color: rgba(255, 255, 255, 0.01);
   z-index: 6;
   pointer-events: all;
   position: absolute;
@@ -520,7 +468,6 @@ onMounted(() => {
   cursor: grabbing;
 }
 
-/* Improved styling for rotation */
 .item-wrapper {
   position: absolute;
   top: 0;
@@ -538,7 +485,7 @@ onMounted(() => {
   height: 100%;
   position: relative;
   transform-origin: center;
-  transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.4, 1);
+  transition: transform 0.3s ease;
   will-change: transform;
   overflow: visible;
 }
@@ -546,7 +493,7 @@ onMounted(() => {
 .item-image {
   image-rendering: pixelated;
   pointer-events: none;
-  transition: width 0.4s, height 0.4s;
+  transition: width 0.3s, height 0.3s;
   transform-origin: center;
 }
 </style>

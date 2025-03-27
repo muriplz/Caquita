@@ -25,7 +25,7 @@
 
 <script setup>
 import {ref} from 'vue'
-import AuthService from "@/js/auth/authService.js"
+import AuthService from "@/js/auth/AuthService.js"
 
 const emit = defineEmits(['success', 'cancel', 'showLogin', 'showAbout'])
 

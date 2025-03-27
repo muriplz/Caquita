@@ -15,8 +15,8 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import {computed, ref} from 'vue';
+import {useI18n} from 'vue-i18n';
 import ToggleSwitch from '../ToggleSwitch.vue';
 import settingsManager from '@/components/ui/settings/settings.js';
 import AdditionalInfo from "@/components/ui/settings/AdditionalInfo.vue";

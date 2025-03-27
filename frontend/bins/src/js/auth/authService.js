@@ -1,5 +1,6 @@
 import Store from "../Store.js";
 import {getIpAddress} from "../static.js";
+import router from "@/router/index.js";
 
 class AuthService {
     async login(username, password) {
@@ -20,7 +21,9 @@ class AuthService {
                 this.saveToken(token);
                 await Store.setUser(id, username, creation, trust, experience, beans);
 
-                return true;
+                return response;
+            } else if (response.status === 460) {
+                return null;
             } else if (response.status === 400) {
                 const error = await response.text();
 
@@ -103,6 +106,7 @@ class AuthService {
 
     logout() {
         Store.removeUser();
+        window.location.href = '/login';
         document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     }
 }
