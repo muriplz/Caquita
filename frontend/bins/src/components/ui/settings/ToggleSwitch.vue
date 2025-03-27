@@ -57,7 +57,7 @@ function toggle() {
 }
 
 .toggle-indicator.active {
-  transform: translateX(50px);
+  transform: translateX(38px);
 }
 
 .toggle-label {
