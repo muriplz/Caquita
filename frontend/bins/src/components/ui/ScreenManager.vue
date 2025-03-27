@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- UI Navigation Controls -->
     <div v-if="uiRouter.state.isMenuOpen" class="settings-container">
       <a v-if="uiRouter.state.globalElements.showSettingsButton"
          href="javascript:void(0)"
@@ -24,7 +23,6 @@
       </a>
     </div>
 
-    <!-- Profile Menu -->
     <div v-if="uiRouter.state.isMenuOpen && uiRouter.state.globalElements.showProfileButton" class="profile-container">
       <a href="javascript:void(0)" class="profile-button" @click="toggleProfileMenu">
         <img src="/images/ui/profile_logged.png" alt="Profile" class="profile-icon" />
@@ -37,7 +35,6 @@
       />
     </div>
 
-    <!-- Menu Toggle Button -->
     <a href="javascript:void(0)"
        class="menu-toggle-button"
        :class="menuButtonClass"
@@ -45,18 +42,8 @@
       <span>{{ menuButtonText }}</span>
     </a>
 
-    <!-- Debug Button -->
-    <a v-if="isDevelopment"
-       href="javascript:void(0)"
-       class="debug-button"
-       @click="debugNavigation">
-      <span>🐞</span>
-    </a>
-
-    <!-- Menu Overlay -->
     <Transition name="menu-fade">
       <div v-if="uiRouter.state.isMenuOpen" class="fullscreen-menu" @click.self="handleBackgroundClick">
-        <!-- Main Menu Buttons -->
         <TransitionGroup
             v-if="showMainMenu"
             name="menu-buttons"
@@ -72,7 +59,6 @@
           />
         </TransitionGroup>
 
-        <!-- Screen Component Container -->
         <div v-if="showScreens" class="screens-container">
           <Transition :name="transitionName">
             <div v-if="showScreenContent"
@@ -80,14 +66,12 @@
                  class="component-container"
                  :class="{ 'centered-container': isCenteredScreen }"
                  @click.self="goBack">
-              <!-- Regular Screen Component -->
               <component
                   v-if="currentComponent"
                   :is="currentComponent"
                   @close="goBack"
                   @openMaterial="showMaterial"
               />
-              <!-- Placeholder for main menu transitions -->
               <div v-else class="empty-container"></div>
             </div>
           </Transition>
@@ -111,14 +95,11 @@ import Contributing from "@/components/ui/Contributing.vue"
 import MenuButton from "@/components/ui/MenuButton.vue"
 import uiRouter from "./UIRouter.js"
 
-// Detect development mode
 const isDevelopment = process.env.NODE_ENV === 'development' || true;
 
-// Local state
 const isProfileMenuOpen = ref(false)
 const settingsRotation = ref(0)
 
-// Define all screens - using markRaw to prevent Vue from making components reactive
 const screenComponents = {
   INVENTORY: markRaw(Inventory),
   SETTINGS: markRaw(Settings),
@@ -127,10 +108,8 @@ const screenComponents = {
   PROFILE: markRaw(Profile)
 }
 
-// Screens that should be centered
-const centeredScreens = ['SETTINGS', 'CONTRIBUTING', 'CANS', 'PLASTIC', 'CARDBOARD', 'GLASS']
+const centeredScreens = ['SETTINGS', 'CONTRIBUTING']
 
-// Lifecycle hooks
 onMounted(() => {
   uiRouter.reset()
   settingsRotation.value = 0
@@ -141,26 +120,21 @@ onUnmounted(() => {
   uiRouter.reset()
 })
 
-// Show the main menu buttons when main menu is active and not in animation
 const showMainMenu = computed(() => {
   return uiRouter.state.menuIsVisible &&
       !uiRouter.state.currentScreen &&
       !uiRouter.state.isAnimating;
 })
 
-// Show the screens container whenever we have a screen or are animating
 const showScreens = computed(() => {
   return uiRouter.state.currentScreen !== null || uiRouter.state.isAnimating;
 })
 
-// Show screen content when we have a screen or are animating
 const showScreenContent = computed(() => {
   return uiRouter.state.currentScreen !== null || uiRouter.state.isAnimating;
 })
 
-// Generate a dynamic key for the screen content to force re-renders
 const screenContentKey = computed(() => {
-  // During main menu transitions, use a special key
   if (uiRouter.state.isAnimating) {
     if (uiRouter.state.targetScreen === 'MAIN_MENU') {
       return `to-main-menu-${Date.now()}`;
@@ -170,11 +144,9 @@ const screenContentKey = computed(() => {
     }
   }
 
-  // Use current screen as key
   return uiRouter.state.currentScreen || 'placeholder';
 })
 
-// Computed properties
 const isAdmin = computed(() => Store.state.user?.trust === "ADMINISTRATOR")
 
 const menuButtonText = computed(() => {
@@ -190,30 +162,25 @@ const menuButtonClass = computed(() => {
 })
 
 const isCenteredScreen = computed(() => {
-  // Check current screen or target during animation
   if (uiRouter.state.isAnimating && uiRouter.state.targetScreen) {
     return centeredScreens.includes(uiRouter.state.targetScreen);
   }
   return centeredScreens.includes(uiRouter.state.currentScreen);
 })
 
-// Determine transition name based on navigation direction
 const transitionName = computed(() => {
   return uiRouter.state.animationDirection === 'forward'
       ? 'component-slide-forward'
       : 'component-slide-backward'
 })
 
-// Safely get the current component
 const currentComponent = computed(() => {
   const screenName = uiRouter.state.currentScreen;
 
-  // Don't render during animation to main menu
   if (uiRouter.state.isAnimating && uiRouter.state.targetScreen === 'MAIN_MENU') {
     return null;
   }
 
-  // Don't render placeholder screens
   if (screenName === '_PLACEHOLDER_') {
     return null;
   }
@@ -239,8 +206,6 @@ const availableMenuButtons = computed(() => {
     {key: 'about', label: 'About', screen: 'ABOUT'}
   ];
 
-  // Calculate delays based on button position
-  // Using a formula creates a more predictable pattern
   return buttons.map((button, index) => {
     const baseDelay = 0.03;
     const staggerDelay = 0.04;
@@ -251,27 +216,15 @@ const availableMenuButtons = computed(() => {
   });
 })
 
-// Debug function
-function debugNavigation() {
-  console.log('===== UI ROUTER DEBUG =====');
-  console.log(uiRouter.debug());
-  console.log('==========================');
-}
-
-// Component methods
 function navigateTo(screenName) {
-  // Don't navigate if we're in an animation
   if (uiRouter.state.isAnimating) return;
 
-  // Close profile menu when navigating
   isProfileMenuOpen.value = false;
 
-  // Immediately rotate settings icon if going to settings
   if (screenName === 'SETTINGS') {
     settingsRotation.value += 90;
   }
 
-  // Don't navigate to screens without components, except MAIN_MENU which is special
   if (screenName !== 'MAIN_MENU' && screenName && !screenComponents[screenName]) {
     if (isDevelopment) {
       console.warn(`Cannot navigate to screen "${screenName}" - component not registered`);
@@ -279,7 +232,6 @@ function navigateTo(screenName) {
     return;
   }
 
-  // Attempt navigation immediately
   uiRouter.navigate(screenName);
 }
 
@@ -325,7 +277,6 @@ function toggleProfileMenu() {
 function handleSettingsClick() {
   if (uiRouter.state.isAnimating) return;
 
-  // Rotate settings icon and toggle settings immediately
   settingsRotation.value += 90;
   uiRouter.toggleSettings();
 }
@@ -382,27 +333,6 @@ function handleLogout() {
   text-decoration: none;
   display: inline-block;
   transition: background-color 0.2s;
-}
-
-.debug-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 24px;
-  cursor: pointer;
-  z-index: 300;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-decoration: none;
-  display: inline-block;
-  transition: background-color 0.2s;
-  background-color: #555;
-  font-size: 18px;
-}
-
-.debug-button:hover {
-  background-color: #666;
 }
 
 .menu-toggle-button.closed {
@@ -529,13 +459,12 @@ function handleLogout() {
   align-items: center;
 }
 
-/* Menu fade transitions */
 .menu-fade-enter-active {
-  transition: opacity 0.2s ease; /* Faster fade */
+  transition: opacity 0.2s ease;
 }
 
 .menu-fade-leave-active {
-  transition: opacity 0.15s ease; /* Even faster fade out */
+  transition: opacity 0.15s ease;
 }
 
 .menu-fade-enter-from,
@@ -570,7 +499,6 @@ function handleLogout() {
   will-change: transform;
 }
 
-/* Forward screen transitions - faster animations */
 .component-slide-forward-enter-active {
   animation: slide-in-forward 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   position: absolute;
@@ -609,7 +537,6 @@ function handleLogout() {
   }
 }
 
-/* Backward screen transitions - faster animations */
 .component-slide-backward-enter-active {
   animation: slide-in-backward 0.2s cubic-bezier(0.25, 1, 0.5, 1);
   position: absolute;
