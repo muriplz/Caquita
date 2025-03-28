@@ -2,11 +2,15 @@ package com.kryeit;
 
 import com.kryeit.auth.Level;
 import com.kryeit.auth.LoginApi;
+import com.kryeit.auth.currency.CurrencyService;
+import com.kryeit.auth.currency.CurrencySyncProvider;
 import com.kryeit.auth.inventory.InventoryApi;
 import com.kryeit.content.items.ItemsApi;
 import com.kryeit.landmark.LandmarkApi;
 import com.kryeit.landmark.can.TrashCanApi;
+import com.kryeit.landmark.forum.petitions.PetitionsApi;
 import com.kryeit.registry.CaquitaItems;
+import com.kryeit.sync.SyncManager;
 import io.javalin.Javalin;
 import io.javalin.community.ssl.SslPlugin;
 import org.json.JSONObject;
@@ -17,10 +21,16 @@ import java.util.UUID;
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Main {
+
+    public static SyncManager syncManager = new SyncManager();
+
     public static void main(String[] args) {
 
         DatabaseUtils.createTables();
         CaquitaItems.register();
+
+        CurrencyService currencyService = new CurrencyService(Database.getJdbi());
+        syncManager.registerDataProvider("currencies", new CurrencySyncProvider(currencyService));
 
         SslPlugin sslPlugin = new SslPlugin(sslConfig -> {
             sslConfig.http2 = true;
@@ -53,6 +63,8 @@ public class Main {
 
             config.router.apiBuilder(Main::apiRoutes);
         }).start();
+
+        syncManager.setupWebSockets(app);
     }
 
     public static void apiRoutes() {
@@ -67,15 +79,28 @@ public class Main {
             landmarkRoutes();
 
             authRoutes();
+
+            petitionPortalRoutes();
+        });
+    }
+
+    private static void petitionPortalRoutes() {
+
+        path("petitions", () -> {
+            get(PetitionsApi::getPetitions);
+            post(PetitionsApi::createPetition);
+            path("{id}", () -> {
+                get(PetitionsApi::getPetition);
+                patch(PetitionsApi::updatePetition);
+                delete(PetitionsApi::deletePetition);
+
+                post("accept", PetitionsApi::acceptPetition);
+            });
         });
     }
 
     private static void authRoutes() {
         path("auth", () -> {
-            path("level", () -> {
-                get("{id}", Level::getLevel);
-            });
-
             post("login", LoginApi::login);
             post("register", LoginApi::register);
             post("validate", LoginApi::validate);

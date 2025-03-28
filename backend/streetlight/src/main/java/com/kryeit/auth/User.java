@@ -4,7 +4,7 @@ import com.kryeit.Database;
 
 import java.sql.Timestamp;
 
-public record User(long id, String username, String password, Timestamp creation, TrustLevel trust, int experience, int beans) {
+public record User(long id, String username, String password, Timestamp creation, TrustLevel trust) {
 
     public void changeTrust(TrustLevel trust) {
         Database.getJdbi().useHandle(handle ->

@@ -3,7 +3,9 @@ package com.kryeit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kryeit.auth.User;
+import com.kryeit.auth.currency.Currencies;
 import com.kryeit.auth.inventory.Inventory;
 import com.kryeit.landmark.Landmark;
 import com.kryeit.landmark.can.TrashCan;
@@ -34,6 +36,7 @@ public class Database {
         JDBI = Jdbi.create(new HikariDataSource(hikariConfig));
 
         JDBI.registerRowMapper(ConstructorMapper.factory(User.class));
+        JDBI.registerRowMapper(ConstructorMapper.factory(Currencies.class));
         JDBI.registerRowMapper(ConstructorMapper.factory(Inventory.class));
 
         // LANDMARKS
@@ -59,6 +62,16 @@ public class Database {
         ObjectMapper mapper = new ObjectMapper();
 
         JDBI.registerColumnMapper(ArrayNode.class, (r, idx, ctx) -> {
+            String json = r.getString(idx);
+            if (json == null) return null;
+            try {
+                return mapper.readTree(json);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Failed to parse JSON", e);
+            }
+        });
+
+        JDBI.registerColumnMapper(ObjectNode.class, (r, idx, ctx) -> {
             String json = r.getString(idx);
             if (json == null) return null;
             try {

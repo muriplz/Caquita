@@ -1,121 +1,103 @@
 package com.kryeit.auth;
 
-import com.kryeit.Database;
-import com.kryeit.Utils;
-import io.javalin.http.Context;
-import org.json.JSONObject;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Map;
+/**
+ * Represents user level data with experience and progression information.
+ */
+public record Level(
+        @JsonProperty("level") int level,
+        @JsonProperty("experience") int experience,
 
-public class Level {
+        @JsonProperty("level-progress")
+        int levelProgress,
 
-    public User user;
-    public int experience;
+        @JsonProperty("level-total")
+        int levelTotal,
 
-    public static int LEVEL_1_REQUIRED_EXP = 100;
+        @JsonProperty("next-level-total")
+        int nextLevelTotal
+) {
+    // Constants
+    public static final int LEVEL_1_REQUIRED_EXP = 100;
 
-    public Level(User user) {
-        this.user = user;
-        this.experience = user.experience();
+    public Level() {
+        this(0, 0, 0, 0, 0);
     }
 
+    /**
+     * Creates a Level object from a total experience value
+     */
+    public static Level fromExperience(int totalExperience) {
+        int level = calculateLevel(totalExperience);
+        int expForPreviousLevels = getTotalExpForLevel(level - 1);
+        int levelProgress = totalExperience - expForPreviousLevels;
+        int levelTotal = getLevelRequiredExp(level - 1);
+        int nextLevelTotal = getLevelRequiredExp(level);
 
-
-    public void updateTrust() {
-        switch (getLevel()) {
-            case 20 -> user.changeTrust(TrustLevel.TRUSTED);
-            case 25 -> user.changeTrust(TrustLevel.CONTRIBUTOR);
-            case 30 -> user.changeTrust(TrustLevel.MODERATOR);
-        }
+        return new Level(level, totalExperience, levelProgress, levelTotal, nextLevelTotal);
     }
 
-    public int getNextLevelRequiredExp() {
-        return (int)(LEVEL_1_REQUIRED_EXP * Math.pow(1.1, getLevel()));
-    }
+    /**
+     * Calculate level based on total experience
+     */
+    private static int calculateLevel(int exp) {
+        int level = 0;
+        int totalExpRequired = 0;
 
-    public int getCurrentLevelExp() {
-        int totalExpForCurrentLevel = 0;
-        int level = getLevel();
-
-        for (int i = 0; i < level; i++) {
-            totalExpForCurrentLevel += (int)(LEVEL_1_REQUIRED_EXP * Math.pow(1.1, i));
-        }
-
-        return this.experience - totalExpForCurrentLevel;
-    }
-
-    public int getCurrentLevelTotalExp() {
-        int currentLevel = getLevel();
-        if (currentLevel == 0) {
-            return LEVEL_1_REQUIRED_EXP;
-        }
-        return (int) (LEVEL_1_REQUIRED_EXP * Math.pow(1.1, currentLevel - 1));
-    }
-
-    public int getLevel() {
-        int exp = this.experience;
-        int level;
-
-        if (exp < LEVEL_1_REQUIRED_EXP) {
-            return 0;
-        }
-
-        level = 1;
-        int expRequired = LEVEL_1_REQUIRED_EXP;
-
-        while (exp >= expRequired) {
-            expRequired = (int)(LEVEL_1_REQUIRED_EXP * Math.pow(1.1, level));
-
+        while (true) {
+            int nextLevelExp = getLevelRequiredExp(level);
+            if (exp < totalExpRequired + nextLevelExp) {
+                break;
+            }
+            totalExpRequired += nextLevelExp;
             level++;
-            exp -= expRequired;
         }
 
         return level;
     }
 
-
-    public static void getLevel(Context ctx) {
-        long id = Utils.getIdFromPath(ctx);
-
-        User user = Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT * FROM users WHERE id = :id")
-                        .bind("id", id)
-                        .mapTo(User.class)
-                        .first()
-        );
-
-        Level level = new Level(user);
-
-        ctx.json(Map.of(
-                "level", level.getLevel(),
-                "experience", level.experience,
-                "level-progress", level.getCurrentLevelExp(),
-                "level-total", level.getCurrentLevelTotalExp(),
-                "next-level-total", level.getNextLevelRequiredExp()
-        ));
+    /**
+     * Get experience required for a specific level
+     */
+    private static int getLevelRequiredExp(int level) {
+        return (int)(LEVEL_1_REQUIRED_EXP * Math.pow(1.1, level));
     }
 
+    /**
+     * Get total experience required to reach a specific level
+     */
+    private static int getTotalExpForLevel(int targetLevel) {
+        int totalExp = 0;
+        for (int i = 0; i < targetLevel; i++) {
+            totalExp += getLevelRequiredExp(i);
+        }
+        return totalExp;
+    }
 
-    public static void modifyLevel(Context ctx) {
-        long id = AuthUtils.getUser(ctx);
-        JSONObject body = new JSONObject(ctx.body());
+    /**
+     * Get percentage of level completion
+     */
+    public int getProgressPercentage() {
+        return Math.min(100, (int)((levelProgress / (double)levelTotal) * 100));
+    }
 
-        int amount = body.getInt("amount");
+    /**
+     * Get remaining XP needed for next level
+     */
+    public int getRemainingXp() {
+        return levelTotal - levelProgress;
+    }
 
-        User user = Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT * FROM users WHERE id = :id")
-                        .bind("id", id)
-                        .mapTo(User.class)
-                        .first()
-        );
-
-        Database.getJdbi().useHandle(handle ->
-                handle.createUpdate("UPDATE users SET experience = experience + :amount WHERE id = :id")
-                        .bind("amount", amount)
-                        .bind("id", id)
-                        .execute()
-        );
-
-        new Level(user).updateTrust();
+    /**
+     * Return trust level based on current level
+     */
+    public TrustLevel getTrustLevel() {
+        return switch (level) {
+            case 20, 21, 22, 23, 24 -> TrustLevel.TRUSTED;
+            case 25, 26, 27, 28, 29 -> TrustLevel.CONTRIBUTOR;
+            case 30, 31, 32, 33, 34, 35 -> TrustLevel.MODERATOR;
+            default -> TrustLevel.DEFAULT;
+        };
     }
 }

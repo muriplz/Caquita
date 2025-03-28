@@ -1,5 +1,4 @@
 import User from './auth/User.js';
-import Levels from "@/js/auth/Levels.js";
 import InventoryApi from "@/components/ui/inventory/js/InventoryApi.js";
 import ItemsApi from "@/js/items/ItemsApi.js";
 import {reactive} from "vue";
@@ -8,21 +7,16 @@ class Store {
     constructor() {
         this.state = reactive({
             user: null,
-            level: null,
             inventory: null,
             items: null
         });
+
         this.listeners = new Set()
     }
 
-    async setUser(id, username, creation, trust, experience, beans) {
-        this.state.user = new User(id, username, creation, trust, experience, beans);
+    async setUser(id, username, creation, trust) {
+        this.state.user = new User(id, username, creation, trust);
         await this.updateInventory();
-        await Levels.setup();
-    }
-
-    setLevel(level) {
-        this.state.level = level;
     }
 
     async updateInventory() {
@@ -89,12 +83,7 @@ class Store {
 
     removeUser() {
         this.state.user = null;
-        this.removeLevel();
         this.removeInventory();
-    }
-
-    removeLevel() {
-        this.state.level = null;
     }
 
     removeInventory() {
@@ -103,10 +92,6 @@ class Store {
 
     getUser() {
         return this.state.user;
-    }
-
-    getLevel() {
-        return this.state.level;
     }
 
     getInventory() {

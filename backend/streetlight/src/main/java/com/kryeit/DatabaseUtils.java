@@ -14,9 +14,17 @@ public class DatabaseUtils {
                     username VARCHAR(255) NOT NULL,
                     password VARCHAR(255) NOT NULL,
                     creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-                    trust VARCHAR(255) NOT NULL,
-                    experience INTEGER NOT NULL DEFAULT 0,
-                    beans INTEGER NOT NULL DEFAULT 0
+                    trust VARCHAR(255) NOT NULL
+                )
+            """);
+
+            handle.execute("""
+                CREATE TABLE IF NOT EXISTS currencies (
+                    id BIGINT PRIMARY KEY,
+                    level JSONB NOT NULL DEFAULT '{}',
+                    beans INTEGER NOT NULL DEFAULT 0,
+                    rolls INTEGER NOT NULL DEFAULT 0,
+                    FOREIGN KEY (id) REFERENCES users(id)
                 )
             """);
 

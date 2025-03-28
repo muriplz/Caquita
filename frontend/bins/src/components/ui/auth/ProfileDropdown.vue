@@ -1,9 +1,9 @@
 <template>
   <Transition
       name="dropdown"
-      enter-active-class="animate-enter"
-      leave-active-class="animate-leave"
-      :duration="{ enter: 300, leave: 200 }"
+      enter-active-class="dropdown-enter"
+      leave-active-class="dropdown-leave"
+      :duration="{ enter: 300, leave: 150 }"
       appear
   >
     <div
@@ -11,27 +11,11 @@
         class="profile-dropdown"
         ref="dropdown"
     >
-      <div v-if="!Store.getUser()">
-        <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showLogin')">Login</a>
+      <div class="profile-info">
+        <span class="username">@{{ Store.getUser().username }}</span>
       </div>
-      <div v-else>
-        <div class="profile-info">
-          <span class="username">@{{ Store.getUser().username }}</span>
-        </div>
-        <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showProfile')">View Profile</a>
-        <a href="javascript:void(0)" class="dropdown-item logout" @click="emitEvent('logout')">Logout</a>
-      </div>
-      <div class="social-links">
-        <a href="https://github.com/muriplz/Caquita" target="_blank" class="social-link">
-          <GithubLogo class="social-icon"/>
-        </a>
-        <a href="https://discord.com" target="_blank" class="social-link">
-          <DiscordLogo class="social-icon"/>
-        </a>
-        <a href="https://ko-fi.com/caquita" target="_blank" class="social-link">
-          <KofiLogo class="social-icon"/>
-        </a>
-      </div>
+      <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showProfile')">View Profile</a>
+      <a href="javascript:void(0)" class="dropdown-item logout" @click="emitEvent('logout')">Logout</a>
     </div>
   </Transition>
 </template>
@@ -48,7 +32,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['showLogin', 'showProfile', 'logout', 'close'])
+const emit = defineEmits(['showProfile', 'logout', 'close'])
 const dropdown = ref(null)
 
 const emitEvent = (eventName) => {
@@ -81,7 +65,7 @@ onBeforeUnmount(() => {
   top: 56px;
   right: 0;
   background-color: white;
-  border-radius: 8px;
+  border: 3px solid black;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 180px;
   z-index: 301;
@@ -103,71 +87,59 @@ onBeforeUnmount(() => {
 
 .profile-info {
   padding: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 2px solid black;
+  margin: 0 8px;
 }
 
 .username {
   display: block;
-  font-weight: 600;
-  color: #333;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: black;
 }
 
 .logout:hover {
   background-color: rgba(244, 67, 54, 0.8);
 }
 
-.social-links {
-  display: flex;
-  justify-content: center;
-  padding: 10px;
-  border-top: 1px solid #eee;
+.dropdown-enter {
+  animation: paper-fall 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.social-link {
-  margin: 0 8px;
-  color: #777;
-  transition: color 0.2s;
+.dropdown-leave {
+  animation: paper-fold 300ms ease-in forwards;
 }
 
-.social-link:hover {
-  color: #333;
-}
 
-.social-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.animate-enter {
-  animation: dropdown-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.animate-leave {
-  animation: dropdown-out 0.2s cubic-bezier(0.4, 0, 1, 1) forwards;
-}
-
-@keyframes dropdown-in {
+@keyframes paper-fall {
   0% {
     opacity: 0;
-    transform: scale(0.9) translateY(-10px);
+    transform: translateY(-30px) rotateX(45deg);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(10px) rotateX(-10deg);
   }
   70% {
-    opacity: 1;
-    transform: scale(1.02);
+    transform: translateY(-5px) rotateX(5deg);
   }
   100% {
-    transform: scale(1);
+    transform: translateY(0) rotateX(0);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
 }
 
-@keyframes dropdown-out {
+@keyframes paper-fold {
   0% {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0) rotateX(0);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
   100% {
     opacity: 0;
-    transform: scale(0.95) translateY(-5px);
+    transform: translateY(-20px) rotateX(60deg);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 </style>

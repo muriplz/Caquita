@@ -26,6 +26,14 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow-y: auto;
+}
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: center;
+  flex: 1;
 }
 
 h1 {
@@ -44,12 +52,6 @@ button {
 
 button:hover {
   border-color: #646cff;
-}
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  text-align: center;
 }
 
 * {

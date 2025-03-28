@@ -2,7 +2,8 @@
   <div class="about-form">
     <div class="about-header">
       <h2>About Us</h2>
-      <ChangelogMarkdown/>
+      <ChangelogMarkdown class="changelog"/>
+      <p>Changelog</p>
     </div>
 
     <div class="about-content">
@@ -23,18 +24,21 @@ import ChangelogMarkdown from "@/components/ChangelogMarkdown.vue";
 .about-form {
   background-color: white;
   padding: 30px;
-  border-radius: 12px;
   max-width: 80%;
   min-width: 70%;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  border: 3px solid black;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
 .about-header {
   text-align: center;
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 10px auto;
 }
 
 .about-header h2 {
@@ -65,5 +69,10 @@ import ChangelogMarkdown from "@/components/ChangelogMarkdown.vue";
 
 .about-content li {
   margin-bottom: 5px;
+}
+
+.changelog {
+  margin-left: 40px;
+  margin-right: 4px;
 }
 </style>

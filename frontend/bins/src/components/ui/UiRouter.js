@@ -36,7 +36,7 @@ const screens = {
     },
     INVENTORY: {
         name: 'INVENTORY',
-        showSettingsButton: true,
+        showSettingsButton: false,
         showPlusButton: false,
         showProfileButton: true,
         parent: 'MAIN_MENU'

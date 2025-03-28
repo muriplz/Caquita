@@ -93,14 +93,14 @@ const closeCreateAccountModal = () => {
         <p>No users by that name. Wanna create an account?</p>
         <div class="modal-buttons">
           <img
-              @click="handleRegister"
-              class="modal-button"
-              src="/images/ui/confirm_button.png"
-          />
-          <img
               @click="closeCreateAccountModal"
               class="modal-button"
               src="/images/ui/cancel_button.png"
+          />
+          <img
+              @click="handleRegister"
+              class="modal-button"
+              src="/images/ui/confirm_button.png"
           />
         </div>
       </div>
@@ -228,6 +228,7 @@ const closeCreateAccountModal = () => {
 
 .modal-content {
   background-color: #000000;
+  color: white;
   padding: 15px;
   border-radius: 5px;
   text-align: center;

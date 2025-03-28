@@ -1,6 +1,7 @@
 package com.kryeit.auth;
 
 import com.kryeit.Database;
+import com.kryeit.auth.currency.Currencies;
 import com.kryeit.auth.inventory.InventoryApi;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
@@ -67,8 +68,6 @@ public class LoginApi {
             response.put("username", user.username());
             response.put("creation", user.creation().toString());
             response.put("trust", user.trust().toString());
-            response.put("experience", String.valueOf(user.experience()));
-            response.put("beans", String.valueOf(user.beans()));
             ctx.status(200).json(response);
         } else {
             ctx.status(401).result("Invalid username or password.");
@@ -107,7 +106,7 @@ public class LoginApi {
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
             long id = Database.getJdbi().withHandle(handle ->
-                    handle.createUpdate("INSERT INTO users (username, password, creation, trust, experience, beans) VALUES (:username, :password, NOW(), 'DEFAULT', 0, 50)")
+                    handle.createUpdate("INSERT INTO users (username, password, creation, trust) VALUES (:username, :password, NOW(), 'DEFAULT')")
                             .bind("username", username)
                             .bind("password", hashedPassword)
                             .executeAndReturnGeneratedKeys("id")
@@ -116,6 +115,7 @@ public class LoginApi {
             );
 
             InventoryApi.initInventory(id);
+            Currencies.create(id);
 
             ctx.status(201).result("User registered successfully.");
 
@@ -144,7 +144,7 @@ public class LoginApi {
         }
 
         Map<String, Object> data = Database.getJdbi().withHandle(handle -> handle.createQuery("""
-            SELECT id, username, creation, trust, experience, beans
+            SELECT *
             FROM users
             WHERE id = :id
             """)
@@ -156,9 +156,7 @@ public class LoginApi {
                 "id", data.get("id"),
                 "username", data.get("username"),
                 "creation", data.get("creation"),
-                "trust", data.get("trust"),
-                "experience", data.get("experience"),
-                "beans", data.get("beans")
+                "trust", data.get("trust")
         ));
     }
 }

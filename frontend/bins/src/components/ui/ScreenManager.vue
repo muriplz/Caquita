@@ -23,6 +23,9 @@
       </a>
     </div>
 
+    <div v-if="uiRouter.state.globalElements.showSettingsButton" class="currency-container">
+      
+    </div>
     <div v-if="uiRouter.state.isMenuOpen && uiRouter.state.globalElements.showProfileButton" class="profile-container">
       <a href="javascript:void(0)" class="profile-button" @click="toggleProfileMenu">
         <img src="/images/ui/profile_logged.png" alt="Profile" class="profile-icon" />

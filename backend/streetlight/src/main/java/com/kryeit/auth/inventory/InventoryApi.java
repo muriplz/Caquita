@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.kryeit.Database;
 import com.kryeit.auth.AuthUtils;
 import com.kryeit.auth.Level;
+import com.kryeit.auth.LevelApi;
 import com.kryeit.content.items.Item;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
@@ -148,7 +149,7 @@ public class InventoryApi {
         InventoryManager manager = new InventoryManager(user);
         InventoryItem item = manager.rotateItem(request.item, request.clockwise, request.heldCol, request.heldRow);
 
-        Level.modifyLevel(user, 10);
+        LevelApi.modifyLevel(user, 10);
         if (item != null) {
             context.status(200).json(item);
         } else {
