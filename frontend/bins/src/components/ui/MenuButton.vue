@@ -27,8 +27,8 @@ function handleClick() {
   display: block;
   padding: 16px 32px;
   background-color: white;
-  color: black;
-  border: 3px solid black;
+  color: #333;
+  border: 4px solid #333;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;

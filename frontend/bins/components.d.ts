@@ -15,6 +15,8 @@ declare module 'vue' {
     ChangelogMarkdown: typeof import('./src/components/ChangelogMarkdown.vue')['default']
     Contributing: typeof import('./src/components/ui/Contributing.vue')['default']
     Controls: typeof import('./src/components/ui/settings/tabs/Controls.vue')['default']
+    CurrencyPanel: typeof import('./src/components/ui/auth/CurrencyPanel.vue')['default']
+    CurrencyPanelItem: typeof import('./src/components/ui/auth/CurrencyPanelItem.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
     General: typeof import('./src/components/ui/settings/tabs/General.vue')['default']
     Graphics: typeof import('./src/components/ui/settings/tabs/Graphics.vue')['default']

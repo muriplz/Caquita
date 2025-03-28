@@ -20,15 +20,12 @@ const listeners = new Set();
 const SyncStore = {
     // Get the reactive currencies object
     getCurrencies() {
-        console.log("getCurrencies called, returning:", currencies);
         return currencies;
     },
 
     // Update currencies from sync
     updateCurrencies(data) {
-        console.log("updateCurrencies called with data:", data);
         if (!data) {
-            console.warn("No data provided to updateCurrencies");
             return;
         }
 
@@ -38,15 +35,10 @@ const SyncStore = {
 
         // Handle the level object which contains level details
         if (data.level) {
-            console.log("Setting level with data:", data.level);
             try {
-                level.value = new Level(data.level);
-                console.log("Level successfully set:", level.value);
+                level.value = new Level(data.level._children);
             } catch (e) {
-                console.error("Error creating Level object:", e);
             }
-        } else {
-            console.warn("No level data in update");
         }
 
         // Notify listeners
@@ -65,7 +57,6 @@ const SyncStore = {
 
     // Get level object as a ref
     getLevel() {
-        console.log("getLevel called, returning:", level);
         return level;
     },
 
@@ -77,13 +68,11 @@ const SyncStore = {
 
     // Notify all listeners
     notifyListeners() {
-        console.log("Notifying listeners, count:", listeners.size);
         listeners.forEach(callback => callback(currencies));
     },
 
     // For debugging
     debugSetLevel(levelData) {
-        console.log("Debug setting level with:", levelData);
         level.value = new Level(levelData);
     }
 };

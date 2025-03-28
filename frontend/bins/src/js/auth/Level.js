@@ -4,7 +4,6 @@ class Level {
         this.experience = data.experience;
         this.levelProgress = data["level-progress"];
         this.levelTotal = data["level-total"];
-        this.nextLevelTotal = data["next-level-total"];
     }
 
     // Calculate percentage of level completion

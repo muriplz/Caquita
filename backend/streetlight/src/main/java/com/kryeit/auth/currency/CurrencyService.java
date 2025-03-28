@@ -1,6 +1,7 @@
 package com.kryeit.auth.currency;
 
 import com.kryeit.Main;
+import com.kryeit.auth.LevelApi;
 import org.jdbi.v3.core.Jdbi;
 
 public class CurrencyService {
@@ -11,10 +12,10 @@ public class CurrencyService {
     }
 
     public Currencies updateExperience(long userId, int amount) {
+        LevelApi.modifyLevel(userId, amount);
         Currencies updated = jdbi.withHandle(handle ->
-                handle.createQuery("UPDATE currencies SET experience = experience + :amount WHERE id = :userId RETURNING *")
+                handle.createQuery("SELECT * FROM currencies WHERE id = :userId")
                         .bind("userId", userId)
-                        .bind("amount", amount)
                         .mapTo(Currencies.class)
                         .one()
         );

@@ -14,10 +14,11 @@ public class LevelApi {
         Level newLevel = Level.fromExperience(newExperience);
 
         Database.getJdbi().useHandle(handle ->
-                handle.createUpdate("UPDATE currencies SET level = :level WHERE id = :user")
-                        .bind("level", newLevel)
+                handle.createUpdate("UPDATE currencies SET level = cast(:level as jsonb) WHERE id = :user")
+                        .bind("level", newLevel.toJson().toString())
                         .bind("user", user)
                         .execute()
         );
+
     }
 }

@@ -1,33 +1,20 @@
 <template>
-  <div class="profile-card">
+  <div class="profile-card modal">
     <div class="user-info">
-      <div class="profile-avatar-container">
-        <div class="avatar-circle">{{ Store.getUser().username.charAt(0).toUpperCase() }}</div>
-      </div>
-      <h4>@{{Store.getUser().username}}</h4>
 
-    </div>
-    <LevelBar />
-    <div class="profile-details">
-      <div class="profile-item" v-if="Store.getUser().creation">
-        <div class="label">Joined</div>
-        <div class="value">{{ formatDate(Store.getUser().creation) }}</div>
+      <div class="avatar-circle">{{ Store.getUser().username.charAt(0).toUpperCase() }}</div>
+      <div class="user-name">
+        <p>@{{Store.getUser().username}}</p>
+        <p class="creation">Since {{ formatDate(Store.getUser().creation) }}</p>
       </div>
-      <div class="profile-item" v-if="Store.getUser().trust">
-        <div class="label">Trust Level</div>
-        <div class="value">{{ Store.getUser().trust }}</div>
-      </div>
+      <LevelBar />
     </div>
   </div>
 </template>
 
 <script setup>
-import {onMounted} from 'vue';
 import Store from "@/js/Store.js";
 import LevelBar from './LevelBar.vue';
-import SyncStore from "@/js/sync/SyncStore.js";
-
-const currencies = SyncStore.getCurrencies();
 
 function formatDate(dateString) {
   if (!dateString) return 'N/A'
@@ -38,21 +25,33 @@ function formatDate(dateString) {
 
 <style scoped>
 .profile-card {
-  background-color: #fff;
-  border: 3px solid black;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 16px;
+  padding: 8px;
+}
+
+.user-name {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.user-name p {
+  margin: 0;
 }
 
 .user-info {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-bottom: 16px;
   gap: 8px;
+  margin: 0;
+}
+
+.creation {
+  font-size: 0.6rem;
+  color: #666;
 }
 
 .avatar-circle {

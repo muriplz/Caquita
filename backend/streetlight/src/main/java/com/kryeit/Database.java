@@ -25,6 +25,7 @@ import java.util.Optional;
 
 
 public class Database {
+    public static final ObjectMapper MAPPER = new ObjectMapper();
     private static final Jdbi JDBI;
 
     static {

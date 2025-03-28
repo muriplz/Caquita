@@ -182,12 +182,12 @@ function getConnectionClasses(row, col) {
 
 .empty {
   background-color: rgba(82, 82, 82, 0.2);
-  border: 2px solid rgba(98, 98, 98, 0.2);
+  border: 4px solid #8c8c8c;
 }
 
 .occupied {
-  background-color: rgba(56, 56, 56, 0.5);
-  border: 2px solid rgba(114, 114, 114, 0.5);
+  background-color: rgba(76, 76, 76, 0.5);
+  border: 4px solid #333;
 }
 
 .isolated {

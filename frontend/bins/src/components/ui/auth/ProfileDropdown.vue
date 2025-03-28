@@ -11,9 +11,7 @@
         class="profile-dropdown"
         ref="dropdown"
     >
-      <div class="profile-info">
-        <span class="username">@{{ Store.getUser().username }}</span>
-      </div>
+      <LevelBar />
       <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showProfile')">View Profile</a>
       <a href="javascript:void(0)" class="dropdown-item logout" @click="emitEvent('logout')">Logout</a>
     </div>
@@ -21,11 +19,10 @@
 </template>
 
 <script setup>
-import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
-import Store from "@/js/Store.js"
-import KofiLogo from "@/assets/icons/KofiLogo.vue";
+import {nextTick, ref} from 'vue'
+import LevelBar from "@/components/ui/auth/LevelBar.vue";
 
-const props = defineProps({
+defineProps({
   isVisible: {
     type: Boolean,
     required: true
@@ -41,22 +38,6 @@ const emitEvent = (eventName) => {
     emit(eventName)
   })
 }
-
-const handleClickOutside = (event) => {
-  if (props.isVisible && dropdown.value && !dropdown.value.contains(event.target)) {
-    if (!event.target.closest('.profile-button')) {
-      emit('close')
-    }
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
 </script>
 
 <style scoped>
@@ -65,9 +46,9 @@ onBeforeUnmount(() => {
   top: 56px;
   right: 0;
   background-color: white;
-  border: 3px solid black;
+  border: 4px solid #333;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 180px;
+  width: 280px;
   z-index: 301;
   transform-origin: top right;
   overflow: hidden;
@@ -83,19 +64,6 @@ onBeforeUnmount(() => {
 
 .dropdown-item:hover {
   background-color: #f0f0f0;
-}
-
-.profile-info {
-  padding: 15px;
-  border-bottom: 2px solid black;
-  margin: 0 8px;
-}
-
-.username {
-  display: block;
-  font-weight: bold;
-  font-size: 1.1rem;
-  color: black;
 }
 
 .logout:hover {

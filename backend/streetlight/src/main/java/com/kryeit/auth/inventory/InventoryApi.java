@@ -6,10 +6,14 @@ import com.kryeit.Database;
 import com.kryeit.auth.AuthUtils;
 import com.kryeit.auth.Level;
 import com.kryeit.auth.LevelApi;
+import com.kryeit.auth.currency.CurrencyService;
+import com.kryeit.auth.currency.CurrencySyncProvider;
 import com.kryeit.content.items.Item;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
+
+import javax.xml.crypto.Data;
 
 public class InventoryApi {
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -149,7 +153,8 @@ public class InventoryApi {
         InventoryManager manager = new InventoryManager(user);
         InventoryItem item = manager.rotateItem(request.item, request.clockwise, request.heldCol, request.heldRow);
 
-        LevelApi.modifyLevel(user, 10);
+        new CurrencyService(Database.getJdbi()).updateExperience(user, 1000);
+
         if (item != null) {
             context.status(200).json(item);
         } else {

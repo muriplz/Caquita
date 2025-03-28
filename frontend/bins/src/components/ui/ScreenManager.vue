@@ -23,9 +23,10 @@
       </a>
     </div>
 
-    <div v-if="uiRouter.state.globalElements.showSettingsButton" class="currency-container">
-      
+    <div v-if="uiRouter.state.isMenuOpen && uiRouter.state.globalElements.showCurrencyPanel" class="currency-container">
+      <CurrencyPanel />
     </div>
+
     <div v-if="uiRouter.state.isMenuOpen && uiRouter.state.globalElements.showProfileButton" class="profile-container">
       <a href="javascript:void(0)" class="profile-button" @click="toggleProfileMenu">
         <img src="/images/ui/profile_logged.png" alt="Profile" class="profile-icon" />
@@ -97,7 +98,8 @@ import About from "@/components/ui/About.vue"
 import Contributing from "@/components/ui/Contributing.vue"
 import MenuButton from "@/components/ui/MenuButton.vue"
 import uiRouter from "./UIRouter.js"
-import ItemInfoScreen from "@/components/ui/inventory/ItemInfoScreen.vue";
+import ItemInfoScreen from "@/components/ui/inventory/ItemInfoScreen.vue"
+import CurrencyPanel from "@/components/ui/auth/CurrencyPanel.vue"
 
 const isDevelopment = process.env.NODE_ENV === 'development' || true;
 
@@ -333,7 +335,7 @@ function handleLogout() {
   border-radius: 24px;
   cursor: pointer;
   z-index: 300;
-  border: 3px solid black;
+  border: 4px solid #333;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-decoration: none;
   display: inline-block;
@@ -405,6 +407,13 @@ function handleLogout() {
   position: fixed;
   top: 20px;
   right: 20px;
+  z-index: 300;
+}
+
+.currency-container {
+  position: fixed;
+  top: 28px;
+  right: 90px;
   z-index: 300;
 }
 

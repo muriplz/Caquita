@@ -67,8 +67,8 @@ function showItemInfo(item) {
 <style scoped>
 .inventory-container {
   padding: 8px;
-  background-color: #373737;
-  border-radius: 16px;
+  background-color: #fff;
+  border: 4px solid #333;
   width: fit-content;
 }
 

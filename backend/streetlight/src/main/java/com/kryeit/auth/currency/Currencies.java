@@ -6,7 +6,7 @@ import com.kryeit.Database;
 import com.kryeit.auth.Level;
 import com.kryeit.sync.Syncable;
 
-public record Currencies(long id, Level level, int beans, int rolls) implements Syncable {
+public record Currencies(long id, ObjectNode level, int beans, int rolls) implements Syncable {
 
     public enum CurrencyType {
         LEVEL,
@@ -20,17 +20,17 @@ public record Currencies(long id, Level level, int beans, int rolls) implements 
         levelNode.put("experience", 0);
         levelNode.put("level", 0);
         levelNode.put("level-progress", 0);
-        levelNode.put("level-total", Level.LEVEL_1_REQUIRED_EXP);
-        levelNode.put("next-level-total", Level.LEVEL_1_REQUIRED_EXP);
+        levelNode.put("level-total", 0);
+        System.out.println("User registered successfully.");
 
         Database.getJdbi().withHandle(handle -> {
-            handle.createUpdate("INSERT INTO currencies (id, level, beans, rolls) VALUES (:id, :level, :beans, :rolls)")
+            handle.createUpdate("INSERT INTO currencies (id, level, beans, rolls) VALUES (:id, cast(:level as jsonb), :beans, :rolls)")
                     .bind("id", userId)
-                    .bind("level", levelNode)
+                    .bind("level", levelNode.toString())
                     .bind("beans", 0)
                     .bind("rolls", 0)
                     .execute();
-            return getCurrencies(userId);
+            return true;
         });
     }
 

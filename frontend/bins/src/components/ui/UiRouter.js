@@ -13,7 +13,8 @@ const state = reactive({
     globalElements: {
         showSettingsButton: true,
         showPlusButton: true,
-        showProfileButton: true
+        showProfileButton: true,
+        showCurrencyPanel: true
     },
     animationDirection: 'forward',
     lastNavigationTime: 0,
@@ -32,6 +33,7 @@ const screens = {
         showSettingsButton: true,
         showPlusButton: true,
         showProfileButton: true,
+        showCurrencyPanel: true,
         parent: null
     },
     INVENTORY: {
@@ -39,6 +41,7 @@ const screens = {
         showSettingsButton: false,
         showPlusButton: false,
         showProfileButton: true,
+        showCurrencyPanel: true,
         parent: 'MAIN_MENU'
     },
     VITRINE: {
@@ -46,6 +49,7 @@ const screens = {
         showSettingsButton: true,
         showPlusButton: false,
         showProfileButton: true,
+        showCurrencyPanel: true,
         parent: 'MAIN_MENU'
     },
     NOIDEA: {
@@ -53,6 +57,7 @@ const screens = {
         showSettingsButton: true,
         showPlusButton: false,
         showProfileButton: true,
+        showCurrencyPanel: false,
         parent: 'MAIN_MENU'
     },
     SETTINGS: {
@@ -60,6 +65,7 @@ const screens = {
         showSettingsButton: true,
         showPlusButton: false,
         showProfileButton: true,
+        showCurrencyPanel: false,
         parent: null
     },
     ABOUT: {
@@ -67,6 +73,7 @@ const screens = {
         showSettingsButton: true,
         showPlusButton: false,
         showProfileButton: true,
+        showCurrencyPanel: true,
         parent: 'MAIN_MENU'
     },
     CONTRIBUTING: {
@@ -74,6 +81,7 @@ const screens = {
         showSettingsButton: true,
         showPlusButton: false,
         showProfileButton: true,
+        showCurrencyPanel: false,
         parent: 'MAIN_MENU'
     },
     PROFILE: {
@@ -81,6 +89,7 @@ const screens = {
         showSettingsButton: true,
         showPlusButton: false,
         showProfileButton: true,
+        showCurrencyPanel: true,
         parent: 'MAIN_MENU'
     },
     ITEM_INFO: {
@@ -88,6 +97,7 @@ const screens = {
         showSettingsButton: true,
         showPlusButton: false,
         showProfileButton: true,
+        showCurrencyPanel: true,
         parent: 'INVENTORY'
     }
 }
@@ -114,10 +124,12 @@ function updateGlobalElements(screen) {
         state.globalElements.showSettingsButton = screen.showSettingsButton;
         state.globalElements.showPlusButton = screen.showPlusButton;
         state.globalElements.showProfileButton = screen.showProfileButton;
+        state.globalElements.showCurrencyPanel = screen.showCurrencyPanel;
     } else {
         state.globalElements.showSettingsButton = true;
         state.globalElements.showPlusButton = true;
         state.globalElements.showProfileButton = true;
+        state.globalElements.showCurrencyPanel = true;
     }
 }
 
@@ -413,5 +425,13 @@ export default {
         state.menuIsVisible = true;
         state.targetScreen = null;
         document.body.style.overflow = '';
+    },
+
+    toggleCurrencyPanel(show) {
+        if (show !== undefined) {
+            state.globalElements.showCurrencyPanel = show;
+        } else {
+            state.globalElements.showCurrencyPanel = !state.globalElements.showCurrencyPanel;
+        }
     }
 }

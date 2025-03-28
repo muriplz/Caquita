@@ -123,7 +123,7 @@ public class DatabaseUtils {
                     content VARCHAR(255) NOT NULL,
                     creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
                     FOREIGN KEY (user_id) REFERENCES users(id),
-                    FOREIGN KEY (landmark_id) REFERENCES petitions(id)
+                    FOREIGN KEY (petition_id) REFERENCES petitions(id)
                 )
             """);
 
