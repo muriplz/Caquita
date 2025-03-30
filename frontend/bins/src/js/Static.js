@@ -15,4 +15,4 @@ function getIpAddress() {
     }
 }
 
-export { IP_ADDRESSES, getIpAddress };
+export { IP_ADDRESSES, getIpAddress, isProduction };

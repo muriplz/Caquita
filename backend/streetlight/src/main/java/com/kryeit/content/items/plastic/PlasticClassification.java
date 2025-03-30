@@ -1,6 +1,8 @@
 package com.kryeit.content.items.plastic;
 
-public enum PlasticClassification {
+import com.kryeit.content.items.MaterialClassification;
+
+public enum PlasticClassification implements MaterialClassification {
     PET(1, "Polyethylene Terephthalate"),
     HDPE(2, "High-Density Polyethylene"),
     PVC(3, "Polyvinyl Chloride"),
@@ -23,6 +25,21 @@ public enum PlasticClassification {
 
     public String getFullName() {
         return fullName;
+    }
+
+    @Override
+    public String getId() {
+        return name();
+    }
+
+    @Override
+    public String getName() {
+        return fullName;
+    }
+
+    @Override
+    public Integer getCode() {
+        return recyclingCode;
     }
 
     public boolean isRecyclable() {

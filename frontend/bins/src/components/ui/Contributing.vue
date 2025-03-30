@@ -5,7 +5,7 @@
     </div>
     <p>
       The contributions are submitted through our Petition Portal, called
-      <a href="https://caquita.app/landmarks"  target="_blank" rel="noopener noreferrer">Landmarks</a>.
+      <router-link to="/landmarks">Landmarks</router-link>.
     </p>
   </div>
 </template>

@@ -1,6 +1,8 @@
 package com.kryeit.content.items.glass;
 
-public enum GlassClassification {
+import com.kryeit.content.items.MaterialClassification;
+
+public enum GlassClassification implements MaterialClassification {
     CLEAR("Clear/Flint Glass"),
     GREEN("Green Glass"),
     AMBER("Amber/Brown Glass"),
@@ -19,14 +21,21 @@ public enum GlassClassification {
         return fullName;
     }
 
+    @Override
+    public String getId() {
+        return name();
+    }
+
+    @Override
+    public String getName() {
+        return fullName;
+    }
+
     public boolean isRecyclable() {
-        // Typically, colored container glass (clear, green, amber) is most recyclable
-        // Tempered glass and mixed glass are often not accepted in standard recycling
         return this == CLEAR || this == GREEN || this == AMBER || this == BLUE;
     }
 
     public boolean isHighValueRecyclable() {
-        // Clear glass is often preferred for recycling
         return this == CLEAR;
     }
 }

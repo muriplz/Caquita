@@ -17,12 +17,7 @@ public class SyncManager {
     public void setupWebSockets(Javalin app) {
         app.ws("/api/sync", ws -> {
             ws.onConnect(ctx -> {
-                System.out.println("WebSocket connection attempt - Headers: " +
-                        ctx.getUpgradeCtx$javalin().headerMap() +
-                        " - Session: " + ctx.sessionId());
-
                 Long userId = AuthUtils.getUser(ctx.getUpgradeCtx$javalin());
-                System.out.println("User ID from auth: " + userId);
                 sessions.put(userId, ctx);
                 userSubscriptions.putIfAbsent(userId, ConcurrentHashMap.newKeySet());
             });

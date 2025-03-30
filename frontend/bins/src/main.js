@@ -14,6 +14,7 @@ import {createI18n} from "vue-i18n";
 
 import enMessages from '/i18n/en_us.json'
 import esMessages from '/i18n/es_es.json'
+import SyncStore from "@/js/sync/SyncStore.js";
 
 const browserLanguage = navigator.language.split('-')[0];
 const savedLanguage = localStorage.getItem('language') || browserLanguage || 'en';

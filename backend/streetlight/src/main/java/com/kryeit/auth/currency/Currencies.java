@@ -18,33 +18,19 @@ public record Currencies(long id, ObjectNode level, int beans, int rolls) implem
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode levelNode = mapper.createObjectNode();
         levelNode.put("experience", 0);
-        levelNode.put("level", 0);
-        levelNode.put("level-progress", 0);
-        levelNode.put("level-total", 0);
-        System.out.println("User registered successfully.");
+        levelNode.put("level", 1);
+        levelNode.put("progress", 0);
+        levelNode.put("total", Level.LEVEL_REQUIRED_EXP[1]);
 
         Database.getJdbi().withHandle(handle -> {
             handle.createUpdate("INSERT INTO currencies (id, level, beans, rolls) VALUES (:id, cast(:level as jsonb), :beans, :rolls)")
                     .bind("id", userId)
                     .bind("level", levelNode.toString())
                     .bind("beans", 0)
-                    .bind("rolls", 0)
+                    .bind("rolls", 2)
                     .execute();
             return true;
         });
-    }
-
-    public static Currencies getCurrencies(long userId) {
-        return Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT * FROM currencies WHERE id = :userId")
-                        .bind("userId", userId)
-                        .mapTo(Currencies.class)
-                        .findFirst()
-                        .orElseGet(() -> {
-                            create(userId);
-                            return getCurrencies(userId);
-                        })
-        );
     }
 
     @Override

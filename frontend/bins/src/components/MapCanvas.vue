@@ -73,20 +73,10 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to initialize map:', error);
   }
-
-  const toggleDebug = (e) => {
-    if (e.key === 'F4') {
-      debugMode.value = !debugMode.value;
-    }
-  };
-
-  window.addEventListener('keydown', toggleDebug);
 });
 
 onUnmounted(() => {
   isComponentMounted = false;
-
-  window.removeEventListener('keydown', toggleDebug);
 
   if (rafId) {
     cancelAnimationFrame(rafId);

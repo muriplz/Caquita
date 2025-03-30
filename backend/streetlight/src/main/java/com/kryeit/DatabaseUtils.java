@@ -69,6 +69,8 @@ public class DatabaseUtils {
 
             return null;
         });
+
+        createForumTables();
     }
 
     public static void createForumTables() {

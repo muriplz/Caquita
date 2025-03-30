@@ -2,7 +2,6 @@ import {getCoordinates, resetCoordinates, setCoordinates} from './Coordinates.js
 
 export const TILE_SIZE = 512;
 export const DEFAULT_ZOOM = 14;
-export const EARTH_RADIUS = 6378137; // Earth radius in meters
 
 export function setWorldOrigin(lat, lon) {
     setCoordinates(lat, lon);

@@ -1,5 +1,4 @@
-// js/sync/SyncClient.js
-import {getIpAddress} from "@/js/Static.js";
+import {isProduction} from "@/js/Static.js";
 
 export default class SyncClient {
     constructor() {
@@ -7,14 +6,22 @@ export default class SyncClient {
         this.connected = false;
         this.reconnectTimeout = null;
         this.reconnectInterval = 3000;
+        this.connectionPromise = null;
+        this.connectionResolve = null;
     }
 
     connect() {
         if (this.connected) {
-            return;
+            return Promise.resolve();
         }
 
-        const wsUrl = "ws://localhost:6996/api/sync";
+        this.connectionPromise = new Promise(resolve => {
+            this.connectionResolve = resolve;
+        });
+
+        const wsUrl = isProduction() ?
+            "wss://caquita.app/api/sync"
+            : "ws://localhost:6996/api/sync";
 
         try {
             this.socket = new WebSocket(wsUrl);
@@ -24,6 +31,11 @@ export default class SyncClient {
 
                 // Auto-subscribe to currencies
                 this.subscribe('currencies');
+
+                // Resolve the connection promise
+                if (this.connectionResolve) {
+                    this.connectionResolve();
+                }
             };
 
             this.socket.onmessage = (event) => {
@@ -31,8 +43,6 @@ export default class SyncClient {
                     const message = JSON.parse(event.data);
 
                     if (message.type === 'UPDATE' && message.entity === 'currencies') {
-
-                        // Import dynamically to avoid circular reference
                         import('./SyncStore').then(module => {
                             const SyncStore = module.default;
                             SyncStore.updateCurrencies(message.data);
@@ -49,6 +59,8 @@ export default class SyncClient {
 
         } catch (e) {
         }
+
+        return this.connectionPromise;
     }
 
     subscribe(entity) {
@@ -58,7 +70,9 @@ export default class SyncClient {
                 entity
             });
             this.socket.send(message);
+            return true;
         }
+        return false;
     }
 
     unsubscribe(entity) {
@@ -67,7 +81,9 @@ export default class SyncClient {
                 type: 'UNSUBSCRIBE',
                 entity
             }));
+            return true;
         }
+        return false;
     }
 
     disconnect() {

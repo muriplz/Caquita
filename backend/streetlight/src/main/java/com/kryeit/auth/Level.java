@@ -7,10 +7,10 @@ import com.kryeit.Database;
 public record Level(
         @JsonProperty("level") int level,
         @JsonProperty("experience") int experience,
-        @JsonProperty("level-progress") int levelProgress,
-        @JsonProperty("level-total") int levelTotal
+        @JsonProperty("progress") int progress,
+        @JsonProperty("total") int total
 ) {
-    private static final int[] LEVEL_REQUIRED_EXP = {
+    public static final int[] LEVEL_REQUIRED_EXP = {
             0,     // Level 0->1
             1000,  // Level 1->2
             3000,  // Level 2->3
@@ -59,9 +59,6 @@ public record Level(
         this(1, 0, 0, LEVEL_REQUIRED_EXP[0]);
     }
 
-    /**
-     * Creates a Level object from a total experience value
-     */
     public static Level fromExperience(int totalExperience) {
         int level = calculateLevel(totalExperience);
         int expForPreviousLevels = getTotalExpForLevel(level - 1);
@@ -71,9 +68,6 @@ public record Level(
         return new Level(level, totalExperience, levelProgress, levelTotal);
     }
 
-    /**
-     * Calculate level based on total experience
-     */
     private static int calculateLevel(int exp) {
         int level = 1;
         int totalExp = 0;
@@ -86,9 +80,6 @@ public record Level(
         return level;
     }
 
-    /**
-     * Get total experience required to reach a specific level
-     */
     private static int getTotalExpForLevel(int targetLevel) {
         int totalExp = 0;
         for (int i = 0; i < targetLevel; i++) {
@@ -97,23 +88,6 @@ public record Level(
         return totalExp;
     }
 
-    /**
-     * Get percentage of level completion
-     */
-    public int getProgressPercentage() {
-        return Math.min(100, (int)((levelProgress / (double)levelTotal) * 100));
-    }
-
-    /**
-     * Get remaining XP needed for next level
-     */
-    public int getRemainingXp() {
-        return levelTotal - levelProgress;
-    }
-
-    /**
-     * Return trust level based on current level
-     */
     public TrustLevel getTrustLevel() {
         if (level >= 30) return TrustLevel.MODERATOR;
         if (level >= 25) return TrustLevel.CONTRIBUTOR;
@@ -125,8 +99,8 @@ public record Level(
         ObjectNode json = Database.MAPPER.createObjectNode();
         json.put("level", level);
         json.put("experience", experience);
-        json.put("level-progress", levelProgress);
-        json.put("level-total", levelTotal);
+        json.put("progress", progress);
+        json.put("total", total);
         return json;
     }
 }

@@ -1,6 +1,8 @@
 package com.kryeit.content.items.metal;
 
-public enum MetalClassification {
+import com.kryeit.content.items.MaterialClassification;
+
+public enum MetalClassification implements MaterialClassification {
     ALUMINUM("Aluminum"),
     STEEL("Steel/Tin"),
     COPPER("Copper"),
@@ -22,23 +24,29 @@ public enum MetalClassification {
         return fullName;
     }
 
+    @Override
+    public String getId() {
+        return name();
+    }
+
+    @Override
+    public String getName() {
+        return fullName;
+    }
+
     public boolean isRecyclable() {
-        // Most metals are recyclable
         return true;
     }
 
     public boolean isHighValueRecyclable() {
-        // Aluminum, copper, brass, and precious metals typically have higher recycling value
         return this == ALUMINUM || this == COPPER || this == BRASS || this == PRECIOUS;
     }
 
     public boolean isHazardous() {
-        // Lead and some e-waste metals require special handling
         return this == LEAD || this == E_WASTE;
     }
 
     public boolean requiresSpecialProcessing() {
-        // E-waste metals, mixed metals and some others may require special processing
         return this == E_WASTE || this == MIXED || this == PRECIOUS;
     }
 }

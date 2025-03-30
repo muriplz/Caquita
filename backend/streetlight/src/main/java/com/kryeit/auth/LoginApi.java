@@ -118,7 +118,6 @@ public class LoginApi {
             Currencies.create(id);
 
             ctx.status(201).result("User registered successfully.");
-
         } catch (Exception e) {
             ctx.status(500).result("Registration failed due to internal error.");
         }

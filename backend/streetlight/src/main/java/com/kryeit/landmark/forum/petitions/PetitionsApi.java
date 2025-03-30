@@ -17,8 +17,9 @@ public class PetitionsApi {
         GetPetitionsPayload payload = ctx.bodyAsClass(GetPetitionsPayload.class);
 
         List<Petition> petitions = Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT * FROM petitions WHERE status = 'PENDING' ORDER BY created_at DESC LIMIT 10 OFFSET :offset")
+                handle.createQuery("SELECT * FROM petitions WHERE status = 'PENDING' ORDER BY created_at :orderBy LIMIT 10 OFFSET :offset")
                         .bind("offset", payload.page() * 10)
+                        .bind("orderBy", payload.orderBy())
                         .mapTo(Petition.class)
                         .list()
         );
@@ -30,13 +31,9 @@ public class PetitionsApi {
         long user = AuthUtils.getUser(ctx);
 
         CreatePetitionPayload payload = ctx.bodyAsClass(CreatePetitionPayload.class);
-        //public record Petition(
-        //        long id, long userId, double lat, double lon, ObjectNode landmarkInfo, boolean accepted,
-        //        Timestamp creation, Timestamp edition) {
-        //}
 
         Database.getJdbi().useHandle(handle -> {
-            handle.createUpdate("INSERT INTO petitions (user_id, lat, lon, landmark_info) VALUES (:userId, :lat, :lon, :landmarkInfo)")
+            handle.createUpdate("INSERT INTO petitions (user_id, lat, lon, landmark_info) VALUES (:userId, :lat, :lon, cast(:landmarkInfo as jsonb))")
                     .bind("userId", user)
                     .bind("lat", payload.lat())
                     .bind("lon", payload.lon())
@@ -149,7 +146,7 @@ public class PetitionsApi {
     public record CreatePetitionPayload(double lat, double lon, ObjectNode landmarkInfo) {
     }
 
-    public record GetPetitionsPayload(int page) {
+    public record GetPetitionsPayload(int page, String orderBy) {
     }
 
 

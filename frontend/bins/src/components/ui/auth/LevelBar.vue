@@ -7,8 +7,8 @@ const level = SyncStore.getLevel();
 <template>
   <div v-if="level" class="level-container">
     <span class="level-text">Lvl {{ level.level._value }}</span>
-    <meter min="0" :max="level.levelTotal._value" low="30" high="75" optimum="85" :value="level.levelProgress._value"></meter>
-    <span class="xp-text">{{ level.levelProgress._value }}/{{ level.levelTotal._value }} XP</span>
+    <meter min="0" :max="level.total._value" low="30" high="75" optimum="85" :value="level.progress._value"></meter>
+    <span class="xp-text">{{ level.progress._value }}/{{ level.total._value }} XP</span>
   </div>
 </template>
 

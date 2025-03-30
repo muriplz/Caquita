@@ -16,9 +16,13 @@ const handleLogin = async () => {
 
   loading.value = true;
   try {
-    const response = await AuthService.login(username.value, password.value);
-    if (response === null) {
+    const success = await AuthService.login(username.value, password.value);
+    if (success === null) {
       showCreateAccountModal.value = true;
+    }
+
+    if (success) {
+      router.push('/game')
     }
   } catch (error) {
     console.error("Login error:", error);
@@ -37,7 +41,7 @@ const handleRegister = async () => {
     const success = await AuthService.register(username.value, password.value);
     if (success) {
       showCreateAccountModal.value = false;
-      router.push('/game');
+      await router.push('/game');
     } else {
       alert("Registration failed");
     }

@@ -1,4 +1,3 @@
-// js/sync/SyncService.js
 import SyncClient from './SyncClient.js';
 
 let syncClient = null;
@@ -7,16 +6,16 @@ const SyncService = {
     init() {
         if (!syncClient) {
             syncClient = new SyncClient();
-            syncClient.connect();
+            return syncClient.connect();
         }
-        return syncClient;
+        return Promise.resolve();
     },
 
     getClient() {
         if (!syncClient) {
-            return this.init();
+            return this.init().then(() => syncClient);
         }
-        return syncClient;
+        return Promise.resolve(syncClient);
     },
 
     disconnect() {

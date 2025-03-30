@@ -1,6 +1,8 @@
 package com.kryeit.content.items.paper;
 
-public enum PaperClassification {
+import com.kryeit.content.items.MaterialClassification;
+
+public enum PaperClassification implements MaterialClassification {
     NEWSPRINT("Newsprint/Newspaper"),
     OFFICE("Office/Writing Paper"),
     MAGAZINE("Magazine/Glossy Paper"),
@@ -19,13 +21,21 @@ public enum PaperClassification {
         return fullName;
     }
 
+    @Override
+    public String getId() {
+        return name();
+    }
+
+    @Override
+    public String getName() {
+        return fullName;
+    }
+
     public boolean isRecyclable() {
-        // Most paper types are recyclable except thermal and laminated paper
         return this != THERMAL && this != LAMINATED;
     }
 
     public boolean isHighValueRecyclable() {
-        // Office paper is typically more valuable for recycling
         return this == OFFICE;
     }
 }
