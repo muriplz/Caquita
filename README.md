@@ -13,4 +13,12 @@ A Javalin backend of the app, controls the PostgreSQL database and authentificat
 
 A statistics backend made with R and Shiny. Aims to have interactable graphs about Caquita Landmarks.
 
-<img src="https://github-readme-stats.vercel.app/api/pin/?username=muriplz&repo=Caquita&theme=react&hide_border=true" alt="Project Card"/>
+<div align="center">
+  <img src="https://github-readme-stats.vercel.app/api/pin/?username=muriplz&repo=caquita&theme=react&show_owner=true" alt="Owner Info"/>
+</div>
+
+<div align="center">
+  <a href="https://github.com/muriplz/caquita/commits/main">
+    <img src="https://github-contributor-stats.vercel.app/api?username=muriplz&limit=5&theme=react&combine_all_yearly_contributions=true&repo=caquita" alt="Contributor Commits"/>
+  </a>
+</div>
