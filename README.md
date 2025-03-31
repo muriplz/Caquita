@@ -12,3 +12,5 @@ A Javalin backend of the app, controls the PostgreSQL database and authentificat
 ### [Townhall](https://github.com/muriplz/Caquita/tree/main/backend/townhall)
 
 A statistics backend made with R and Shiny. Aims to have interactable graphs about Caquita Landmarks.
+
+<img src="https://github-readme-stats.vercel.app/api/pin/?username=muriplz&repo=Caquita&theme=react&hide_border=true" alt="Project Card"/>
