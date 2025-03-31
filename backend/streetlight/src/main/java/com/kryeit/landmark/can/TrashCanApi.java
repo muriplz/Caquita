@@ -88,7 +88,7 @@ public class TrashCanApi {
 
         Database.getJdbi().useHandle(handle ->
                 handle.createUpdate("""
-                    INSERT INTO cans (id, type, features)
+                    INSERT INTO trash_cans (id, type, features)
                     VALUES (:id, :type, '[]'::jsonb)
                     """)
                         .bind("id", id)

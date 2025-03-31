@@ -1,9 +1,6 @@
 <template>
   <Transition
       name="dropdown"
-      enter-active-class="dropdown-enter"
-      leave-active-class="dropdown-leave"
-      :duration="{ enter: 300, leave: 150 }"
       appear
   >
     <div
@@ -70,44 +67,14 @@ const emitEvent = (eventName) => {
   background-color: rgba(244, 67, 54, 0.8);
 }
 
-.dropdown-enter {
-  animation: paper-fall 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: transform 0.1s ease, opacity 0.1s ease;
 }
 
-.dropdown-leave {
-  animation: paper-fold 300ms ease-in forwards;
-}
-
-
-@keyframes paper-fall {
-  0% {
-    opacity: 0;
-    transform: translateY(-30px) rotateX(45deg);
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(10px) rotateX(-10deg);
-  }
-  70% {
-    transform: translateY(-5px) rotateX(5deg);
-  }
-  100% {
-    transform: translateY(0) rotateX(0);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-}
-
-@keyframes paper-fold {
-  0% {
-    opacity: 1;
-    transform: translateY(0) rotateX(0);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-20px) rotateX(60deg);
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-  }
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: scale(0);
 }
 </style>

@@ -22,7 +22,7 @@ const handleLogin = async () => {
     }
 
     if (success) {
-      router.push('/game')
+      await router.push('/game')
     }
   } catch (error) {
     console.error("Login error:", error);
@@ -66,6 +66,7 @@ const closeCreateAccountModal = () => {
       <img
           class="info-button"
           src="/images/ui/info_button.png"
+          alt=""
       />
       <div class="tooltip">Enter your desired username if you don't have an account!</div>
     </div>

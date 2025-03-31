@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-modal">
+  <div class="settings-modal modal">
     <h2>Settings</h2>
 
     <div class="tabs">
@@ -109,13 +109,11 @@ defineEmits(['close']);
   max-width: 600px;
   height: calc(100% - 100px);
   max-height: 600px;
-  background-color: black;
-  border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   padding: 24px;
   display: flex;
   flex-direction: column;
-  color: white;
+  color: black;
   position: relative;
 }
 
@@ -131,18 +129,20 @@ defineEmits(['close']);
   border: none;
   color: #aaa;
   cursor: pointer;
-  font-size: 16px;
   transition: all 0.3s;
   border-bottom: 2px solid transparent;
+  font: inherit;
+  font-size: 11px;
+
 }
 
 .tab-button.active {
-  color: white;
+  color: #333;
   border-bottom: 2px solid #4D8061;
 }
 
 .tab-button:hover {
-  color: white;
+  color: black;
 }
 
 .settings-content {
@@ -213,34 +213,15 @@ defineEmits(['close']);
 
 .action-buttons {
   display: flex;
-  gap: 12px;
   justify-content: flex-end;
-  margin-top: 16px;
 }
 
 .reset-button {
-  padding: 10px 20px;
-  background-color: #8B0000;
+  background-color: #f13b3b;
   color: white;
-  border: none;
-  border-radius: 4px;
+  border: 3px solid #333;
+  border-radius: 0;
   cursor: pointer;
-}
-
-.reset-button:hover {
-  background-color: #A52A2A;
-}
-
-.close-button {
-  padding: 10px 20px;
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.close-button:hover {
-  background-color: #444;
+  font: inherit;
 }
 </style>

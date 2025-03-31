@@ -5,14 +5,11 @@ const API_URL = getIpAddress() + '/api/v1/petitions';
 export default class PetitionsApi {
 
     static async get(page, orderBy) {
-        const response = await fetch(`${API_URL}`, {
+        const response = await fetch(`${API_URL}?page=${page}&orderBy=${orderBy}`, {
             method: 'GET',
+            credentials: 'include',
             headers: {
-                'Content-Type': 'application/json',
-                body: JSON.stringify({
-                    page: page,
-                    orderBy: orderBy
-                })
+                'Content-Type': 'application/json'
             }
         });
 
@@ -28,13 +25,21 @@ export default class PetitionsApi {
             .then(translations => translations[key] || id);
     }
 
-    static async create(petition) {
+    static async create(type, lat, lon, landmarkInfo) {
         const response = await fetch(`${API_URL}`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(petition)
+            body: JSON.stringify(
+                {
+                    type: type,
+                    lat: lat,
+                    lon: lon,
+                    landmarkInfo: landmarkInfo
+                }
+            )
         });
 
         if (!response.ok) throw new Error(response.status);

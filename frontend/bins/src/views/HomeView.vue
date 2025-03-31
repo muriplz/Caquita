@@ -18,14 +18,17 @@ async function reloadPage() {
 
     <div class="introduction">
       <h2>The game</h2>
-      <p>
-        <strong>There is no real world recycling actions involved</strong> in the game.
-        The game is a simulation, with the aim of having a database with recycling landmarks of public interest while having fun.
-      </p>
-      <p>
-        You can collect items, deposit them in the different recycling bins and get points.
-        You will be able to battle another users and decorate your own virtual house at some point.
-      </p>
+
+      <div class="content">
+        <p>
+          <strong>There is no real world recycling actions involved</strong> in the game.
+          The game is a simulation, with the aim of having a database with recycling landmarks of public interest while having fun.
+        </p>
+        <p>
+          You can collect items, deposit them in the different recycling bins and get points.
+          You will be able to battle another users and decorate your own virtual house at some point.
+        </p>
+      </div>
 
       <div class="play-button">
         <div class="button" @click="reloadPage">Play</div>
@@ -85,6 +88,11 @@ async function reloadPage() {
   color: #aaaaaa;
 }
 
+.content {
+  width: 75%;
+  margin: 0 auto;
+}
+
 .play-button {
   display: flex;
   justify-content: center;
@@ -102,7 +110,9 @@ async function reloadPage() {
   transition: border-color 0.25s;
 }
 
-.play-button .button:hover {
-  border-color: #646cff;
+@media(max-width: 600px) {
+  .content {
+    width: 100%;
+  }
 }
 </style>

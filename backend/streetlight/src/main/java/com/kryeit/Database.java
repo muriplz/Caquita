@@ -83,7 +83,7 @@ public class Database {
         });
 
         JDBI.registerArgument((ArgumentFactory) (type, value, config) -> {
-            if (value instanceof ArrayNode) {
+            if (value instanceof ArrayNode || value instanceof ObjectNode) {
                 return Optional.of((position, statement, ctx) -> statement.setString(position, value.toString()));
             }
             return Optional.empty();

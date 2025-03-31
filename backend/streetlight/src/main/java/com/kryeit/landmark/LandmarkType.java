@@ -2,7 +2,7 @@ package com.kryeit.landmark;
 
 public enum LandmarkType {
     TRASH_CAN,
-    PLASTIC,
+    PLASTIC_CONTAINER,
     GLASS,
     PAPER,
     METAL,
@@ -10,8 +10,8 @@ public enum LandmarkType {
 
     public String getTableName() {
         return switch (this) {
-            case TRASH_CAN -> "cans";
-            case PLASTIC -> "plastic";
+            case TRASH_CAN -> "trash_cans";
+            case PLASTIC_CONTAINER -> "plastic_containers";
             case GLASS -> "glass";
             case PAPER -> "paper";
             case METAL -> "metal";

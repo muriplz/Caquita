@@ -31,7 +31,6 @@ declare module 'vue' {
     LandmarkImage: typeof import('./src/components/landmarks/LandmarkImage.vue')['default']
     LevelBar: typeof import('./src/components/ui/auth/LevelBar.vue')['default']
     MapCanvas: typeof import('./src/components/MapCanvas.vue')['default']
-    MatrixGridVisualizer: typeof import('./src/components/ui/inventory/ShapeVisualizer.vue')['default']
     MenuButton: typeof import('./src/components/ui/MenuButton.vue')['default']
     OrbitControls: typeof import('./src/components/player/OrbitControls.vue')['default']
     PlayerEntity: typeof import('./src/components/player/PlayerEntity.vue')['default']
@@ -43,6 +42,6 @@ declare module 'vue' {
     Settings: typeof import('./src/components/ui/settings/Settings.vue')['default']
     ShapeVisualizer: typeof import('./src/components/ui/inventory/ShapeVisualizer.vue')['default']
     ToggleSwitch: typeof import('./src/components/ui/settings/ToggleSwitch.vue')['default']
-    TopDownMapSection: typeof import('./src/components/ui/contributing/TopDownMapSection.vue')['default']
+    TopDownMapSection: typeof import('./src/views/landmarks/TopDownMapSection.vue')['default']
   }
 }

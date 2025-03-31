@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kryeit.landmark.LandmarkType;
 
 public record PetitionLandmarkInfo(
-        @JsonProperty("name") String name,
-        @JsonProperty("type") LandmarkType type
+        @JsonProperty("name") String name
 ) {
 }

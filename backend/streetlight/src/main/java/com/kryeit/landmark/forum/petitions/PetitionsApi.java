@@ -5,6 +5,7 @@ import com.kryeit.Database;
 import com.kryeit.auth.AuthUtils;
 import com.kryeit.auth.TrustLevel;
 import com.kryeit.auth.User;
+import com.kryeit.landmark.LandmarkType;
 import io.javalin.http.Context;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,12 +15,19 @@ public class PetitionsApi {
     public static void getPetitions(Context ctx) {
         long user = AuthUtils.getUser(ctx);
 
-        GetPetitionsPayload payload = ctx.bodyAsClass(GetPetitionsPayload.class);
+        int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(0);
+        String orderBy = ctx.queryParam("orderBy");
 
+        if (orderBy == null || (!orderBy.equals("ASC") && !orderBy.equals("DESC"))) {
+            orderBy = "DESC";
+        }
+
+        String query = "SELECT * FROM petitions WHERE status = 'PENDING' ORDER BY creation " + orderBy + " LIMIT 10 OFFSET :offset";
+
+        System.out.println(query);
         List<Petition> petitions = Database.getJdbi().withHandle(handle ->
-                handle.createQuery("SELECT * FROM petitions WHERE status = 'PENDING' ORDER BY created_at :orderBy LIMIT 10 OFFSET :offset")
-                        .bind("offset", payload.page() * 10)
-                        .bind("orderBy", payload.orderBy())
+                handle.createQuery(query)
+                        .bind("offset", page * 10)
                         .mapTo(Petition.class)
                         .list()
         );
@@ -32,12 +40,16 @@ public class PetitionsApi {
 
         CreatePetitionPayload payload = ctx.bodyAsClass(CreatePetitionPayload.class);
 
+        // Convert ObjectNode to String
+        String landmarkInfoJson = payload.landmarkInfo().toString();
+
         Database.getJdbi().useHandle(handle -> {
-            handle.createUpdate("INSERT INTO petitions (user_id, lat, lon, landmark_info) VALUES (:userId, :lat, :lon, cast(:landmarkInfo as jsonb))")
+            handle.createUpdate("INSERT INTO petitions (user_id, type, lat, lon, landmark_info) VALUES (:userId, :type, :lat, :lon, cast(:landmarkInfo as jsonb))")
                     .bind("userId", user)
+                    .bind("type", payload.type().name())
                     .bind("lat", payload.lat())
                     .bind("lon", payload.lon())
-                    .bind("landmarkInfo", payload.landmarkInfo())
+                    .bind("landmarkInfo", landmarkInfoJson)
                     .execute();
         });
 
@@ -143,7 +155,7 @@ public class PetitionsApi {
 
     }
 
-    public record CreatePetitionPayload(double lat, double lon, ObjectNode landmarkInfo) {
+    public record CreatePetitionPayload(LandmarkType type, double lat, double lon, ObjectNode landmarkInfo) {
     }
 
     public record GetPetitionsPayload(int page, String orderBy) {

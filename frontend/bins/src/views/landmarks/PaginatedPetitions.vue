@@ -3,7 +3,7 @@ import { ref, onMounted, watch } from 'vue';
 import PetitionsApi from "@/views/landmarks/js/PetitionsApi.js";
 
 const petitions = ref([]);
-const currentPage = ref(1);
+const currentPage = ref(0); // Changed to 0 for zero-based indexing
 const totalPages = ref(1);
 const orderBy = ref('DESC');
 const loading = ref(false);
@@ -12,8 +12,16 @@ const fetchPetitions = async () => {
   loading.value = true;
   try {
     const response = await PetitionsApi.get(currentPage.value, orderBy.value);
-    petitions.value = response.data;
-    totalPages.value = response.meta.totalPages;
+    petitions.value = response; // Assuming the API returns petitions directly
+
+    // If you expect pagination metadata, adjust according to your API response
+    // If not provided, use a reasonable default based on data length
+    if (response.meta && response.meta.totalPages) {
+      totalPages.value = response.meta.totalPages;
+    } else {
+      // Estimate based on current data
+      totalPages.value = response.length > 0 ? 5 : 1; // Placeholder logic
+    }
   } catch (error) {
     console.error('Error fetching petitions:', error);
   } finally {
@@ -22,23 +30,23 @@ const fetchPetitions = async () => {
 };
 
 const changePage = (page) => {
-  currentPage.value = page;
+  currentPage.value = page - 1; // Adjust for zero-based indexing
 };
 
 const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
+  if (currentPage.value < totalPages.value - 1) {
     currentPage.value++;
   }
 };
 
 const prevPage = () => {
-  if (currentPage.value > 1) {
+  if (currentPage.value > 0) {
     currentPage.value--;
   }
 };
 
 watch(orderBy, () => {
-  currentPage.value = 1;
+  currentPage.value = 0;
   fetchPetitions();
 });
 
@@ -67,15 +75,16 @@ onMounted(() => {
 
       <ul v-else class="petitions-list">
         <li v-for="petition in petitions" :key="petition.id" class="petition-item">
-          <h3>{{ petition.title }}</h3>
-          <p>{{ petition.description }}</p>
+          <h3>{{ petition.type }}</h3>
+          <p>Coordinates: {{ petition.lat }}, {{ petition.lon }}</p>
+          <p>Info: {{ petition.landmarkInfo ? petition.landmarkInfo.name : '' }}</p>
         </li>
       </ul>
 
       <div class="pagination">
         <button
             @click="prevPage"
-            :disabled="currentPage === 1"
+            :disabled="currentPage === 0"
             class="page-btn"
         >
           Previous
@@ -86,7 +95,7 @@ onMounted(() => {
               v-for="page in totalPages"
               :key="page"
               @click="changePage(page)"
-              :class="['page-number', { active: page === currentPage }]"
+              :class="['page-number', { active: page === currentPage + 1 }]"
           >
             {{ page }}
           </button>
@@ -94,7 +103,7 @@ onMounted(() => {
 
         <button
             @click="nextPage"
-            :disabled="currentPage === totalPages"
+            :disabled="currentPage === totalPages - 1"
             class="page-btn"
         >
           Next
@@ -107,7 +116,7 @@ onMounted(() => {
 <style scoped>
 .petitions-container {
   max-width: 800px;
-  margin: 0 auto;
+  margin: 160px 0 0 0;
 }
 
 .controls {
@@ -133,7 +142,7 @@ onMounted(() => {
 }
 
 .petition-item {
-  border: 1px solid #eee;
+  background-color: #bdbdbd;
   padding: 1rem;
   margin-bottom: 1rem;
   border-radius: 4px;
@@ -186,5 +195,11 @@ onMounted(() => {
 .no-results {
   text-align: center;
   padding: 2rem;
+}
+
+@media (max-width: 600px) {
+  .petitions-container {
+    margin: 290px auto 0 auto;
+  }
 }
 </style>

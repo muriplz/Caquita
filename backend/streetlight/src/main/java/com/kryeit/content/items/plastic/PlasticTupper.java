@@ -36,7 +36,7 @@ public class PlasticTupper extends ResourceItem<PlasticClassification> {
     private static Map<LandmarkType, DisposalOutcome> createDisposalMap(PlasticClassification classification) {
         Map<LandmarkType, DisposalOutcome> outcomes = new EnumMap<>(LandmarkType.class);
 
-        outcomes.put(LandmarkType.PLASTIC,
+        outcomes.put(LandmarkType.PLASTIC_CONTAINER,
                 classification.isRecyclable() ? DisposalOutcome.CORRECT : DisposalOutcome.DECENT);
 
         outcomes.put(LandmarkType.TRASH_CAN,

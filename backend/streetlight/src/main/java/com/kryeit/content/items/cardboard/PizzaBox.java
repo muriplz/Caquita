@@ -36,7 +36,7 @@ public class PizzaBox extends ResourceItem<CardboardClassification> {
     private static Map<LandmarkType, DisposalOutcome> createDisposalMap(CardboardClassification classification) {
         Map<LandmarkType, DisposalOutcome> outcomes = new EnumMap<>(LandmarkType.class);
 
-        outcomes.put(LandmarkType.PLASTIC,
+        outcomes.put(LandmarkType.PLASTIC_CONTAINER,
                 classification.isRecyclable() ? DisposalOutcome.CORRECT : DisposalOutcome.DECENT);
 
         outcomes.put(LandmarkType.TRASH_CAN,

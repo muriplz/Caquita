@@ -9,6 +9,7 @@ import AcceptedPetitions from "@/views/landmarks/views/AcceptedPetitions.vue";
 import RejectedPetitions from "@/views/landmarks/views/RejectedPetitions.vue";
 import OngoingPetitions from "@/views/landmarks/views/OngoingPetitions.vue";
 import CreatePetition from "@/views/landmarks/CreatePetition.vue";
+import PetitionPage from "@/views/landmarks/PetitionPage.vue";
 
 const routes = [
     { path: '/', component: HomeView},
@@ -18,7 +19,8 @@ const routes = [
     { path: '/landmarks/accepted', component: AcceptedPetitions, meta: { requiresAuth: true } },
     { path: '/landmarks/rejected', component: RejectedPetitions, meta: { requiresAuth: true } },
     { path: '/landmarks/ongoing', component: OngoingPetitions, meta: { requiresAuth: true } },
-    { path: '/landmarks/create', component: CreatePetition, meta: { requiresAuth: true } }
+    { path: '/landmarks/create', component: CreatePetition, meta: { requiresAuth: true } },
+    { path: '/landmarks/:id', component: PetitionPage, meta: { requiresAuth: true } }
 ];
 
 const router = createRouter({

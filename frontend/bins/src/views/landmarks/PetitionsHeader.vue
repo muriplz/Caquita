@@ -1,32 +1,52 @@
 <script setup>
 import Store from "@/js/Store.js";
 import router from "@/router/index.js";
+import { ref, onMounted, onUnmounted } from 'vue';
+
+const isVisible = ref(true);
+const scrollThreshold = 30;
+
+const handleScroll = () => {
+  isVisible.value = window.scrollY <= scrollThreshold;
+};
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 </script>
 
 <template>
-  <header class="header">
-    <div class="left-section">
-      <h4 v-if="Store.getUser()">@{{ Store.getUser().username }}</h4>
-      <a @click="router.push('/game')">Back to the game</a>
-    </div>
-    <div class="container">
-      <router-link to="/landmarks" class="title" exact>Landmarks</router-link>
-      <nav class="nav">
-        <router-link to="/landmarks/ongoing" active-class="active" exact>
-          <h1>Ongoing</h1>
+  <Transition name="header-slide">
+    <header v-show="isVisible" class="header">
+      <div class="left-section">
+        <h4 v-if="Store.getUser()">@{{ Store.getUser().username }}</h4>
+        <a @click="router.push('/game')">Back to the game</a>
+      </div>
+      <div class="container">
+        <router-link to="/landmarks" class="title" exact>Landmarks</router-link>
+        <nav class="nav">
+          <router-link to="/landmarks/ongoing" active-class="active" exact>
+            <h1>Ongoing</h1>
+          </router-link>
+          <router-link to="/landmarks/accepted" active-class="active" exact>
+            <h1>Accepted</h1>
+          </router-link>
+          <router-link to="/landmarks/rejected" active-class="active" exact>
+            <h1>Rejected</h1>
+          </router-link>
+        </nav>
+      </div>
+      <div class="right-section">
+        <router-link to="/landmarks/create" class="submit-button" exact>
+          <h4>Submit</h4>
         </router-link>
-        <router-link to="/landmarks/accepted" active-class="active" exact>
-          <h1>Accepted</h1>
-        </router-link>
-        <router-link to="/landmarks/rejected" active-class="active" exact>
-          <h1>Rejected</h1>
-        </router-link>
-      </nav>
-    </div>
-    <div class="right-section">
-      <div class="create-petition-button" @click="router.push('/landmarks/create')">Create petition</div>
-    </div>
-  </header>
+      </div>
+    </header>
+  </Transition>
 </template>
 
 <style scoped>
@@ -35,14 +55,6 @@ import router from "@/router/index.js";
   font-size: 48px;
   text-decoration: none;
   color: #333;
-}
-
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  margin-bottom: 12px;
 }
 
 .header {
@@ -56,6 +68,17 @@ import router from "@/router/index.js";
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
+}
+
+.container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .left-section {
@@ -66,8 +89,12 @@ import router from "@/router/index.js";
   flex-direction: column;
   justify-content: space-between;
   padding-bottom: 26px;
+  gap: 30px;
 }
 
+.left-section a {
+  cursor: pointer;
+}
 
 .nav {
   display: flex;
@@ -98,29 +125,61 @@ import router from "@/router/index.js";
   display: flex;
   align-items: center;
   padding-right: 20px;
-
 }
 
-.create-petition-button {
-  background-color: #d3a263;
-  padding: 8px 16px;
+.submit-button {
+  text-decoration: none;
+  color: #333;
   border-radius: 4px;
-  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.header-slide-enter-active,
+.header-slide-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.header-slide-enter-from,
+.header-slide-leave-to {
+  transform: translateY(-100%);
 }
 
 @media(max-width: 480px) {
   .header {
     flex-direction: column;
+    align-items: center;
   }
 
   .left-section {
     flex-direction: row;
     align-items: center;
     padding: 0 20px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .container {
+    position: static;
+    transform: none;
+    margin-bottom: 12px;
+    width: 100%;
+  }
+
+  .submit-button {
+    margin: 0 auto;
+    padding: 0;
   }
 
   .nav {
     margin-top: 12px;
+    gap: 25px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav a {
+    padding: 4px 8px;
   }
 }
 </style>
