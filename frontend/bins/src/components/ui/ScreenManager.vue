@@ -1,89 +1,3 @@
-<template>
-  <div>
-    <div v-if="uiRouter.state.isMenuOpen" class="settings-container">
-      <a v-if="uiRouter.state.globalElements.showSettingsButton"
-         href="javascript:void(0)"
-         class="settings-button"
-         @click="handleSettingsClick">
-        <motion.div
-            :animate="{ rotate: settingsRotation }"
-            :initial="{ rotate: 0 }"
-            :transition="{ duration: 0.3 }"
-            style="transform-origin: center center; display: flex; justify-content: center; align-items: center;"
-        >
-          <img src="/images/ui/settings.png" alt="Settings" class="settings-icon" />
-        </motion.div>
-      </a>
-
-      <a v-if="uiRouter.state.globalElements.showPlusButton"
-         href="javascript:void(0)"
-         class="admin-button"
-         @click="showContributing">
-        <img src="/images/ui/plus_button.png" class="admin-icon" alt=""/>
-      </a>
-    </div>
-
-    <div v-if="uiRouter.state.isMenuOpen && uiRouter.state.globalElements.showCurrencyPanel" class="currency-container">
-      <CurrencyPanel />
-    </div>
-
-    <div v-if="uiRouter.state.isMenuOpen && uiRouter.state.globalElements.showProfileButton" class="profile-container">
-      <a href="javascript:void(0)" class="profile-button" @click="toggleProfileMenu">
-        <img src="/images/ui/profile_logged.png" alt="Profile" class="profile-icon" />
-      </a>
-      <ProfileDropdown
-          :isVisible="isProfileMenuOpen"
-          @showProfile="navigateTo('PROFILE')"
-          @logout="handleLogout"
-          @close="isProfileMenuOpen = false"
-      />
-    </div>
-
-    <a href="javascript:void(0)"
-       class="menu-toggle-button"
-       :class="menuButtonClass"
-       @click="handleMenuButtonClick">
-      <span>{{ menuButtonText }}</span>
-    </a>
-
-    <Transition name="menu-fade">
-      <div v-if="uiRouter.state.isMenuOpen" class="fullscreen-menu" @click.self="handleBackgroundClick">
-        <TransitionGroup
-            v-if="showMainMenu"
-            name="menu-buttons"
-            tag="div"
-            class="menu-container"
-            appear>
-          <MenuButton
-              v-for="button in availableMenuButtons"
-              :key="button.key"
-              :label="button.label"
-              :transitionDelay="button.delay"
-              @click="navigateTo(button.screen)"
-          />
-        </TransitionGroup>
-
-        <div v-if="showScreens" class="screens-container">
-          <Transition :name="transitionName">
-            <div v-if="showScreenContent"
-                 :key="screenContentKey"
-                 class="component-container"
-                 :class="{ 'centered-container': isCenteredScreen }"
-                 @click.self="goBack">
-              <component
-                  v-if="currentComponent"
-                  :is="currentComponent"
-                  @close="goBack"
-                  @openMaterial="showMaterial"
-              />
-              <div v-else class="empty-container"></div>
-            </div>
-          </Transition>
-        </div>
-      </div>
-    </Transition>
-  </div>
-</template>
 
 <script setup>
 import {motion} from 'motion-v'
@@ -315,6 +229,103 @@ function handleLogout() {
 }
 </script>
 
+<template>
+  <div>
+    <Transition name="slide-from-top">
+      <div v-if="uiRouter.state.isMenuOpen" class="settings-container">
+        <Transition name="fade-scale">
+          <a v-if="uiRouter.state.globalElements.showSettingsButton"
+             href="javascript:void(0)"
+             class="settings-button"
+             @click="handleSettingsClick">
+            <motion.div
+                :animate="{ rotate: settingsRotation }"
+                :initial="{ rotate: 0 }"
+                :transition="{ duration: 0.3 }"
+                style="transform-origin: center center; display: flex; justify-content: center; align-items: center;"
+            >
+              <img src="/images/ui/settings.png" alt="Settings" class="settings-icon" />
+            </motion.div>
+          </a>
+        </Transition>
+
+        <Transition name="fade-scale">
+          <a v-if="uiRouter.state.globalElements.showPlusButton"
+             href="javascript:void(0)"
+             class="admin-button"
+             @click="showContributing">
+            <img src="/images/ui/plus_button.png" class="admin-icon" alt=""/>
+          </a>
+        </Transition>
+      </div>
+    </Transition>
+
+    <Transition name="slide-from-top">
+      <div v-if="uiRouter.state.isMenuOpen && uiRouter.state.globalElements.showCurrencyPanel" class="currency-container">
+        <CurrencyPanel />
+      </div>
+    </Transition>
+
+    <Transition name="slide-from-top">
+      <div v-if="uiRouter.state.isMenuOpen && uiRouter.state.globalElements.showProfileButton" class="profile-container">
+        <a href="javascript:void(0)" class="profile-button" @click="toggleProfileMenu">
+          <img src="/images/ui/profile_logged.png" alt="Profile" class="profile-icon" />
+        </a>
+        <ProfileDropdown
+            :isVisible="isProfileMenuOpen"
+            @showProfile="navigateTo('PROFILE')"
+            @logout="handleLogout"
+            @close="isProfileMenuOpen = false"
+        />
+      </div>
+    </Transition>
+
+    <a href="javascript:void(0)"
+       class="menu-toggle-button"
+       :class="menuButtonClass"
+       @click="handleMenuButtonClick">
+      <span>{{ menuButtonText }}</span>
+    </a>
+
+    <Transition name="menu-fade">
+      <div v-if="uiRouter.state.isMenuOpen" class="fullscreen-menu" @click.self="handleBackgroundClick">
+        <TransitionGroup
+            v-if="showMainMenu"
+            name="menu-buttons"
+            tag="div"
+            class="menu-container"
+            appear>
+          <MenuButton
+              v-for="button in availableMenuButtons"
+              :key="button.key"
+              :label="button.label"
+              :transitionDelay="button.delay"
+              @click="navigateTo(button.screen)"
+          />
+        </TransitionGroup>
+
+        <div v-if="showScreens" class="screens-container">
+          <Transition :name="transitionName">
+            <div v-if="showScreenContent"
+                 :key="screenContentKey"
+                 class="component-container"
+                 :class="{ 'centered-container': isCenteredScreen }"
+                 @click.self="goBack">
+              <component
+                  v-if="currentComponent"
+                  :is="currentComponent"
+                  @close="goBack"
+                  @openMaterial="showMaterial"
+              />
+              <div v-else class="empty-container"></div>
+            </div>
+          </Transition>
+        </div>
+      </div>
+    </Transition>
+  </div>
+</template>
+
 <style scoped>
 .settings-container {
   position: fixed;
@@ -325,6 +336,44 @@ function handleLogout() {
   gap: 10px;
 }
 
+.slide-from-top-enter-active {
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.slide-from-top-leave-active {
+  transition: all 0.2s cubic-bezier(0.5, 0, 0.75, 0);
+}
+
+.slide-from-top-enter-from {
+  transform: translateY(-30px);
+  opacity: 0;
+}
+
+.slide-from-top-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+.fade-scale-enter-active {
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+  transition-delay: calc(var(--index, 0) * 0.05s);
+}
+
+.fade-scale-leave-active {
+  transition: all 0.15s cubic-bezier(0.5, 0, 0.75, 0);
+}
+
+.fade-scale-enter-from {
+  transform: scale(0.8);
+  opacity: 0;
+}
+
+.fade-scale-leave-to {
+  transform: scale(0.9);
+  opacity: 0;
+}
+
+/* Rest of the existing styles */
 .menu-toggle-button {
   position: fixed;
   bottom: 20px;
@@ -592,7 +641,11 @@ function handleLogout() {
 @media (prefers-reduced-motion: reduce) {
   .menu-buttons-enter-active,
   .menu-buttons-leave-active,
-  .menu-buttons-move {
+  .menu-buttons-move,
+  .slide-from-top-enter-active,
+  .slide-from-top-leave-active,
+  .fade-scale-enter-active,
+  .fade-scale-leave-active {
     transition-duration: 0.1s;
   }
 }

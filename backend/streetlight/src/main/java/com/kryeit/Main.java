@@ -1,13 +1,12 @@
 package com.kryeit;
 
-import com.kryeit.auth.Level;
+import com.kryeit.auth.AuthUtils;
 import com.kryeit.auth.LoginApi;
 import com.kryeit.auth.currency.CurrencyService;
 import com.kryeit.auth.currency.CurrencySyncProvider;
 import com.kryeit.auth.inventory.InventoryApi;
 import com.kryeit.content.items.ItemsApi;
 import com.kryeit.landmark.LandmarkApi;
-import com.kryeit.landmark.can.TrashCanApi;
 import com.kryeit.landmark.forum.petitions.PetitionsApi;
 import com.kryeit.registry.CaquitaItems;
 import com.kryeit.sync.SyncManager;
@@ -88,19 +87,26 @@ public class Main {
 
         path("petitions", () -> {
             get(PetitionsApi::getPetitions);
+
             post(PetitionsApi::createPetition);
             path("{id}", () -> {
                 get(PetitionsApi::getPetition);
+                get("messages", PetitionsApi.MessagesApi::getMessages);
+                patch("status", PetitionsApi::updateStatus);
                 patch(PetitionsApi::updatePetition);
                 delete(PetitionsApi::deletePetition);
 
                 post("accept", PetitionsApi::acceptPetition);
             });
         });
+
     }
 
     private static void authRoutes() {
         path("auth", () -> {
+
+            get(AuthUtils::getUsername);
+
             post("login", LoginApi::login);
             post("register", LoginApi::register);
             post("validate", LoginApi::validate);
@@ -120,18 +126,9 @@ public class Main {
         path("landmarks", () -> {
             get(LandmarkApi::getLandmarks);
 
-            path("types", () -> {
-                get(LandmarkApi::getTypes);
-            });
-
             path("{id}", () -> {
                 get(LandmarkApi::getLandmark);
                 patch(LandmarkApi::updateLandmark);
-            });
-
-            path("cans", () -> {
-                get(TrashCanApi::getCans);
-                put(TrashCanApi::createCan);
             });
         });
     }

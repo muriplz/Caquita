@@ -10,6 +10,48 @@ import java.util.List;
 
 public class LandmarkApi {
 
+    public static long create(String name, double lat, double lon, LandmarkType type, String data) {
+        return Database.getJdbi().inTransaction(handle -> {
+            handle.createUpdate("""
+            INSERT INTO landmarks (name, position, type)
+            VALUES (:name, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), :type)
+            """)
+                    .bind("name", name)
+                    .bind("lat", lat)
+                    .bind("lon", lon)
+                    .bind("type", type.name())
+                    .execute();
+
+            long id = handle.createQuery("SELECT lastval()")
+                    .mapTo(Long.class)
+                    .one();
+
+            switch (type) {
+                case TRASH_CAN -> handle.createUpdate("""
+                INSERT INTO trash_cans (id, type, features)
+                VALUES (:id, :type, cast(:features as jsonb))
+                """)
+                        .bind("id", id)
+                        .bind("type", LandmarkType.TRASH_CAN.name())
+                        .bind("features", data)
+                        .execute();
+
+                case PLASTIC_CONTAINER -> handle.createUpdate("""
+                INSERT INTO plastic_containers (id, type, features)
+                VALUES (:id, :type, cast(:features as jsonb))
+                """)
+                        .bind("id", id)
+                        .bind("type", LandmarkType.PLASTIC_CONTAINER.name())
+                        .bind("features", data)
+                        .execute();
+
+                // Add cases for other landmark types as needed
+            }
+
+            return id;
+        });
+    }
+
     /**
      * HTTP GET Request to /api/v1/landmarks
      * Returns a list of all landmarks.
@@ -112,11 +154,5 @@ public class LandmarkApi {
         );
 
         ctx.status(204).result("Landmark updated successfully.");
-    }
-
-    public static void getTypes(Context ctx) {
-        List<LandmarkType> types = List.of(LandmarkType.values());
-
-        ctx.json(types);
     }
 }

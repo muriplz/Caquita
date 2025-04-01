@@ -56,7 +56,16 @@ public class DatabaseUtils {
                 CREATE TABLE IF NOT EXISTS trash_cans (
                     id BIGINT PRIMARY KEY,
                     type VARCHAR(255) NOT NULL,
-                    features JSONB NOT NULL DEFAULT '[]',
+                    features JSONB NOT NULL DEFAULT '{}',
+                    FOREIGN KEY (id) REFERENCES landmarks(id)
+                )
+            """);
+
+            handle.execute("""
+                CREATE TABLE IF NOT EXISTS plastic_containers (
+                    id BIGINT PRIMARY KEY,
+                    type VARCHAR(255) NOT NULL,
+                    features JSONB NOT NULL DEFAULT '{}',
                     FOREIGN KEY (id) REFERENCES landmarks(id)
                 )
             """);
@@ -108,14 +117,19 @@ public class DatabaseUtils {
                     id SERIAL PRIMARY KEY,
                     user_id BIGINT NOT NULL,
                     type VARCHAR(255) NOT NULL,
-                    lat DOUBLE PRECISION NOT NULL,
-                    lon DOUBLE PRECISION NOT NULL,
+                    position GEOMETRY(POINT, 4326) NOT NULL,
                     landmark_info JSONB NOT NULL,
                     status VARCHAR(255) NOT NULL DEFAULT 'PENDING',
                     creation TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
                     edition TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
+            """);
+
+            // Create spatial index for faster queries
+            handle.execute("""
+                CREATE INDEX IF NOT EXISTS petitions_position_idx
+                ON petitions USING GIST(position)
             """);
 
             handle.execute("""
@@ -141,6 +155,7 @@ public class DatabaseUtils {
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """);
+
 
             return null;
         });

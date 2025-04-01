@@ -1,7 +1,5 @@
-<script setup></script>
-
 <template>
-  <div id="app">
+  <div id="app" :class="{'full-screen': $route.meta.fullScreen}">
     <main>
       <router-view />
     </main>

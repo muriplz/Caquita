@@ -1,6 +1,6 @@
-const LandmarkTypes = {
+const LANDMARK_TYPES = {
     TRASH_CAN: "TRASH_CAN",
-    PLASTIC_CONTAINERS: "PLASTIC_CONTAINERS",
+    PLASTIC_CONTAINER: "PLASTIC_CONTAINER",
 };
 
-export default { LandmarkTypes };
+export default { LANDMARK_TYPES };

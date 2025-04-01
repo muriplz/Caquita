@@ -8,7 +8,8 @@ import com.kryeit.auth.User;
 import com.kryeit.auth.currency.Currencies;
 import com.kryeit.auth.inventory.Inventory;
 import com.kryeit.landmark.Landmark;
-import com.kryeit.landmark.can.TrashCan;
+import com.kryeit.landmark.plastic_container.PlasticContainer;
+import com.kryeit.landmark.trash_can.TrashCan;
 import com.kryeit.landmark.forum.Message;
 import com.kryeit.landmark.forum.Reply;
 import com.kryeit.landmark.forum.petitions.Petition;
@@ -44,6 +45,7 @@ public class Database {
         JDBI.registerRowMapper(ConstructorMapper.factory(Landmark.class));
 
         JDBI.registerRowMapper(ConstructorMapper.factory(TrashCan.class));
+        JDBI.registerRowMapper(ConstructorMapper.factory(PlasticContainer.class));
         // LANDMARKS END
 
         // FORUMS

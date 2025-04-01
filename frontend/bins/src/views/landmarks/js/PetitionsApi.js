@@ -4,14 +4,27 @@ const API_URL = getIpAddress() + '/api/v1/petitions';
 
 export default class PetitionsApi {
 
-    static async get(page, orderBy) {
-        const response = await fetch(`${API_URL}?page=${page}&orderBy=${orderBy}`, {
+    static async get(page, orderBy, status) {
+        const response = await fetch(`${API_URL}?page=${page}&orderBy=${orderBy}&status=${status}`, {
             method: 'GET',
             credentials: 'include',
             headers: {
                 'Content-Type': 'application/json'
             }
         });
+
+        if (!response.ok) throw new Error(response.status);
+        return await response.json();
+    }
+
+    static async byId(id) {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
 
         if (!response.ok) throw new Error(response.status);
         return await response.json();
@@ -42,9 +55,33 @@ export default class PetitionsApi {
             )
         });
 
+        return response.status === 201;
+    }
+
+    static async messages(id) {
+        const response = await fetch(`${API_URL}/${id}/messages`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
         if (!response.ok) throw new Error(response.status);
         return await response.json();
     }
 
+    static async updateStatus(id, status) {
+        const response = await fetch(`${API_URL}/${id}/status`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({status})
+        });
+
+        return response.status === 200;
+    }
 
 }

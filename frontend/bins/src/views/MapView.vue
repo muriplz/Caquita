@@ -29,8 +29,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="map-container">
-    <TresCanvas window-size class="map-canvas">
+  <div>
+    <TresCanvas window-size>
       <Sky/>
       <TresPerspectiveCamera :args="[25, 1, 0.1, 1000]"/>
       <PlayerEntity/>
@@ -46,4 +46,5 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+
 </style>

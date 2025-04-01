@@ -3,64 +3,69 @@ import {getIpAddress} from "../Static.js";
 import router from "@/router/index.js";
 
 class AuthService {
-    async login(username, password) {
-        try {
-            const response = await fetch(getIpAddress() + '/api/v1/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: username,
-                    password: password
-                })
-            });
-
-            if (response.status === 200) {
-                const { token, id, username, creation, trust, experience } = await response.json();
-                this.saveToken(token);
-                await Store.setUser(id, username, creation, trust, experience);
-
-                return response;
-            } else if (response.status === 460) {
-                return null;
-            } else if (response.status === 400) {
-                const error = await response.text();
-
-                window.alert(error || 'Login failed: Invalid request');
-                return false;
-            } else {
-                return false;
+    async getUsername(id) {
+        const response = await fetch(getIpAddress() + `/api/v1/auth?id=${id}`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
             }
-        } catch (error) {
+        });
+
+        if (response.status === 200) {
+            return await response.json();
+        }
+    }
+    async login(username, password) {
+        const response = await fetch(getIpAddress() + '/api/v1/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        });
+
+        if (response.status === 200) {
+            const { token, id, username, creation, trust, experience } = await response.json();
+            this.saveToken(token);
+            await Store.setUser(id, username, creation, trust, experience);
+
+            return response;
+        } else if (response.status === 460) {
+            return null;
+        } else if (response.status === 400) {
+            const error = await response.text();
+
+            window.alert(error || 'Login failed: Invalid request');
+            return false;
+        } else {
             return false;
         }
     }
 
     async register(username, password) {
-        try {
-            const response = await fetch(getIpAddress() + '/api/v1/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: username,
-                    password: password
-                })
-            });
+        const response = await fetch(getIpAddress() + '/api/v1/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password
+            })
+        });
 
-            if (response.status === 201) {
-                await this.login(username, password);
-                return true;
-            } else if (response.status === 400) {
-                const error = await response.text();
-                window.alert(error || 'Registration failed: Invalid request');
-                return false;
-            } else {
-                return false;
-            }
-        } catch (error) {
+        if (response.status === 201) {
+            await this.login(username, password);
+            return true;
+        } else if (response.status === 400) {
+            const error = await response.text();
+            window.alert(error || 'Registration failed: Invalid request');
+            return false;
+        } else {
             return false;
         }
     }
