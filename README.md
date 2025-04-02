@@ -5,7 +5,7 @@
 A Frontend/Webapp of the app made with Vue3 + Vite.
 It's based in TresJS (ThreeJS wrapper).
 
-### [Streetlight](https://github.com/muriplz/Caquita/tree/main/backend/streetlight)
+### [Streetlight](https://github.com/muriplz/Caquita/tree/main/backend/streetlight) (Closed Source)
 
 A Javalin backend of the app, controls the PostgreSQL database and authentification with JWT.
 
