@@ -119,26 +119,24 @@ defineEmits(['close']);
 
 .tabs {
   display: flex;
-  border-bottom: 1px solid #333;
   margin-bottom: 15px;
+  justify-content: space-between;
 }
 
 .tab-button {
   padding: 10px 20px;
   background-color: transparent;
   border: none;
+  border-radius: 0;
   color: #aaa;
   cursor: pointer;
-  transition: all 0.3s;
-  border-bottom: 2px solid transparent;
   font: inherit;
   font-size: 11px;
-
 }
 
 .tab-button.active {
   color: #333;
-  border-bottom: 2px solid #4D8061;
+  border: 3px solid #333;
 }
 
 .tab-button:hover {

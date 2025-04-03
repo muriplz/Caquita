@@ -8,7 +8,7 @@ const LEVEL = [
 
 const TRASH_CAN_FEATURES = [
     "ashtray",
-    "inundated",
+    "flooded",
     "windblown",
     "overwhelmed",
 ];

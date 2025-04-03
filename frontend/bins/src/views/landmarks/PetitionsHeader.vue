@@ -29,8 +29,8 @@ onUnmounted(() => {
       <div class="container">
         <router-link to="/landmarks" class="title" exact>Landmarks</router-link>
         <nav class="nav">
-          <router-link to="/landmarks/ongoing" active-class="active" exact>
-            <h1>Ongoing</h1>
+          <router-link to="/landmarks/pending" active-class="active" exact>
+            <h1>Pending</h1>
           </router-link>
           <router-link to="/landmarks/accepted" active-class="active" exact>
             <h1>Accepted</h1>

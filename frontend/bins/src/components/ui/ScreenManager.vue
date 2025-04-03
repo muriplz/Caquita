@@ -14,6 +14,7 @@ import MenuButton from "@/components/ui/MenuButton.vue"
 import uiRouter from "./UIRouter.js"
 import ItemInfoScreen from "@/components/ui/inventory/ItemInfoScreen.vue"
 import CurrencyPanel from "@/components/ui/auth/CurrencyPanel.vue"
+import Social from "./auth/social/Social.vue";
 
 const isDevelopment = process.env.NODE_ENV === 'development' || true;
 
@@ -25,7 +26,7 @@ const screenComponents = {
   SETTINGS: markRaw(Settings),
   ABOUT: markRaw(About),
   CONTRIBUTING: markRaw(Contributing),
-  PROFILE: markRaw(Profile),
+  SOCIAL: markRaw(Social),
   ITEM_INFO: markRaw(ItemInfoScreen)
 }
 
@@ -122,7 +123,7 @@ const currentComponent = computed(() => {
 const availableMenuButtons = computed(() => {
   const buttons = [
     {key: 'inventory', label: 'Inventory', screen: 'INVENTORY'},
-    {key: 'vitrine', label: 'Vitrine', screen: 'VITRINE'},
+    {key: 'hauler', label: 'Hauler', screen: 'HAULER'},
     {key: 'noidea', label: 'NoIdea', screen: 'NOIDEA'},
     {key: 'about', label: 'About', screen: 'ABOUT'}
   ];
@@ -273,7 +274,7 @@ function handleLogout() {
         </a>
         <ProfileDropdown
             :isVisible="isProfileMenuOpen"
-            @showProfile="navigateTo('PROFILE')"
+            @showSocial="navigateTo('SOCIAL')"
             @logout="handleLogout"
             @close="isProfileMenuOpen = false"
         />

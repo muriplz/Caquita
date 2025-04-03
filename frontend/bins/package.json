@@ -9,19 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@carbon/icons-vue": "^10.99.1",
     "@tresjs/leches": "^0.14.1",
     "@vueuse/core": "^12.7.0",
     "maplibre-gl": "^5.2.0",
     "marked": "^15.0.7",
-    "motion-v": "^0.13.1",
+    "motion-v": "^1.0.0-beta.0",
     "unplugin-vue-components": "^28.4.1",
     "vue": "^3.5.13",
     "vue-i18n": "^11.1.2",
     "vue-router": "^4.2.5",
     "@tresjs/core": "^4.3.3",
-    "@tresjs/cientos": "^4.1.0",
-    "three": "^0.153.0"
+    "@tresjs/cientos": "^4.3.0",
+    "three": "^0.175.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",

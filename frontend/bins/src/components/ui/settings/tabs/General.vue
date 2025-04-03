@@ -89,7 +89,7 @@ function requestGPS() {
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid #333;
+  border-bottom: 2px solid #333;
 }
 
 .setting-label-container {

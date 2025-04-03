@@ -1,15 +1,17 @@
 import User from "@/js/auth/User.js";
 
 class Petition {
-    constructor(id, userId, lat, lon, landmarkInfo, accepted, creation, edition) {
+    constructor(id, description, userId, lat, lon, landmarkInfo, status, creation, edition, image) {
         this.id = id;
+        this.description = description;
         this.userId = userId;
         this.lat = lat;
         this.lon = lon;
         this.landmarkInfo = landmarkInfo;
-        this.accepted = accepted;
+        this.status = status;
         this.creation = creation;
         this.edition = edition;
+        this.image = image;
     }
 }
 

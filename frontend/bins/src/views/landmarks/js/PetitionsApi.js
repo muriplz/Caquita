@@ -1,4 +1,5 @@
 import {getIpAddress} from "@/js/Static.js";
+import Store from "@/js/Store.js";
 
 const API_URL = getIpAddress() + '/api/v1/petitions';
 
@@ -38,7 +39,7 @@ export default class PetitionsApi {
             .then(translations => translations[key] || id);
     }
 
-    static async create(type, lat, lon, landmarkInfo) {
+    static async create(description, type, lat, lon, landmarkInfo) {
         const response = await fetch(`${API_URL}`, {
             method: 'POST',
             credentials: 'include',
@@ -47,6 +48,7 @@ export default class PetitionsApi {
             },
             body: JSON.stringify(
                 {
+                    description: description,
                     type: type,
                     lat: lat,
                     lon: lon,
@@ -71,6 +73,67 @@ export default class PetitionsApi {
         return await response.json();
     }
 
+    static async replies(id) {
+        const response = await fetch(`${API_URL}/${id}/replies`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) throw new Error(response.status);
+        return await response.json();
+    }
+
+    static async sendMessage(id, message) {
+        const response = await fetch(`${API_URL}/${id}/send-message `, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        });
+
+        if (response.status === 201) {
+            return true;
+        } else if (response.status === 400) {
+            const error = await response.text();
+
+            window.alert(error || 'Login failed: Invalid request');
+            return false;
+        } else {
+            return false;
+        }
+    }
+
+    static async sendReply(id, message) {
+        const response = await fetch(`${API_URL}/${id}/send-reply `, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        });
+
+        if (response.status === 201) {
+            return true;
+        } else if (response.status === 400) {
+            const error = await response.text();
+
+            window.alert(error || 'Login failed: Invalid request');
+            return false;
+        } else {
+            return false;
+        }
+    }
+
     static async updateStatus(id, status) {
         const response = await fetch(`${API_URL}/${id}/status`, {
             method: 'PATCH',
@@ -82,6 +145,28 @@ export default class PetitionsApi {
         });
 
         return response.status === 200;
+    }
+
+    static async uploadImage(id, image) {
+        const formData = new FormData();
+        formData.append('image', image);
+
+        const response = await fetch(`${API_URL}/${id}/images`, {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || response.status);
+        }
+
+        return await response.json();
+    }
+
+    static getImageUrl(id, format = 'webp') {
+        return `${API_URL}/${id}/images?format=${format}`;
     }
 
 }

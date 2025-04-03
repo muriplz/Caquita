@@ -115,7 +115,9 @@ onMounted(() => {
 <style scoped>
 .petitions-container {
   max-width: 800px;
+  min-width: calc(100vw - 20px);
   margin: 160px 0 0 0;
+  padding-bottom: 40px;
 }
 
 .controls {
@@ -126,8 +128,9 @@ onMounted(() => {
 
 .sort-select {
   padding: 0.5rem;
-  border-radius: 4px;
-  border: 1px solid #ddd;
+  border: 3px solid gray;
+  font: inherit;
+  font-size: 0.7rem;
 }
 
 .loader {
@@ -153,10 +156,11 @@ onMounted(() => {
 
 .page-btn {
   padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
+  border: 3px solid gray;
   background: white;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 0;
+  font: inherit;
 }
 
 .page-btn:disabled {
@@ -176,16 +180,16 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   margin: 0 0.25rem;
-  border: 1px solid #ddd;
+  border: 3px solid gray;
   background: white;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 0;
+  font: inherit;
 }
 
 .page-number.active {
-  background: #007bff;
+  background: #2e629c;
   color: white;
-  border-color: #007bff;
 }
 
 .no-results {

@@ -13,6 +13,13 @@ const level = SyncStore.getLevel();
 </template>
 
 <style scoped>
+.level-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 .level-text {
   font-size: 12px;
   font-weight: bold;

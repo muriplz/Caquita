@@ -9,7 +9,7 @@
         ref="dropdown"
     >
       <LevelBar />
-      <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showProfile')">View Profile</a>
+      <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showSocial')">Social</a>
       <a href="javascript:void(0)" class="dropdown-item logout" @click="emitEvent('logout')">Logout</a>
     </div>
   </Transition>
@@ -26,7 +26,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['showProfile', 'logout', 'close'])
+const emit = defineEmits(['showSocial', 'logout', 'close'])
 const dropdown = ref(null)
 
 const emitEvent = (eventName) => {

@@ -44,14 +44,6 @@ const screens = {
         showCurrencyPanel: true,
         parent: 'MAIN_MENU'
     },
-    VITRINE: {
-        name: 'VITRINE',
-        showSettingsButton: true,
-        showPlusButton: false,
-        showProfileButton: true,
-        showCurrencyPanel: true,
-        parent: 'MAIN_MENU'
-    },
     NOIDEA: {
         name: 'NOIDEA',
         showSettingsButton: true,
@@ -84,9 +76,9 @@ const screens = {
         showCurrencyPanel: false,
         parent: 'MAIN_MENU'
     },
-    PROFILE: {
-        name: 'PROFILE',
-        showSettingsButton: true,
+    SOCIAL: {
+        name: 'SOCIAL',
+        showSettingsButton: false,
         showPlusButton: false,
         showProfileButton: true,
         showCurrencyPanel: true,

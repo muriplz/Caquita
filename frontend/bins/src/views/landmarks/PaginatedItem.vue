@@ -1,29 +1,23 @@
 <script setup>
 import {createRouter as route} from "vue-router";
 import router from "@/router/index.js";
+import PetitionsApi from "@/views/landmarks/js/PetitionsApi.js";
 
-defineProps({
+const props = defineProps({
   petition: Object
 })
 
-// Transform key from camelCase to Title Case
-function formatKey(key) {
-  return key
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
-      .trim();
+const goToLandmark = () => {
+  window.location.href = '/landmarks/' + props.petition.id;
 }
 </script>
 
 <template>
-  <div class="container" @click="router.push('/landmarks/' + petition.id)">
-    <h3>{{ petition.type }}</h3>
-    <p>Coordinates: {{ petition.lat }}, {{ petition.lon }}</p>
-
-    <div class="petition-details">
-      <div v-for="(value, key) in petition.landmarkInfo" :key="key" class="detail-item">
-        <strong>{{ formatKey(key) }}:</strong> {{ value }}
-      </div>
+  <div class="container" @click="goToLandmark()">
+    <img :src="PetitionsApi.getImageUrl(petition.id)" alt="Landmark image" />
+    <div class="title">
+      <h3>{{ petition.landmarkInfo.name }}</h3>
+      <h3 style="color: gray; font-size: 0.8rem;">{{ petition.type }}</h3>
     </div>
   </div>
 </template>
@@ -32,8 +26,28 @@ function formatKey(key) {
 .container {
   padding: 15px;
   background-color: #ccc;
-  border-radius: 5px;
+  border: 3px solid gray;
   margin-bottom: 1rem;
   cursor: pointer;
+  display: flex;
+  max-width: calc(100vw - 20px);
+}
+
+img {
+  width: 100px;
+  height: 100px;
+  min-width: 100px;
+  min-height: 100px;
+  object-fit: cover;
+  image-rendering: pixelated;
+  border: 3px solid #333;
+}
+
+.title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+  margin-left: 12px;
 }
 </style>
