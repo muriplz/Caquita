@@ -2,10 +2,11 @@
   <div class="social-card modal">
 
     <div class="user-info">
+      <UserAvatar/>
       <div class="user-name">
-        <h3>@{{Store.getUser().username}}</h3>
+        <h3>{{Store.getUser().username}}</h3>
+        <p class="creation-date">{{ formatDate(Store.getUser().creation) }}</p>
       </div>
-      <LevelBar />
     </div>
 
     <div class="tabs-container">
@@ -24,24 +25,19 @@
     <div class="tab-container">
       <transition :name="transitionName" mode="out-in" :duration="{ enter: 100, leave: 100 }">
         <div :key="currentTab" class="tab-content">
+
           <div v-if="currentTab === 'profile'">
             <Profile :user="Store.getUser()"/>
           </div>
 
           <div v-if="currentTab === 'friends'">
-            <h3>My Friends</h3>
-            <div v-if="friends && friends.length > 0" class="friends-list">
-              <div v-for="friend in friends" :key="friend.id" class="friend-item">
-                {{ friend.username }}
-                <button @click="removeFriend(friend.id)" class="remove-btn">Remove</button>
-              </div>
-            </div>
-            <div v-else class="empty-state">No friends yet</div>
+            <Friends/>
           </div>
 
-          <div v-if="currentTab === 'pending'">
+          <div v-if="currentTab === 'requests'">
             <Requests/>
           </div>
+
         </div>
       </transition>
     </div>
@@ -55,6 +51,7 @@ import LevelBar from "../LevelBar.vue";
 import Store from "@/js/Store.js";
 import Profile from "../Profile.vue";
 import Requests from "./Requests.vue";
+import UserAvatar from "../UserAvatar.vue";
 
 const friends = ref([]);
 const pendingRequests = ref([]);
@@ -72,7 +69,7 @@ const borderTop = ref(0);
 const tabs = [
   { id: 'profile', name: 'Profile' },
   { id: 'friends', name: 'Friends' },
-  { id: 'pending', name: 'Requests' }
+  { id: 'requests', name: 'Requests' }
 ];
 
 const borderStyle = computed(() => {
@@ -95,6 +92,12 @@ function selectTab(tabId) {
   nextTick(() => {
     updateBorderPosition();
   });
+}
+
+function formatDate(dateString) {
+  if (!dateString) return 'N/A'
+  const date = new Date(dateString)
+  return date.toLocaleDateString()
 }
 
 function updateBorderPosition() {
@@ -279,22 +282,34 @@ async function removeFriend(friendId) {
   padding: 20px;
 }
 
+.user-info {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  margin: 10px;
+  justify-content: space-between;
+}
+
 .user-name {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  margin: 12px 0;
 }
 
-.user-name p {
+.user-name h3 {
   margin: 0;
+  padding: 0;
+  line-height: 1.2;
 }
 
-.user-info {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 20px;
+.creation-date {
+  margin: 0;
+  padding: 0;
+  font-size: 0.6rem;
+  color: gray;
+  line-height: 2.7;
 }
 
 .slide-right-enter-active,

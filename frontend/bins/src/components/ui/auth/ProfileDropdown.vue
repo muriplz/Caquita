@@ -8,7 +8,7 @@
         class="profile-dropdown"
         ref="dropdown"
     >
-      <LevelBar />
+      <LevelBar :user="Store.getUser()"/>
       <a href="javascript:void(0)" class="dropdown-item" @click="emitEvent('showSocial')">Social</a>
       <a href="javascript:void(0)" class="dropdown-item logout" @click="emitEvent('logout')">Logout</a>
     </div>
@@ -18,6 +18,7 @@
 <script setup>
 import {nextTick, ref} from 'vue'
 import LevelBar from "@/components/ui/auth/LevelBar.vue";
+import Store from "@/js/Store.js";
 
 defineProps({
   isVisible: {

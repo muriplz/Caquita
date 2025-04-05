@@ -14,8 +14,19 @@ class Store {
         this.listeners = new Set()
     }
 
-    async setUser(id, username, creation, connection, trust) {
-        this.state.user = new User(id, username, creation, connection, trust);
+    async updateAvatar(avatar) {
+        this.state.user = new User(
+            this.state.user.id,
+            this.state.user.username,
+            this.state.user.creation,
+            this.state.user.connection,
+            this.state.user.trust,
+            avatar
+        );
+    }
+
+    async setUser(id, username, creation, connection, trust, avatar) {
+        this.state.user = new User(id, username, creation, connection, trust, avatar);
         await this.updateInventory();
     }
 

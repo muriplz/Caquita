@@ -18,6 +18,18 @@ const SyncService = {
         return Promise.resolve(syncClient);
     },
 
+    subscribe(entity, callback) {
+        return this.getClient().then(client => {
+            return client.onMessage(entity, callback);
+        });
+    },
+
+    sendLocationUpdate(latitude, longitude, radius) {
+        return this.getClient().then(client => {
+            return client.sendLocationData(latitude, longitude, radius);
+        });
+    },
+
     disconnect() {
         if (syncClient) {
             syncClient.disconnect();

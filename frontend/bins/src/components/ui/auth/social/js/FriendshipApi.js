@@ -13,6 +13,15 @@ export default class FriendshipApi {
         return await response.json();
     }
 
+    static async getAvatars() {
+        const response = await fetch(`${API_URL}/avatars`, {
+            credentials: "include",
+        });
+
+        if (!response.ok) return null;
+        return await response.json();
+    }
+
     static async getPendingRequests() {
         const response = await fetch(`${API_URL}/pending`, {
             credentials: "include",

@@ -1,24 +1,17 @@
 # Monorepo of [Caquita app](https://caquita.app)
 
 ### [Bins](https://github.com/muriplz/Caquita/tree/main/frontend/bins)
+![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D) ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E) ![Threejs](https://img.shields.io/badge/threejs-black?style=for-the-badge&logo=three.js&logoColor=white)
 
-A Frontend/Webapp of the app made with Vue3 + Vite.
-It's based in TresJS (ThreeJS wrapper).
+A [TresJs](https://tresjs.org) frontend. The actual game that uses the API provided by Streetlight.
 
-### [Streetlight](https://github.com/muriplz/Caquita/tree/main/backend/streetlight) (Closed Source)
+### [Streetlight](https://github.com/muriplz/Caquita/tree/main/backend/streetlight)
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 
-A Javalin backend of the app, controls the PostgreSQL database and authentification with JWT.
+A [Javalin](https://javalin.io/) backend with JWT authentication. This is the only closed source projeect of Caquita.
 
+Uses [PostGIS](https://postgis.net) for geolocation efficiency.
 ### [Townhall](https://github.com/muriplz/Caquita/tree/main/backend/townhall)
+![R](https://img.shields.io/badge/r-%23276DC3.svg?style=for-the-badge&logo=r&logoColor=white) ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 
-A statistics backend made with R and Shiny. Aims to have interactable graphs about Caquita Landmarks.
-
-<div align="center">
-  <img src="https://github-readme-stats.vercel.app/api/pin/?username=muriplz&repo=caquita&theme=react&show_owner=true" alt="Owner Info"/>
-</div>
-
-<div align="center">
-  <a href="https://github.com/muriplz/caquita/commits/main">
-    <img src="https://github-contributor-stats.vercel.app/api?username=muriplz&limit=5&theme=react&combine_all_yearly_contributions=true&repo=caquita" alt="Contributor Commits"/>
-  </a>
-</div>
+A statistics backend made with R and Shiny. Aims to have interactable graphs about Landmarks.

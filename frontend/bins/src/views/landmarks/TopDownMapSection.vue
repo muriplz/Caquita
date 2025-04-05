@@ -1,8 +1,6 @@
 <template>
   <div class="map-preview" :class="{ 'fullscreen': isFullscreen }">
-
     <div class="map-container" ref="mapContainer">
-      <!-- Static tiles container - never scaled -->
       <div class="tiles-container">
         <div
             v-for="(tile, index) in visibleTiles"
@@ -12,13 +10,18 @@
         </div>
       </div>
 
-      <!-- Marker - positioned independently based on lat/lng -->
+      <div
+          v-if="playerPosition"
+          class="player-marker"
+          :style="getPlayerMarkerStyle()">
+      </div>
+
       <div
           v-if="selectedPosition"
           class="marker"
           :style="getMarkerStyle()"
-          @mousedown.stop="startMarkerDrag"
-          @touchstart.stop="startMarkerTouchDrag">
+          @mousedown.stop="startDrag('marker', $event)"
+          @touchstart.stop="startTouchDrag('marker', $event)">
       </div>
     </div>
 
@@ -46,38 +49,61 @@ const props = defineProps({
 
 const emit = defineEmits(['update:isFullscreen', 'positionSelected']);
 
-// Core state
+// Map state
 const isFullscreen = ref(false);
-const selectedPosition = ref(null);
 const mapContainer = ref(null);
 const zoomLevel = ref(17);
-const centerPosition = ref({ lat: 0, lng: 0 });
+const basePosition = ref({ lat: 0, lng: 0 });
 const panOffset = ref({ x: 0, y: 0 });
 const zoom = ref(1);
 const visibleTiles = ref([]);
 const tileSize = 256;
-const isDragging = ref(false);
-const isMarkerDragging = ref(false);
-const dragStart = ref({ x: 0, y: 0 });
-const lastTouch = ref({ x: 0, y: 0 });
-const lastDistance = ref(0);
 
-function calculateVisibleTiles() {
-  if (!centerPosition.value.lat) return;
+// Marker state
+const selectedPosition = ref(null);
+const playerPosition = ref(null);
+const previewCenterOffset = ref({ x: 0, y: 0 });
 
-  const centerTile = latLonToTile(centerPosition.value.lat, centerPosition.value.lng, zoomLevel.value);
+// Computed property to determine the center position for preview mode
+const previewCenter = computed(() => {
+  if (selectedPosition.value) {
+    return {
+      lat: parseFloat(selectedPosition.value.lat),
+      lng: parseFloat(selectedPosition.value.lng)
+    };
+  } else if (playerPosition.value) {
+    return {
+      lat: parseFloat(playerPosition.value.lat),
+      lng: parseFloat(playerPosition.value.lng)
+    };
+  } else {
+    return basePosition.value;
+  }
+});
 
-  // Limit tiles to a fixed grid (5x5)
-  const visibleRadius = 2;
+// Interaction state
+const dragState = ref({
+  isDragging: false,
+  type: null,
+  startX: 0,
+  startY: 0,
+  lastX: 0,
+  lastY: 0,
+  pinchDistance: 0
+});
 
-  // Create a new array to hold visible tiles
+// Load the initial 9 tiles - called ONCE
+function loadInitialTiles() {
+  if (!basePosition.value.lat) return;
+
+  const centerTile = latLonToTile(basePosition.value.lat, basePosition.value.lng, zoomLevel.value);
+  const visibleRadius = 1; // 3x3 grid (9 tiles)
   const newTiles = [];
 
   for (let y = -visibleRadius; y <= visibleRadius; y++) {
     for (let x = -visibleRadius; x <= visibleRadius; x++) {
       const tileX = centerTile.x + x;
       const tileY = centerTile.y + y;
-
       newTiles.push({
         tileX,
         tileY,
@@ -85,27 +111,53 @@ function calculateVisibleTiles() {
       });
     }
   }
-
-  // Replace tiles with the new set
   visibleTiles.value = newTiles;
 }
 
+// Calculate preview offset needed to center on marker/player
+function calculatePreviewOffset() {
+  if (!isFullscreen.value && previewCenter.value && basePosition.value.lat) {
+    // Calculate the offset needed to center on the marker or player
+    const centerTile = latLonToTile(basePosition.value.lat, basePosition.value.lng, zoomLevel.value);
+    const targetTile = latLonToTile(previewCenter.value.lat, previewCenter.value.lng, zoomLevel.value);
 
-// Calculate tile position in the container
+    // Calculate tile difference
+    const tileDiffX = targetTile.x - centerTile.x;
+    const tileDiffY = targetTile.y - centerTile.y;
+
+    // Calculate position within tile
+    const tileNW = tileToLatLon(targetTile.x, targetTile.y, zoomLevel.value);
+    const tileSE = tileToLatLon(targetTile.x + 1, targetTile.y + 1, zoomLevel.value);
+
+    const xRatio = (previewCenter.value.lng - tileNW.lon) / (tileSE.lon - tileNW.lon);
+    const yRatio = (tileNW.lat - previewCenter.value.lat) / (tileNW.lat - tileSE.lat);
+
+    // Calculate pixel offset to center on target
+    const offsetX = -((tileDiffX + xRatio) * tileSize);
+    const offsetY = -((tileDiffY + yRatio) * tileSize);
+
+    previewCenterOffset.value = { x: offsetX, y: offsetY };
+  } else {
+    previewCenterOffset.value = { x: 0, y: 0 };
+  }
+}
+
+// Get tile positioning style
 function getTileStyle(tile) {
-  if (!centerPosition.value.lat) return {};
+  if (!basePosition.value.lat) return {};
 
-  const centerTile = latLonToTile(centerPosition.value.lat, centerPosition.value.lng, zoomLevel.value);
-
-  // Calculate the center of the viewport
-  const containerWidth = mapContainer.value ? mapContainer.value.clientWidth : 0;
-  const containerHeight = mapContainer.value ? mapContainer.value.clientHeight : 0;
+  const centerTile = latLonToTile(basePosition.value.lat, basePosition.value.lng, zoomLevel.value);
+  const containerWidth = mapContainer.value?.clientWidth || 0;
+  const containerHeight = mapContainer.value?.clientHeight || 0;
   const centerX = containerWidth / 2;
   const centerY = containerHeight / 2;
 
-  // Calculate position based on distance from center tile
-  const x = centerX + ((tile.tileX - centerTile.x) * tileSize * zoom.value) + panOffset.value.x;
-  const y = centerY + ((tile.tileY - centerTile.y) * tileSize * zoom.value) + panOffset.value.y;
+  // Apply pan offset in fullscreen mode, or preview offset in preview mode
+  const offsetX = isFullscreen.value ? panOffset.value.x : previewCenterOffset.value.x;
+  const offsetY = isFullscreen.value ? panOffset.value.y : previewCenterOffset.value.y;
+
+  const x = centerX + ((tile.tileX - centerTile.x) * tileSize * zoom.value) + offsetX;
+  const y = centerY + ((tile.tileY - centerTile.y) * tileSize * zoom.value) + offsetY;
 
   return {
     left: `${x}px`,
@@ -116,39 +168,69 @@ function getTileStyle(tile) {
   };
 }
 
-// Calculate marker position based on lat/lng
+// Calculate lat/lng from tile coordinates and within-tile ratios
+function tileToPosition(tileX, tileY, xRatio, yRatio) {
+  const nw = tileToLatLon(tileX, tileY, zoomLevel.value);
+  const se = tileToLatLon(tileX + 1, tileY + 1, zoomLevel.value);
+
+  const lng = nw.lon + (se.lon - nw.lon) * xRatio;
+  const lat = nw.lat - (nw.lat - se.lat) * yRatio;
+
+  return { lat, lng };
+}
+
+// Get marker positioning style - fixed to map
 function getMarkerStyle() {
-  if (!selectedPosition.value || !centerPosition.value.lat) {
+  if (!selectedPosition.value || !basePosition.value.lat) {
     return { display: 'none' };
   }
 
   const lat = parseFloat(selectedPosition.value.lat);
   const lng = parseFloat(selectedPosition.value.lng);
-  const centerTile = latLonToTile(centerPosition.value.lat, centerPosition.value.lng, zoomLevel.value);
+
+  return positionToStyle(lat, lng);
+}
+
+// Get player marker positioning style - fixed to map
+function getPlayerMarkerStyle() {
+  if (!playerPosition.value || !basePosition.value.lat) {
+    return { display: 'none' };
+  }
+
+  const lat = parseFloat(playerPosition.value.lat);
+  const lng = parseFloat(playerPosition.value.lng);
+
+  return positionToStyle(lat, lng);
+}
+
+// Convert lat/lng to screen position with pan and zoom
+function positionToStyle(lat, lng) {
+  const centerTile = latLonToTile(basePosition.value.lat, basePosition.value.lng, zoomLevel.value);
   const markerTile = latLonToTile(lat, lng, zoomLevel.value);
 
-  // Calculate the center of the viewport
-  const containerWidth = mapContainer.value ? mapContainer.value.clientWidth : 0;
-  const containerHeight = mapContainer.value ? mapContainer.value.clientHeight : 0;
+  const containerWidth = mapContainer.value?.clientWidth || 0;
+  const containerHeight = mapContainer.value?.clientHeight || 0;
   const centerX = containerWidth / 2;
   const centerY = containerHeight / 2;
 
-  // Calculate tile position difference from center
+  // Calculate distance in tiles
   const tileDiffX = markerTile.x - centerTile.x;
   const tileDiffY = markerTile.y - centerTile.y;
 
   // Calculate position within tile
-  const centerTileBounds = {
-    nw: tileToLatLon(markerTile.x, markerTile.y, zoomLevel.value),
-    se: tileToLatLon(markerTile.x + 1, markerTile.y + 1, zoomLevel.value)
-  };
+  const tileNW = tileToLatLon(markerTile.x, markerTile.y, zoomLevel.value);
+  const tileSE = tileToLatLon(markerTile.x + 1, markerTile.y + 1, zoomLevel.value);
 
-  const xRatio = (lng - centerTileBounds.nw.lon) / (centerTileBounds.se.lon - centerTileBounds.nw.lon);
-  const yRatio = (centerTileBounds.nw.lat - lat) / (centerTileBounds.nw.lat - centerTileBounds.se.lat);
+  const xRatio = (lng - tileNW.lon) / (tileSE.lon - tileNW.lon);
+  const yRatio = (tileNW.lat - lat) / (tileNW.lat - tileSE.lat);
 
-  // Calculate final position
-  const x = centerX + ((tileDiffX + xRatio) * tileSize * zoom.value) + panOffset.value.x;
-  const y = centerY + ((tileDiffY + yRatio) * tileSize * zoom.value) + panOffset.value.y;
+  // Use appropriate offset based on mode
+  const offsetX = isFullscreen.value ? panOffset.value.x : previewCenterOffset.value.x;
+  const offsetY = isFullscreen.value ? panOffset.value.y : previewCenterOffset.value.y;
+
+  // Apply tile position, within-tile position, zoom, and offset
+  const x = centerX + ((tileDiffX + xRatio) * tileSize * zoom.value) + offsetX;
+  const y = centerY + ((tileDiffY + yRatio) * tileSize * zoom.value) + offsetY;
 
   return {
     left: `${x}px`,
@@ -157,68 +239,331 @@ function getMarkerStyle() {
   };
 }
 
-// Convert screen position to lat/lng
+// Convert screen position to lat/lng - accounts for pan and zoom
 function screenToLatLng(screenX, screenY) {
-  if (!centerPosition.value.lat || !mapContainer.value) return null;
+  if (!basePosition.value.lat || !mapContainer.value) return null;
 
   const containerRect = mapContainer.value.getBoundingClientRect();
   const containerX = screenX - containerRect.left;
   const containerY = screenY - containerRect.top;
 
-  // Calculate the center of the viewport
   const centerX = containerRect.width / 2;
   const centerY = containerRect.height / 2;
 
-  // Calculate difference from center in tile units
-  const tileDiffX = (containerX - centerX - panOffset.value.x) / (tileSize * zoom.value);
-  const tileDiffY = (containerY - centerY - panOffset.value.y) / (tileSize * zoom.value);
+  // Use appropriate offset based on mode
+  const offsetX = isFullscreen.value ? panOffset.value.x : previewCenterOffset.value.x;
+  const offsetY = isFullscreen.value ? panOffset.value.y : previewCenterOffset.value.y;
 
-  // Get center tile
-  const centerTile = latLonToTile(centerPosition.value.lat, centerPosition.value.lng, zoomLevel.value);
+  // Calculate position in tiles relative to center
+  const tileDiffX = (containerX - centerX - offsetX) / (tileSize * zoom.value);
+  const tileDiffY = (containerY - centerY - offsetY) / (tileSize * zoom.value);
+
+  // Get base tile
+  const centerTile = latLonToTile(basePosition.value.lat, basePosition.value.lng, zoomLevel.value);
 
   // Calculate target tile and position within tile
   const targetTileX = centerTile.x + Math.floor(tileDiffX);
   const targetTileY = centerTile.y + Math.floor(tileDiffY);
 
+  // Calculate position within the tile (0-1 range)
   const xRatio = (tileDiffX % 1 + 1) % 1;
   const yRatio = (tileDiffY % 1 + 1) % 1;
 
-  // Get tile bounds
-  const tileBounds = {
-    nw: tileToLatLon(targetTileX, targetTileY, zoomLevel.value),
-    se: tileToLatLon(targetTileX + 1, targetTileY + 1, zoomLevel.value)
-  };
-
-  // Calculate lat/lng
-  const lng = tileBounds.nw.lon + (tileBounds.se.lon - tileBounds.nw.lon) * xRatio;
-  const lat = tileBounds.nw.lat - (tileBounds.nw.lat - tileBounds.se.lat) * yRatio;
-
-  return { lat, lng };
+  // Convert to lat/lng
+  return tileToPosition(targetTileX, targetTileY, xRatio, yRatio);
 }
 
+// Mouse drag handling
+function startDrag(type, e) {
+  if (!isFullscreen.value) return;
+
+  dragState.value = {
+    isDragging: true,
+    type,
+    startX: e.clientX,
+    startY: e.clientY,
+    lastX: e.clientX,
+    lastY: e.clientY,
+    pinchDistance: 0
+  };
+
+  document.addEventListener('mousemove', handleDragMove);
+  document.addEventListener('mouseup', handleDragEnd);
+
+  e.preventDefault();
+}
+
+// Touch drag handling
+function startTouchDrag(type, e) {
+  if (!isFullscreen.value) return;
+
+  const touch = e.touches[0];
+
+  dragState.value = {
+    isDragging: true,
+    type,
+    startX: touch.clientX,
+    startY: touch.clientY,
+    lastX: touch.clientX,
+    lastY: touch.clientY,
+    pinchDistance: e.touches.length === 2 ? calculateTouchDistance(e.touches) : 0
+  };
+
+  document.addEventListener('touchmove', handleTouchMove, { passive: true });
+  document.addEventListener('touchend', handleTouchEnd, { passive: true });
+}
+
+function calculateTouchDistance(touches) {
+  if (touches.length < 2) return 0;
+  return Math.hypot(
+      touches[1].clientX - touches[0].clientX,
+      touches[1].clientY - touches[0].clientY
+  );
+}
+
+// Handle mouse movement during drag
+function handleDragMove(e) {
+  if (!dragState.value.isDragging) return;
+
+  const dx = e.clientX - dragState.value.lastX;
+  const dy = e.clientY - dragState.value.lastY;
+
+  if (dragState.value.type === 'map') {
+    // Update visual position only
+    panOffset.value.x += dx;
+    panOffset.value.y += dy;
+  } else if (dragState.value.type === 'marker') {
+    updateMarkerPosition(e.clientX, e.clientY);
+  }
+
+  dragState.value.lastX = e.clientX;
+  dragState.value.lastY = e.clientY;
+}
+
+// Handle touch movement during drag
+function handleTouchMove(e) {
+  if (!dragState.value.isDragging) return;
+
+  // Handle pinch-to-zoom with two fingers
+  if (e.touches.length === 2 && dragState.value.type === 'map') {
+    const newDistance = calculateTouchDistance(e.touches);
+
+    if (dragState.value.pinchDistance > 0) {
+      const zoomFactor = newDistance / dragState.value.pinchDistance;
+      zoom.value = Math.min(6, Math.max(0.1, zoom.value * zoomFactor));
+    }
+
+    dragState.value.pinchDistance = newDistance;
+    return;
+  }
+
+  const touch = e.touches[0];
+  const dx = touch.clientX - dragState.value.lastX;
+  const dy = touch.clientY - dragState.value.lastY;
+
+  if (dragState.value.type === 'map') {
+    // Update visual position only
+    panOffset.value.x += dx;
+    panOffset.value.y += dy;
+  } else if (dragState.value.type === 'marker') {
+    updateMarkerPosition(touch.clientX, touch.clientY);
+  }
+
+  dragState.value.lastX = touch.clientX;
+  dragState.value.lastY = touch.clientY;
+}
+
+// Update marker position based on screen coordinates
+function updateMarkerPosition(screenX, screenY) {
+  const latLng = screenToLatLng(screenX, screenY);
+  if (!latLng) return;
+
+  selectedPosition.value = {
+    lat: latLng.lat.toFixed(6),
+    lng: latLng.lng.toFixed(6)
+  };
+}
+
+// Handle end of mouse drag
+function handleDragEnd(e) {
+  if (!dragState.value.isDragging) return;
+
+  if (dragState.value.type === 'map') {
+    const totalMovement = Math.hypot(
+        e.clientX - dragState.value.startX,
+        e.clientY - dragState.value.startY
+    );
+
+    // If minimal movement, treat as a click to set marker
+    if (totalMovement < 5) {
+      updateMarkerPosition(e.clientX, e.clientY);
+      emit('positionSelected', selectedPosition.value);
+    }
+  } else if (dragState.value.type === 'marker') {
+    emit('positionSelected', selectedPosition.value);
+  }
+
+  document.removeEventListener('mousemove', handleDragMove);
+  document.removeEventListener('mouseup', handleDragEnd);
+
+  dragState.value.isDragging = false;
+}
+
+// Handle end of touch drag
+function handleTouchEnd(e) {
+  if (!dragState.value.isDragging) return;
+
+  if (dragState.value.type === 'map' && e.changedTouches.length === 1) {
+    const touch = e.changedTouches[0];
+    const totalMovement = Math.hypot(
+        touch.clientX - dragState.value.startX,
+        touch.clientY - dragState.value.startY
+    );
+
+    // If minimal movement, treat as a tap to set marker
+    if (totalMovement < 5) {
+      updateMarkerPosition(touch.clientX, touch.clientY);
+      emit('positionSelected', selectedPosition.value);
+    }
+  } else if (dragState.value.type === 'marker') {
+    emit('positionSelected', selectedPosition.value);
+  }
+
+  document.removeEventListener('touchmove', handleTouchMove);
+  document.removeEventListener('touchend', handleTouchEnd);
+
+  dragState.value.isDragging = false;
+  dragState.value.pinchDistance = 0;
+}
+
+// Handle map clicks directly
+function handleMapClick(e) {
+  if (!isFullscreen.value || dragState.value.isDragging) return;
+
+  const target = e.target;
+  if (target.classList.contains('marker') || target.classList.contains('player-marker')) return;
+
+  updateMarkerPosition(e.clientX, e.clientY);
+  emit('positionSelected', selectedPosition.value);
+}
+
+// Handle mouse wheel for zooming
+function handleWheel(e) {
+  if (!isFullscreen.value) return;
+
+  const oldZoom = zoom.value;
+
+  if (e.deltaY < 0) {
+    zoom.value = Math.min(6, zoom.value * 1.1);
+  } else {
+    zoom.value = Math.max(0.1, zoom.value * 0.9);
+  }
+}
+
+// Toggle fullscreen mode
+function toggleFullscreen() {
+  isFullscreen.value = !isFullscreen.value;
+  emit('update:isFullscreen', isFullscreen.value);
+
+  // Reset zoom and pan
+  zoom.value = 1;
+  panOffset.value = { x: 0, y: 0 };
+
+  nextTick(() => {
+    // When exiting fullscreen, recalculate the preview offset
+    if (!isFullscreen.value) {
+      calculatePreviewOffset();
+    }
+    // Only load tiles if going into fullscreen
+    else if (isFullscreen.value) {
+      loadInitialTiles();
+    }
+  });
+}
+
+// Public method to set fullscreen state
+function setFullscreen(value) {
+  isFullscreen.value = value;
+  emit('update:isFullscreen', value);
+
+  // Reset zoom and pan
+  zoom.value = 1;
+  panOffset.value = { x: 0, y: 0 };
+
+  nextTick(() => {
+    // When exiting fullscreen, recalculate the preview offset
+    if (!isFullscreen.value) {
+      calculatePreviewOffset();
+    }
+    // Only load tiles if going into fullscreen
+    else if (isFullscreen.value) {
+      loadInitialTiles();
+    }
+  });
+}
+
+// Handle escape key to exit fullscreen
+function handleEscKey(e) {
+  if (e.key === 'Escape' && isFullscreen.value) {
+    toggleFullscreen();
+  }
+}
+
+// Watch for changes to update the UI
 watch(selectedPosition, (newVal) => {
-  if (newVal) emit('positionSelected', newVal);
+  if (newVal) {
+    emit('positionSelected', newVal);
+
+    // Update preview centering when marker changes and not in fullscreen
+    if (!isFullscreen.value) {
+      calculatePreviewOffset();
+    }
+  }
 });
 
-watch([centerPosition, zoom], () => {
-  calculateVisibleTiles();
+watch(previewCenter, () => {
+  if (!isFullscreen.value) {
+    calculatePreviewOffset();
+  }
 });
 
 watch(isFullscreen, (newVal) => {
   document.body.style.overflow = newVal ? 'hidden' : '';
   document.documentElement.style.overflow = newVal ? 'hidden' : '';
+
   if (newVal) {
     window.addEventListener('keydown', handleEscKey);
   } else {
     window.removeEventListener('keydown', handleEscKey);
   }
-
-  // Recalculate visible tiles after fullscreen change
-  nextTick(() => calculateVisibleTiles());
 });
 
+// Initialize component
 onMounted(() => {
-  window.addEventListener('resize', handleResize);
+  // Set up event listeners
+  mapContainer.value.addEventListener('click', handleMapClick);
+  mapContainer.value.addEventListener('wheel', handleWheel, { passive: true });
+  mapContainer.value.addEventListener('mousedown', (e) => {
+    if (!e.target.classList.contains('marker')) {
+      startDrag('map', e);
+    }
+  });
+  mapContainer.value.addEventListener('touchstart', (e) => {
+    if (!e.target.classList.contains('marker')) {
+      startTouchDrag('map', e);
+    }
+  }, { passive: true });
+
+  window.addEventListener('resize', () => {
+    // Recalculate preview offset when resizing in preview mode
+    if (!isFullscreen.value) {
+      calculatePreviewOffset();
+    }
+    // Only re-render tiles if in fullscreen mode
+    else if (isFullscreen.value) {
+      nextTick(() => loadInitialTiles());
+    }
+  });
 
   // Initialize map center
   let coords;
@@ -238,12 +583,12 @@ onMounted(() => {
     coords = getCoordinates();
   }
 
-  centerPosition.value = {
+  basePosition.value = {
     lat: coords.lat,
     lng: coords.lon
   };
 
-  // Set initial position if provided
+  // Set initial marker position if provided
   if (props.initialLat && props.initialLng) {
     selectedPosition.value = {
       lat: props.initialLat.toFixed(6),
@@ -251,326 +596,21 @@ onMounted(() => {
     };
   }
 
-  nextTick(() => calculateVisibleTiles());
+  // Set player position marker
+  playerPosition.value = {
+    lat: coords.lat,
+    lng: coords.lon
+  };
+
+  // Load initial tiles only once
+  nextTick(() => {
+    loadInitialTiles();
+    // Calculate preview offset after tiles are loaded
+    calculatePreviewOffset();
+  });
 });
 
-function handleResize() {
-  calculateVisibleTiles();
-}
-
-function handleEscKey(e) {
-  if (e.key === 'Escape' && isFullscreen.value) {
-    toggleFullscreen();
-  }
-}
-
-function toggleFullscreen() {
-  isFullscreen.value = !isFullscreen.value;
-  emit('update:isFullscreen', isFullscreen.value);
-
-  // Reset zoom and pan
-  zoom.value = 1;
-  panOffset.value = { x: 0, y: 0 };
-
-  // Wait for DOM update then recalculate
-  nextTick(() => calculateVisibleTiles());
-}
-
-function setFullscreen(value) {
-  isFullscreen.value = value;
-  emit('update:isFullscreen', value);
-
-  // Reset zoom and pan
-  zoom.value = 1;
-  panOffset.value = { x: 0, y: 0 };
-
-  // Wait for DOM update then recalculate
-  nextTick(() => calculateVisibleTiles());
-}
-
-// Map clicking to set marker
-function handleMapClick(e) {
-  if (!isFullscreen.value || isMarkerDragging.value || isDragging.value) return;
-
-  // Calculate lat/lng from click position
-  const latLng = screenToLatLng(e.clientX, e.clientY);
-  if (!latLng) return;
-
-  // Update marker position
-  selectedPosition.value = {
-    lat: latLng.lat.toFixed(6),
-    lng: latLng.lng.toFixed(6)
-  };
-
-  emit('positionSelected', selectedPosition.value);
-}
-
-// Zooming with mouse wheel
-function handleWheel(e) {
-  if (!isFullscreen.value) return;
-
-  // Calculate new zoom level
-  const oldZoom = zoom.value;
-  if (e.deltaY < 0) {
-    zoom.value = Math.min(6, zoom.value * 1.1);
-  } else {
-    zoom.value = Math.max(0.1, zoom.value * 0.9);
-  }
-
-  calculateVisibleTiles();
-}
-
-// Start map dragging
-function handleMouseDown(e) {
-  if (!isFullscreen.value || isMarkerDragging.value) return;
-
-  // Check if we're clicking the marker
-  const target = e.target;
-  if (target.classList.contains('marker')) return;
-
-  // Start map dragging
-  isDragging.value = true;
-  dragStart.value = { x: e.clientX, y: e.clientY };
-
-  document.addEventListener('mousemove', handleMouseMove);
-  document.addEventListener('mouseup', handleMouseUp);
-
-  e.preventDefault();
-}
-
-function handleMouseMove(e) {
-  if (!isDragging.value) return;
-
-  const dx = e.clientX - dragStart.value.x;
-  const dy = e.clientY - dragStart.value.y;
-
-  // Just update the pan offset
-  panOffset.value.x += dx;
-  panOffset.value.y += dy;
-
-  dragStart.value = { x: e.clientX, y: e.clientY };
-}
-
-// End map dragging
-function handleMouseUp() {
-  isDragging.value = false;
-  document.removeEventListener('mousemove', handleMouseMove);
-  document.removeEventListener('mouseup', handleMouseUp);
-}
-
-// Start marker dragging
-function startMarkerDrag(e) {
-  if (!isFullscreen.value) return;
-
-  isMarkerDragging.value = true;
-  dragStart.value = { x: e.clientX, y: e.clientY };
-
-  document.addEventListener('mousemove', moveMarker);
-  document.addEventListener('mouseup', endMarkerDrag);
-
-  e.stopPropagation();
-  e.preventDefault();
-}
-
-// Move marker while dragging
-function moveMarker(e) {
-  if (!isMarkerDragging.value) return;
-
-  // Calculate lat/lng from current mouse position
-  const latLng = screenToLatLng(e.clientX, e.clientY);
-  if (!latLng) return;
-
-  // Update marker position
-  selectedPosition.value = {
-    lat: latLng.lat.toFixed(6),
-    lng: latLng.lng.toFixed(6)
-  };
-
-  e.stopPropagation();
-  e.preventDefault();
-}
-
-function moveMap(dx, dy) {
-  // Convert screen pixels to geographic distance
-  const metersPerPixel = 156543.03392 * Math.cos(centerPosition.value.lat * Math.PI / 180) / Math.pow(2, zoomLevel.value);
-  const adjustedMetersPerPixel = metersPerPixel / zoom.value;
-
-  // 111,111 meters = 1 degree latitude
-  const latChange = (dy * adjustedMetersPerPixel) / 111111;
-  // 111,111 * cos(lat) meters = 1 degree longitude
-  const lngChange = (dx * adjustedMetersPerPixel) / (111111 * Math.cos(centerPosition.value.lat * Math.PI / 180));
-
-  // Update center position
-  centerPosition.value = {
-    lat: centerPosition.value.lat + latChange,
-    lng: centerPosition.value.lng + lngChange
-  };
-
-  // Reset pan offset since we've applied it to the center position
-  panOffset.value = { x: 0, y: 0 };
-}
-
-// End marker dragging
-function endMarkerDrag(e) {
-  document.removeEventListener('mousemove', moveMarker);
-  document.removeEventListener('mouseup', endMarkerDrag);
-
-  isMarkerDragging.value = false;
-  emit('positionSelected', selectedPosition.value);
-
-  e.stopPropagation();
-  e.preventDefault();
-}
-
-// Start marker dragging on touch
-function startMarkerTouchDrag(e) {
-  if (!isFullscreen.value) return;
-
-  isMarkerDragging.value = true;
-  lastTouch.value = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-
-  document.addEventListener('touchmove', moveMarkerTouch, { passive: true });
-  document.addEventListener('touchend', endMarkerTouchDrag, { passive: true });
-}
-
-// Move marker on touch drag
-function moveMarkerTouch(e) {
-  if (!isMarkerDragging.value) return;
-
-  // Calculate lat/lng from current touch position
-  const latLng = screenToLatLng(e.touches[0].clientX, e.touches[0].clientY);
-  if (!latLng) return;
-
-  // Update marker position
-  selectedPosition.value = {
-    lat: latLng.lat.toFixed(6),
-    lng: latLng.lng.toFixed(6)
-  };
-}
-
-// End marker touch dragging
-function endMarkerTouchDrag() {
-  document.removeEventListener('touchmove', moveMarkerTouch);
-  document.removeEventListener('touchend', endMarkerTouchDrag);
-
-  isMarkerDragging.value = false;
-  emit('positionSelected', selectedPosition.value);
-}
-
-// When the map container is mounted, set up event listeners
-onMounted(() => {
-  if (mapContainer.value) {
-    mapContainer.value.addEventListener('click', handleMapClick);
-    mapContainer.value.addEventListener('wheel', handleWheel, { passive: true });
-    mapContainer.value.addEventListener('mousedown', handleMouseDown);
-    mapContainer.value.addEventListener('touchstart', handleTouchStart, { passive: true });
-    mapContainer.value.addEventListener('touchmove', handleTouchMove, { passive: true });
-    mapContainer.value.addEventListener('touchend', handleTouchEnd, { passive: true });
-  }
-});
-
-// Handle touch events for map panning and zooming
-function handleTouchStart(e) {
-  if (!isFullscreen.value) return;
-
-  // Check if touching marker
-  if (e.target.classList.contains('marker')) return;
-
-  // Handle pinch-to-zoom with two fingers
-  if (e.touches.length === 2) {
-    const touch1 = e.touches[0];
-    const touch2 = e.touches[1];
-    lastDistance.value = Math.hypot(
-        touch2.clientX - touch1.clientX,
-        touch2.clientY - touch1.clientY
-    );
-    return;
-  }
-
-  // Single touch for panning
-  if (e.touches.length === 1) {
-    isDragging.value = true;
-    lastTouch.value = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  }
-}
-
-// Replace these two functions to prevent tile loading during mobile drag
-
-function handleTouchMove(e) {
-  if (!isFullscreen.value) return;
-
-  // Handle pinch-to-zoom
-  if (e.touches.length === 2) {
-    const touch1 = e.touches[0];
-    const touch2 = e.touches[1];
-
-    // Calculate new distance
-    const newDistance = Math.hypot(
-        touch2.clientX - touch1.clientX,
-        touch2.clientY - touch1.clientY
-    );
-
-    // Skip if initial distance not set
-    if (lastDistance.value === 0) {
-      lastDistance.value = newDistance;
-      return;
-    }
-
-    // Adjust zoom based on pinch
-    const zoomFactor = newDistance / lastDistance.value;
-    zoom.value = Math.min(6, Math.max(0.1, zoom.value * zoomFactor));
-
-    lastDistance.value = newDistance;
-    return; // Don't recalculate tiles here
-  }
-
-  // Handle panning with one finger
-  if (e.touches.length === 1 && isDragging.value && !isMarkerDragging.value) {
-    const dx = e.touches[0].clientX - lastTouch.value.x;
-    const dy = e.touches[0].clientY - lastTouch.value.y;
-
-    // ONLY update visual pan offset, don't trigger tile recalculation
-    panOffset.value.x += dx;
-    panOffset.value.y += dy;
-
-    lastTouch.value = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  }
-}
-
-function handleTouchEnd(e) {
-  lastDistance.value = 0;
-
-  if (isMarkerDragging.value) return;
-
-  // DON'T update centerPosition or recalculate tiles
-  // Just leave the visual pan offset as is
-
-  // Handle tap to place marker
-  if (isDragging.value && e.changedTouches.length === 1) {
-    const moveDistance = Math.hypot(
-        e.changedTouches[0].clientX - lastTouch.value.x,
-        e.changedTouches[0].clientY - lastTouch.value.y
-    );
-
-    if (moveDistance < 5 && !e.target.classList.contains('marker')) {
-      // It was a tap, calculate lat/lng from touch position
-      const latLng = screenToLatLng(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-      if (latLng) {
-        // Update marker position
-        selectedPosition.value = {
-          lat: latLng.lat.toFixed(6),
-          lng: latLng.lng.toFixed(6)
-        };
-
-        emit('positionSelected', selectedPosition.value);
-      }
-    }
-  }
-
-  isDragging.value = false;
-}
-
-defineExpose({setFullscreen});
+defineExpose({ setFullscreen });
 </script>
 
 <style scoped>
@@ -593,18 +633,6 @@ defineExpose({setFullscreen});
   z-index: 9999;
   border-radius: 0;
   background: white;
-}
-
-.fullscreen-toggle {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 20;
-  background: rgba(255, 255, 255, 0.8);
-  border: none;
-  border-radius: 4px;
-  padding: 5px 10px;
-  cursor: pointer;
 }
 
 .map-container {
@@ -635,6 +663,16 @@ defineExpose({setFullscreen});
   border-radius: 50%;
   z-index: 10;
   cursor: grab;
+}
+
+.player-marker {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background-color: blue;
+  border: 2px solid white;
+  border-radius: 50%;
+  z-index: 9;
 }
 
 .position-info-container {

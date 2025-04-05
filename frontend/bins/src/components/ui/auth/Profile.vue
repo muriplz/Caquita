@@ -8,7 +8,7 @@
           {{ connectionStatus }}
         </p>
       </div>
-      <LevelBar />
+      <LevelBar :user="user"/>
     </div>
 
     <p>Trust: {{ user.trust }}</p>
@@ -47,7 +47,6 @@ function formatDate(dateString) {
 const connectionStatus = computed(() => {
   if (!props.user.connection) return 'Never connected';
 
-  console.log(props.user)
   const now = new Date();
   const connectionTime = new Date(props.user.connection);
   const diffMs = now - connectionTime;

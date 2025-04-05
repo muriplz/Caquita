@@ -4,7 +4,7 @@ import TopDownMapSection from "@/views/landmarks/TopDownMapSection.vue";
 import PetitionsApi from "@/views/landmarks/js/PetitionsApi.js";
 import {startGPSTracking} from "@/components/player/GPSTracker.js";
 import PetitionsHeader from "@/views/landmarks/PetitionsHeader.vue";
-import {LANDMARK_FEATURES, LEVEL} from "@/views/landmarks/js/LandmarkInfo.js";
+import {LANDMARK_FEATURES} from "@/views/landmarks/js/LandmarkInfo.js";
 import LandmarkTypes from "@/js/landmarks/LandmarkTypes.js";
 
 const mapRef = ref(null);
@@ -58,32 +58,17 @@ const initializeFeatures = () => {
   const features = LANDMARK_FEATURES[formData.type];
   if (features) {
     features.forEach(feature => {
-      formData.features[feature] = null;
+      formData.features[feature] = false;
     });
   }
 };
 
-const getFeatureLevel = (feature) => {
+const getFeatureEnabled = (feature) => {
   return formData.features[feature];
 };
 
-const getNextLevel = (currentLevel) => {
-  if (currentLevel === null) return LEVEL[0];
-  const currentIndex = LEVEL.indexOf(currentLevel);
-  const nextIndex = (currentIndex + 1) % LEVEL.length;
-  return nextIndex === 0 ? null : LEVEL[nextIndex];
-};
-
-const getLevelClass = (level) => {
-  if (level === 'HIGH') return 'level-high';
-  if (level === 'MEDIUM') return 'level-medium';
-  if (level === 'LOW') return 'level-low';
-  if (level === 'NONE') return 'level-none';
-  return '';
-};
-
-const cycleFeatureLevel = (feature) => {
-  formData.features[feature] = getNextLevel(formData.features[feature]);
+const toggleFeature = (feature) => {
+  formData.features[feature] = !formData.features[feature];
 };
 
 const onPositionSelected = (position) => {
@@ -142,8 +127,8 @@ const submitForm = async (e) => {
 
     const landmarkInfo = {
       name: formData.name,
-      ...Object.entries(formData.features).reduce((acc, [feature, level]) => {
-        acc[feature] = level === null ? "NONE" : level;
+      ...Object.entries(formData.features).reduce((acc, [feature, enabled]) => {
+        acc[feature] = enabled.toString();
         return acc;
       }, {})
     };
@@ -249,30 +234,12 @@ const getRandomName = () => {
               v-for="feature in availableFeatures"
               :key="feature"
               class="feature-item"
-              @click="cycleFeatureLevel(feature)"
+              @click="toggleFeature(feature)"
           >
-            <div class="feature-checkbox" :class="getLevelClass(getFeatureLevel(feature))">
-              <span v-if="getFeatureLevel(feature)">{{ getFeatureLevel(feature).charAt(0) }}</span>
+            <div class="feature-checkbox" :class="{'feature-enabled': getFeatureEnabled(feature)}">
+              <span v-if="getFeatureEnabled(feature)">✓</span>
             </div>
             <span class="feature-label">{{ feature }}</span>
-          </div>
-        </div>
-        <div class="legend">
-          <div class="legend-item">
-            <div class="feature-checkbox level-high"><span>H</span></div>
-            <span>High</span>
-          </div>
-          <div class="legend-item">
-            <div class="feature-checkbox level-medium"><span>M</span></div>
-            <span>Medium</span>
-          </div>
-          <div class="legend-item">
-            <div class="feature-checkbox level-low"><span>L</span></div>
-            <span>Low</span>
-          </div>
-          <div class="legend-item">
-            <div class="feature-checkbox"></div>
-            <span>None</span>
           </div>
         </div>
       </div>
@@ -464,52 +431,14 @@ textarea {
   font-weight: bold;
 }
 
-.level-high {
+.feature-enabled {
   background: #4CAF50;
   color: white;
   border-color: #4CAF50;
 }
 
-.level-medium {
-  background: #FFC107;
-  color: black;
-  border-color: #FFC107;
-}
-
-.level-low {
-  background: #F44336;
-  color: white;
-  border-color: #F44336;
-}
-
-.level-none {
-  background: #e0e0e0;
-  color: #757575;
-  border-color: #e0e0e0;
-}
-
 .feature-label {
   text-transform: capitalize;
-}
-
-.legend {
-  display: flex;
-  margin-top: 10px;
-  gap: 15px;
-  padding: 8px;
-  background: #f9f9f9;
-  border-radius: 4px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-}
-
-.legend-item .feature-checkbox {
-  width: 18px;
-  height: 18px;
-  margin-right: 5px;
 }
 
 .image-upload {
@@ -550,19 +479,19 @@ textarea {
   max-height: 200px;
   border-radius: 4px;
   border: 1px solid #ddd;
+  margin-top: 10px;
 }
 
 .remove-image-btn {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  background: #f44336;
-  color: white;
+  top: -12px;
+  right: -42px;
+  color: red;
+  background: none;
   border: none;
-  border-radius: 50%;
   width: 24px;
   height: 24px;
-  font-size: 16px;
+  font-size: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -577,10 +506,6 @@ textarea {
 
   .features-container {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-
-  .legend {
-    flex-wrap: wrap;
   }
 }
 </style>

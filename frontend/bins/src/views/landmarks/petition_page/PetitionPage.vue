@@ -94,10 +94,10 @@ onMounted(async () => {
         <img :src="PetitionsApi.getImageUrl(petition.id)" alt=""/>
         <div class="petition-header-title">
           <h2>{{ petition.landmarkInfo.name }}</h2>
-          <h3 style="color:gray">{{ petition.type }}</h3>
-          <h4 style="color:gray; font-size: 0.8rem">{{ formatDate(petition.creation) }}</h4>
+          <h3 style="color:gray; font-size: 0.9rem;">{{ petition.type }}</h3>
+          <h4 style="color:gray; font-size: 0.6rem">{{ formatDate(petition.creation) }}</h4>
           <h4 :style="{color: getStatusColor(petition.status), fontSize: '0.8rem'}">{{ petition.status }}</h4>
-          <h4 style="color:gray; font-size: 0.8rem; margin-top: auto; margin-bottom: 24px;">By @{{ author?.username }}</h4>
+          <h4 style="color:gray; font-size: 0.8rem; margin-top: auto; margin-bottom: 24px;">By {{ author?.username }}</h4>
         </div>
       </div>
       <h3>Description</h3>

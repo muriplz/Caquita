@@ -10,7 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     About: typeof import('./src/components/ui/About.vue')['default']
     AdditionalInfo: typeof import('./src/components/ui/settings/AdditionalInfo.vue')['default']
-    Altar: typeof import('./src/components/landmarks/Altar.vue')['default']
+    AvatarSelector: typeof import('./src/components/ui/auth/social/AvatarSelector.vue')['default']
     Can: typeof import('./src/components/landmarks/Can.vue')['default']
     CanUi: typeof import('./src/components/landmarks/CanUi.vue')['default']
     ChangelogMarkdown: typeof import('./src/components/ChangelogMarkdown.vue')['default']
@@ -19,6 +19,8 @@ declare module 'vue' {
     CurrencyPanel: typeof import('./src/components/ui/auth/CurrencyPanel.vue')['default']
     CurrencyPanelItem: typeof import('./src/components/ui/auth/CurrencyPanelItem.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
+    FriendLevelBar: typeof import('./src/components/ui/auth/social/FriendLevelBar.vue')['default']
+    Friends: typeof import('./src/components/ui/auth/social/Friends.vue')['default']
     General: typeof import('./src/components/ui/settings/tabs/General.vue')['default']
     Graphics: typeof import('./src/components/ui/settings/tabs/Graphics.vue')['default']
     GridSlots: typeof import('./src/components/ui/inventory/GridSlots.vue')['default']
@@ -29,6 +31,7 @@ declare module 'vue' {
     ItemIcon: typeof import('./src/components/ui/inventory/ItemIcon.vue')['default']
     ItemInfo: typeof import('./src/components/ui/inventory/ItemInfo.vue')['default']
     ItemInfoScreen: typeof import('./src/components/ui/inventory/ItemInfoScreen.vue')['default']
+    LandmarkBuilder: typeof import('./src/components/landmarks/LandmarkBuilder.vue')['default']
     LandmarkImage: typeof import('./src/components/landmarks/LandmarkImage.vue')['default']
     LevelBar: typeof import('./src/components/ui/auth/LevelBar.vue')['default']
     MapCanvas: typeof import('./src/components/MapCanvas.vue')['default']
@@ -45,6 +48,9 @@ declare module 'vue' {
     ShapeVisualizer: typeof import('./src/components/ui/inventory/ShapeVisualizer.vue')['default']
     Social: typeof import('./src/components/ui/auth/social/Social.vue')['default']
     ToggleSwitch: typeof import('./src/components/ui/settings/ToggleSwitch.vue')['default']
-    TopDownMapSection: typeof import('./src/views/landmarks/TopDownMapSection.vue')['default']
+    TrashCan: typeof import('./src/components/landmarks/TrashCan.vue')['default']
+    TrashCans: typeof import('./src/components/landmarks/TrashCans.vue')['default']
+    TrashCanUi: typeof import('./src/components/landmarks/TrashCanUi.vue')['default']
+    UserAvatar: typeof import('./src/components/ui/auth/UserAvatar.vue')['default']
   }
 }

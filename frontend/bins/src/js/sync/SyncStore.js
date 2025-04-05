@@ -1,5 +1,6 @@
 import { reactive, ref } from 'vue';
 import Level from '@/js/auth/Level.js';
+import SyncService from './SyncService.js';
 
 const currencies = reactive({
     id: null,
@@ -13,6 +14,10 @@ const level = ref(null);
 const listeners = new Set();
 
 const SyncStore = {
+    init() {
+        // Auto-subscribe to currencies updates
+        SyncService.subscribe('currencies', this.updateCurrencies.bind(this));
+    },
 
     updateCurrencies(data) {
         if (!data) {
@@ -27,6 +32,7 @@ const SyncStore = {
             try {
                 level.value = new Level(data.level._children);
             } catch (e) {
+                console.error('Error parsing level data:', e);
             }
         }
 
@@ -47,6 +53,7 @@ const SyncStore = {
 
     subscribe(callback) {
         listeners.add(callback);
+        // Return unsubscribe function
         return () => listeners.delete(callback);
     },
 

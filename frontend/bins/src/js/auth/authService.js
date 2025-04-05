@@ -29,9 +29,9 @@ class AuthService {
         });
 
         if (response.status === 200) {
-            const { token, id, username, creation, connection, trust } = await response.json();
+            const { token, id, username, creation, connection, trust, avatar } = await response.json();
             this.saveToken(token);
-            await Store.setUser(id, username, creation, connection, trust);
+            await Store.setUser(id, username, creation, connection, trust, avatar);
 
             return response;
         } else if (response.status === 460) {
@@ -84,8 +84,8 @@ class AuthService {
         });
 
         if (response.status === 200) {
-            const { id, username, creation, connection, trust } = await response.json()
-            await Store.setUser(id, username, creation, connection, trust)
+            const { id, username, creation, connection, trust, avatar } = await response.json()
+            await Store.setUser(id, username, creation, connection, trust, avatar)
 
             return true;
         } else {

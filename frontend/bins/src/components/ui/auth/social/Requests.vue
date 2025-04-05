@@ -89,13 +89,12 @@ async function respondToRequest(requesterId, action) {
 .content-wrapper {
   position: relative;
   width: 100%;
-  padding-bottom: 100px;
   min-height: 100%;
 }
 
 .add-friend-trigger {
   position: absolute;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   top: -10px;
@@ -113,6 +112,9 @@ async function respondToRequest(requesterId, action) {
 .plus-icon {
   font-size: 20px;
   font-weight: bold;
+  line-height: 1;
+  padding: 0;
+  margin-left: 3px
 }
 
 .add-friend-panel {
@@ -130,7 +132,6 @@ async function respondToRequest(requesterId, action) {
   width: 100%;
   font-size: 0.7rem;
   margin-top: 16px;
-  margin-bottom: 8px;
   padding: 0 8px;
 }
 
@@ -158,8 +159,7 @@ async function respondToRequest(requesterId, action) {
 }
 
 .pending-requests {
-  margin-top: 8px;
-  padding: 12px 8px;
+  padding: 8px 8px;
 }
 
 .request-item {
@@ -168,7 +168,7 @@ async function respondToRequest(requesterId, action) {
   align-items: center;
   padding: 6px;
   border-bottom: 1px solid #eee;
-  font-size: 0.7rem;
+  font-size: 1rem;
 }
 
 .request-actions {
@@ -181,6 +181,7 @@ async function respondToRequest(requesterId, action) {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font: inherit;
   font-size: 0.6rem;
 }
 
