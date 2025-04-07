@@ -18,7 +18,6 @@ defineProps({
   display: flex;
   gap: 4px;
   align-items: center;
-  color: #ffffff;
 }
 
 img {

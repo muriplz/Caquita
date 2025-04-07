@@ -4,8 +4,8 @@
     <div class="user-info">
       <UserAvatar/>
       <div class="user-name">
-        <h3>{{Store.getUser().username}}</h3>
-        <p class="creation-date">{{ formatDate(Store.getUser().creation) }}</p>
+        <h3>{{Store.getUser()?.username}}</h3>
+        <p class="creation-date">{{ formatDate(Store.getUser()?.creation) }}</p>
       </div>
     </div>
 

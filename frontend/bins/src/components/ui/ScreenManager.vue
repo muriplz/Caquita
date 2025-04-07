@@ -1,10 +1,8 @@
-
 <script setup>
 import {motion} from 'motion-v'
 import {computed, markRaw, ref, onMounted, onUnmounted} from 'vue'
 import Inventory from "./inventory/Inventory.vue"
 import AuthService from "@/js/auth/AuthService.js"
-import ProfileDropdown from "@/components/ui/auth/ProfileDropdown.vue"
 import Profile from "@/components/ui/auth/Profile.vue"
 import Settings from "@/components/ui/settings/Settings.vue"
 import Store from "@/js/Store.js"
@@ -15,10 +13,10 @@ import uiRouter from "./UIRouter.js"
 import ItemInfoScreen from "@/components/ui/inventory/ItemInfoScreen.vue"
 import CurrencyPanel from "@/components/ui/auth/CurrencyPanel.vue"
 import Social from "./auth/social/Social.vue";
+import router from "../../router/index.js";
 
 const isDevelopment = process.env.NODE_ENV === 'development' || true;
 
-const isProfileMenuOpen = ref(false)
 const settingsRotation = ref(0)
 
 const screenComponents = {
@@ -35,7 +33,6 @@ const centeredScreens = ['SETTINGS', 'CONTRIBUTING']
 onMounted(() => {
   uiRouter.reset()
   settingsRotation.value = 0
-  isProfileMenuOpen.value = false
 })
 
 onUnmounted(() => {
@@ -141,7 +138,10 @@ const availableMenuButtons = computed(() => {
 function navigateTo(screenName) {
   if (uiRouter.state.isAnimating) return;
 
-  isProfileMenuOpen.value = false;
+  if (screenName === 'HAULER') {
+    router.push("/hauler");
+    return;
+  }
 
   if (screenName === 'SETTINGS') {
     settingsRotation.value += 90;
@@ -191,9 +191,14 @@ function goBack() {
   uiRouter.goBack();
 }
 
-function toggleProfileMenu() {
+function toggleSocial() {
   if (uiRouter.state.isAnimating) return;
-  isProfileMenuOpen.value = !isProfileMenuOpen.value;
+
+  if (uiRouter.state.currentScreen === 'SOCIAL') {
+    goBack();
+  } else {
+    navigateTo('SOCIAL');
+  }
 }
 
 function handleSettingsClick() {
@@ -225,7 +230,6 @@ function showMaterial(type) {
 
 function handleLogout() {
   AuthService.logout();
-  isProfileMenuOpen.value = false;
   uiRouter.closeMenu();
 }
 </script>
@@ -269,15 +273,9 @@ function handleLogout() {
 
     <Transition name="slide-from-top">
       <div v-if="uiRouter.state.isMenuOpen && uiRouter.state.globalElements.showProfileButton" class="profile-container">
-        <a href="javascript:void(0)" class="profile-button" @click="toggleProfileMenu">
-          <img src="/images/ui/profile_logged.png" alt="Profile" class="profile-icon" />
+        <a href="javascript:void(0)" class="profile-button" @click="toggleSocial">
+          <img src="/images/ui/profile.png" alt="Profile" class="profile-icon" />
         </a>
-        <ProfileDropdown
-            :isVisible="isProfileMenuOpen"
-            @showSocial="navigateTo('SOCIAL')"
-            @logout="handleLogout"
-            @close="isProfileMenuOpen = false"
-        />
       </div>
     </Transition>
 
@@ -374,7 +372,6 @@ function handleLogout() {
   opacity: 0;
 }
 
-/* Rest of the existing styles */
 .menu-toggle-button {
   position: fixed;
   bottom: 20px;

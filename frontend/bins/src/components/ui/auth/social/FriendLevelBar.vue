@@ -1,36 +1,46 @@
 <script setup>
-defineProps({
+
+import {onMounted, ref} from "vue";
+
+const level = ref();
+const props = defineProps({
   friend: {
     type: Object,
     required: true
   }
 })
+
+onMounted(() => {
+  level.value = JSON.parse(props.friend.level.value)
+})
 </script>
 
 <template>
-  <div v-if="friend.level" class="level-container">
-    <span class="level-text">Lvl {{ friend.level.level }}</span>
-    <meter min="0" :max="friend.level.total" low="30" high="75" optimum="85" :value="friend.level.progress"></meter>
-    <span class="xp-text">{{ friend.level.progress }}/{{ friend.level.total }} XP</span>
+  <div v-if="level" class="level-container">
+    <span class="level-text">{{ level.level }}</span>
+    <meter
+        min="0"
+        :max="level.total"
+        :low="Math.floor(level.total * 0.2)"
+        :high="Math.floor(level.total * 0.4)"
+        :optimum="Math.floor(level.total * 0.9)"
+        :value="level.progress">
+    </meter>
   </div>
 </template>
 
 <style scoped>
 .level-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  margin-left: 12px;
+}
+
+meter {
+  width: 50px;
 }
 
 .level-text {
   font-size: 12px;
   font-weight: bold;
-  color: #000000;
-}
-
-.xp-text {
-  font-size: 10px;
-  color: #000000;
+  margin-right: 6px;
 }
 </style>

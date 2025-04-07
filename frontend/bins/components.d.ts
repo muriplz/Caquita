@@ -39,7 +39,6 @@ declare module 'vue' {
     OrbitControls: typeof import('./src/components/player/OrbitControls.vue')['default']
     PlayerEntity: typeof import('./src/components/player/PlayerEntity.vue')['default']
     Profile: typeof import('./src/components/ui/auth/Profile.vue')['default']
-    ProfileDropdown: typeof import('./src/components/ui/auth/ProfileDropdown.vue')['default']
     Requests: typeof import('./src/components/ui/auth/social/Requests.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

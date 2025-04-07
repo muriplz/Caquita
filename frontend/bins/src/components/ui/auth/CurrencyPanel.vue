@@ -17,8 +17,8 @@ const rolls = SyncStore.getRolls();
 .currency-panel {
   display: flex;
   gap: 8px;
-  background: #5e4f42;
-  border-radius: 8px;
+  background: #bbabab;
+  border: 3px solid #333;
   padding: 4px 8px;
   justify-content: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);

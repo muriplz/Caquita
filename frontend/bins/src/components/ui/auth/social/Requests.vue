@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="add-friend-trigger" @click="toggleAddFriend">
-      <span class="plus-icon">+</span>
+      <img src="/images/ui/add_friend.png" class="plus-icon"/>
     </div>
 
     <div class="content-wrapper">
@@ -100,21 +100,25 @@ async function respondToRequest(requesterId, action) {
   top: -10px;
   right: 10px;
   width: 32px;
-  height: 32px;
-  border-bottom-right-radius: 50%;
-  border-bottom-left-radius: 50%;
+  height: 36px;
+  border-bottom-right-radius: 100%;
+  border-bottom-left-radius: 100%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   cursor: pointer;
   overflow: visible;
   z-index: 2;
+  border-bottom: 2px solid #333;
+  border-right: 2px solid #333;
+  border-left: 2px solid #333;
+}
+
+.add-friend-trigger:active {
+  transform: scale(0.95);
 }
 
 .plus-icon {
-  font-size: 20px;
-  font-weight: bold;
-  line-height: 1;
-  padding: 0;
-  margin-left: 3px
+  width: 24px;
+  margin-bottom: 6px;
 }
 
 .add-friend-panel {

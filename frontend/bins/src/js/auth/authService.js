@@ -1,6 +1,7 @@
 import Store from "../Store.js";
 import {getIpAddress} from "../Static.js";
 import router from "@/router/index.js";
+import uiRouter from "../../components/ui/UiRouter.js";
 
 class AuthService {
     async getUsername(id) {
@@ -110,9 +111,22 @@ class AuthService {
     }
 
     logout() {
+        // First close any open screens
+        if (uiRouter.state.currentScreen) {
+            uiRouter.goBack();
+        }
+
+        // Close the menu
+        uiRouter.closeMenu();
+
+        // Ensure proper logout sequence
         Store.removeUser();
-        router.push('/');
         document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+        // Force the redirect with a slight delay to ensure other operations complete
+        setTimeout(() => {
+            router.push('/');
+        }, 100);
     }
 }
 

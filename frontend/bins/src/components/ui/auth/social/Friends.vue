@@ -1,6 +1,7 @@
 <script setup>
 import {computed, onBeforeMount, ref} from "vue";
 import FriendshipApi from "./js/FriendshipApi.js";
+import FriendLevelBar from "./FriendLevelBar.vue";
 
 const friends = ref([]);
 const avatars = ref([]);
@@ -39,14 +40,16 @@ function getUserLevel(friend) {
 function connectionStatus(friend) {
   if (!friend.connection) return 'Never connected';
 
-  console.log(friend.level.value.level);
   const now = new Date();
   const connectionTime = new Date(friend.connection);
   const diffMs = now - connectionTime;
 
   // Less than 30 minutes
   if (diffMs < 30 * 60 * 1000) {
-    return 'ONLINE';
+    return {
+      text: 'ONLINE',
+      isOnline: true
+    };
   }
 
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
@@ -56,15 +59,30 @@ function connectionStatus(friend) {
   const diffYears = Math.floor(diffMonths / 12);
 
   if (diffYears > 0) {
-    return `${diffYears} y ago`;
+    return {
+      text: `${diffYears} y ago`,
+      isOnline: false
+    };
   } else if (diffMonths > 0) {
-    return `${diffMonths} m ago`;
+    return {
+      text: `${diffMonths} m ago`,
+      isOnline: false
+    };
   } else if (diffDays > 0) {
-    return `${diffDays} d ago`;
+    return {
+      text: `${diffDays} d ago`,
+      isOnline: false
+    };
   } else if (diffHours > 0) {
-    return `${diffHours} h ago`;
+    return {
+      text: `${diffHours} h ago`,
+      isOnline: false
+    };
   } else {
-    return `${diffMinutes} min ago`;
+    return {
+      text: `${diffMinutes} min ago`,
+      isOnline: false
+    };
   }
 }
 </script>
@@ -77,10 +95,16 @@ function connectionStatus(friend) {
         <div class="friend-details">
           <div class="name-level">
             <h3 class="username">{{ friend.username }}</h3>
-            <p class="level">( {{ JSON.parse(friend.level.value).level }} )</p>
           </div>
-          <p class="connection-status">{{ connectionStatus(friend) }}</p>
+          <p
+              class="connection-status"
+              :class="{ 'online-status': connectionStatus(friend).isOnline }"
+          >
+            {{ connectionStatus(friend).text }}
+          </p>
         </div>
+        <FriendLevelBar :friend="friend"/>
+
       </div>
       <img class="remove-friend-btn" @click="removeFriend(friend.id)" src="/images/ui/remove_friend.png" alt="Remove Friend" />
     </div>
@@ -109,7 +133,7 @@ function connectionStatus(friend) {
 .friend-details {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  align-items: flex-start;
   gap: 2px;
 }
 
@@ -134,6 +158,11 @@ function connectionStatus(friend) {
   margin: 0;
   font-size: 0.85rem;
   color: #666;
+}
+
+.online-status {
+  color: green;
+  font-weight: bold;
 }
 
 .avatar {
