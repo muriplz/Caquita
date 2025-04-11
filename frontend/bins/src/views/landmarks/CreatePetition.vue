@@ -19,9 +19,9 @@ const formData = reactive({
 // Store the random name placeholder in a ref so it doesn't change on every render
 const randomNamePlaceholder = ref('');
 
-// Image upload state
+// Image upload state - simplified
 const selectedImage = ref(null);
-const imagePreview = ref(null);
+const hasImage = ref(false);
 const uploadStatus = ref(null);
 const petitionId = ref(null);
 
@@ -75,6 +75,7 @@ const onPositionSelected = (position) => {
   formData.position = position;
 };
 
+// Memory optimized image handler
 const handleImageChange = (event) => {
   const file = event.target.files[0];
   if (!file) return;
@@ -84,20 +85,13 @@ const handleImageChange = (event) => {
     return;
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    error.value = 'Image size should be less than 5MB';
-    return;
-  }
-
+  // Only store the file reference, no preview
   selectedImage.value = file;
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    imagePreview.value = e.target.result;
-  };
-  reader.readAsDataURL(file);
-
+  hasImage.value = true;
   error.value = null;
+
+  // Explicitly trigger garbage collection (optional)
+  event.target.value = null;
 };
 
 const uploadImage = async () => {
@@ -105,8 +99,11 @@ const uploadImage = async () => {
 
   try {
     uploadStatus.value = 'uploading';
-    const result = await PetitionsApi.uploadImage(petitionId.value, selectedImage.value);
+    await PetitionsApi.uploadImage(petitionId.value, selectedImage.value);
     uploadStatus.value = 'success';
+
+    // Free memory after upload
+    selectedImage.value = null;
   } catch (err) {
     uploadStatus.value = 'error';
     error.value = 'Failed to upload image: ' + err.message;
@@ -259,32 +256,20 @@ const getRandomName = () => {
       </div>
 
       <div class="form-group">
-        <label for="petition-image">Add a photo (optional)</label>
+        <label>Add a photo</label>
         <div class="image-upload">
           <input
-              id="petition-image"
+              id="camera-input"
               type="file"
               accept="image/*"
+              capture="environment"
               @change="handleImageChange"
-              class="image-input"
           />
-          <label for="petition-image" class="image-upload-label">
-            <span v-if="!imagePreview">Choose image</span>
-            <span v-else>Change image</span>
-          </label>
 
-          <div v-if="imagePreview" class="image-preview-container">
-            <img :src="imagePreview" alt="Preview" class="image-preview"/>
-            <button
-                type="button"
-                class="remove-image-btn"
-                @click="selectedImage = null; imagePreview = null"
-            >
-              ×
-            </button>
-          </div>
+          <label for="camera-input" class="image-upload-label">
+            {{ hasImage ? 'Photo selected ✓' : 'Take Photo' }}
+          </label>
         </div>
-        <p class="image-help">Maximum size: 5MB. Best format: JPEG or PNG.</p>
       </div>
 
       <div v-if="error" class="error-message">{{ error }}</div>
@@ -329,7 +314,7 @@ textarea {
   min-height: 100px;
 }
 
-.location-help, .image-help {
+.location-help {
   margin-top: 5px;
   margin-bottom: 10px;
   font-size: 14px;
@@ -453,7 +438,7 @@ textarea {
 
 .image-upload-label {
   background: #f0f0f0;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border-radius: 4px;
   border: 1px dashed #ccc;
   cursor: pointer;
@@ -461,42 +446,12 @@ textarea {
   margin: 0;
   display: inline-block;
   color: #333;
+  min-width: 150px;
+  text-align: center;
 }
 
 .image-upload-label:hover {
   background: #e0e0e0;
-}
-
-.image-preview-container {
-  margin-top: 10px;
-  position: relative;
-  display: inline-block;
-  max-width: 100%;
-}
-
-.image-preview {
-  max-width: 100%;
-  max-height: 200px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-  margin-top: 10px;
-}
-
-.remove-image-btn {
-  position: absolute;
-  top: -12px;
-  right: -42px;
-  color: red;
-  background: none;
-  border: none;
-  width: 24px;
-  height: 24px;
-  font-size: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-weight: bold;
 }
 
 @media (max-width: 600px) {

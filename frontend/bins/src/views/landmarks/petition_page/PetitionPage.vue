@@ -110,9 +110,10 @@ onMounted(async () => {
 
     </div>
 
-    <div class="buttons">
-      <button v-if="Store.getUser().trust === 'ADMINISTRATOR' && petition.status === 'PENDING'" class="reject-button" @click="updateStatus('REJECTED')">Reject</button>
-      <button v-if="Store.getUser().trust === 'ADMINISTRATOR' && petition.status === 'PENDING'" class="accept-button" @click="updateStatus('ACCEPTED')">Accept</button>
+    <div v-if="Store.getUser().trust === 'ADMINISTRATOR'" class="buttons">
+      <button class="reject-button" @click="updateStatus('REJECTED')">Reject</button>
+      <button class="accept-button" @click="updateStatus('ACCEPTED')">Accept</button>
+      <button class="delete-button" @click="PetitionsApi.delete(petition.id)">Delete</button>
     </div>
 
     <h2 style="color: #a8a8a8">Messages</h2>
@@ -319,5 +320,10 @@ onMounted(async () => {
   .petition-container {
     margin: 290px auto 0 auto;
   }
+}
+
+.buttons button{
+  color: white;
+  font: inherit;
 }
 </style>

@@ -169,4 +169,16 @@ export default class PetitionsApi {
         return `${API_URL}/${id}/images?format=${format}`;
     }
 
+    static async delete(id) {
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return response.status === 204;
+    }
+
 }
