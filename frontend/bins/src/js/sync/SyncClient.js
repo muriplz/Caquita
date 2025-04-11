@@ -62,14 +62,6 @@ export default class SyncClient {
                         if (handlers) {
                             handlers.forEach(handler => handler(message.data));
                         }
-
-                        // Legacy support for currencies directly in SyncStore
-                        if (message.entity === 'currencies') {
-                            import('./SyncStore').then(module => {
-                                const SyncStore = module.default;
-                                SyncStore.updateCurrencies(message.data);
-                            });
-                        }
                     } else if (message.type === 'ERROR') {
                         console.error('Sync error:', message.data);
                     }

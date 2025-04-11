@@ -16,6 +16,7 @@ import esMessages from '/i18n/es_es.json'
 import SpawningItemStore from "./js/items/spawn/SpawningItemStore.js";
 import LandmarkStore from "./js/landmarks/LandmarkStore.js";
 import TrashCanStore from "./js/landmarks/trash_cans/TrashCanStore.js";
+import StatsApi from "./js/stats/StatsApi.js";
 
 const browserLanguage = navigator.language.split('-')[0];
 const savedLanguage = localStorage.getItem('language') || browserLanguage || 'en';
@@ -31,8 +32,10 @@ export const i18n = createI18n({
     }
 })
 
-settingsStore.init();
-Store.updateItems();
+settingsStore.init()
+Store.updateItems()
+
+StatsApi.recordView()
 
 AuthService.validate().then(user => {
     if (Store.getUser()) {

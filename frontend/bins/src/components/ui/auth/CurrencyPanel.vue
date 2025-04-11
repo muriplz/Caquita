@@ -1,9 +1,15 @@
 <script setup>
 import SyncStore from "@/js/sync/SyncStore.js";
 import CurrencyPanelItem from "@/components/ui/auth/CurrencyPanelItem.vue";
+import {onMounted, ref} from "vue";
 
-const beans = SyncStore.getBeans();
-const rolls = SyncStore.getRolls();
+const beans = ref(0);
+const rolls = ref(0);
+
+onMounted(async () => {
+  beans.value = await SyncStore.getBeans();
+  rolls.value = await SyncStore.getRolls();
+})
 </script>
 
 <template>

@@ -1,10 +1,21 @@
 <script setup>
-
 import router from "@/router/index.js";
+import StatsApi from "../js/stats/StatsApi.js";
+import { onMounted, ref } from "vue";
+
+const stats = ref(null)
+const onlines = ref(0)
 
 async function reloadPage() {
-  await router.push('/game');
+  await router.push('/game')
 }
+
+onMounted(async () => {
+  stats.value = await StatsApi.getStats()
+  onlines.value = await StatsApi.getOnlines()
+  console.log("Onlines:", onlines.value)
+  console.log("Stats:", stats.value)
+})
 </script>
 
 <template>
@@ -14,6 +25,23 @@ async function reloadPage() {
       <h1>Caquita</h1>
       <h3>A recycling geospatial app</h3>
       <img src="/images/ui/login_background.png" alt="background" />
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <h2>Online players</h2>
+        <h3>{{ onlines }}</h3>
+      </div>
+
+      <div class="stat">
+        <h2>Registered players</h2>
+        <h3>{{ stats ? stats.USERS : 0 }}</h3>
+      </div>
+
+      <div class="stat">
+        <h2>Page views</h2>
+        <h3>{{ stats ? stats.VIEWS : 0 }}</h3>
+      </div>
     </div>
 
     <div class="introduction">

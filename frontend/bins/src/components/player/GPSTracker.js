@@ -15,7 +15,7 @@ let keepAliveInterval = null;
 let firstPosition = null;
 let positionBuffer = [];
 const BUFFER_SIZE = 3;
-const MAX_ACCURACY = 30; // Maximum acceptable accuracy in meters
+const MAX_ACCURACY = 3000000; // Maximum acceptable accuracy in meters
 
 // Sync-related constants
 const SYNC_UPDATE_THRESHOLD = 5; // Meters threshold for sending location updates

@@ -61,6 +61,7 @@ class AuthService {
 
         if (response.status === 201) {
             await this.login(username, password);
+
             return true;
         } else if (response.status === 400) {
             const error = await response.text();

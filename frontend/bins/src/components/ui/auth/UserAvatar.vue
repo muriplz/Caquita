@@ -70,7 +70,7 @@ onBeforeUnmount(() => {
     <div ref="avatarRef" class="container" @click="toggleSelector">
       <div v-if="!user" class="level-overlay">
         <img src="/images/ui/avatar/level_border.png" alt="">
-        <div class="level-number">{{ SyncStore.getLevel()._value.level._value }}</div>
+        <div class="level-number">{{ SyncStore.getLevel().level._value }}</div>
       </div>
       <img :src="`/images/ui/avatar/${selectedAvatar}.png`">
     </div>

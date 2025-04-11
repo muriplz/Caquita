@@ -9,8 +9,6 @@ const currencies = reactive({
     rolls: 0
 });
 
-const level = ref(null);
-
 const listeners = new Set();
 
 const SyncStore = {
@@ -27,14 +25,7 @@ const SyncStore = {
         currencies.id = data.id || currencies.id;
         currencies.beans = data.beans ?? currencies.beans;
         currencies.rolls = data.rolls ?? currencies.rolls;
-
-        if (data.level) {
-            try {
-                level.value = new Level(data.level._children);
-            } catch (e) {
-                console.error('Error parsing level data:', e);
-            }
-        }
+        currencies.level = new Level(data.level._children);
 
         this.notifyListeners();
     },
@@ -48,7 +39,7 @@ const SyncStore = {
     },
 
     getLevel() {
-        return level;
+        return currencies.level;
     },
 
     subscribe(callback) {
@@ -61,9 +52,6 @@ const SyncStore = {
         listeners.forEach(callback => callback(currencies));
     },
 
-    debugSetLevel(levelData) {
-        level.value = new Level(levelData);
-    }
 };
 
 export default SyncStore;

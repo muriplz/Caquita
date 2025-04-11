@@ -1,7 +1,7 @@
 <script setup>
 const props = defineProps({
   show: Boolean,
-  position: Object
+  data: Object
 });
 
 const emit = defineEmits(['close']);
@@ -13,11 +13,7 @@ function closeUi() {
 
 <template>
   <div v-if="show" class="can-ui-container" @click.self="closeUi">
-    <div class="can-ui" :style="{
-      left: `${position.x}px`,
-      top: `${position.y}px`,
-      transform: 'translate(-50%, -50%)'
-    }">
+    <div class="can-ui">
       <div class="header">
         <button class="close-btn" @click="closeUi">×</button>
       </div>
@@ -42,6 +38,9 @@ function closeUi() {
 
 .can-ui {
   position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   background-color: white;
   padding: 20px;
   border-radius: 8px;
