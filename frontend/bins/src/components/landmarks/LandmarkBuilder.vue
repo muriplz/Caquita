@@ -1,56 +1,88 @@
 <script setup>
-import { ref, provide, markRaw, shallowRef } from 'vue';
-import TrashCanUi from './TrashCanUi.vue';
+import { provide, onMounted, onBeforeUnmount } from 'vue';
+import TrashCanUI from './TrashCanUI.vue';
+import { createApp, h } from 'vue';
 
-// Use a map of UI components, properly wrapped with markRaw
-const uiComponents = {
-  trashcan: markRaw(TrashCanUi)
-  // Add more UI types here as needed
-};
+// Create a map for our UI instances
+const uiInstances = {};
 
-// Use shallowRef to avoid making nested objects reactive
-const uiState = shallowRef({
-  type: null,
-  show: false
+// Create a container for UIs
+let uiContainer = null;
+
+onMounted(() => {
+  // Create a container for UIs
+  uiContainer = document.createElement('div');
+  uiContainer.id = 'landmark-ui-container';
+  uiContainer.style.position = 'absolute';
+  uiContainer.style.top = '0';
+  uiContainer.style.left = '0';
+  uiContainer.style.width = '100%';
+  uiContainer.style.height = '100%';
+  uiContainer.style.pointerEvents = 'none';
+  uiContainer.style.zIndex = '9999';
+  document.body.appendChild(uiContainer);
 });
 
-// Simple position object with numeric values
-const uiPosition = ref({ x: 0, y: 0 });
-
-// Provide a clean API for landmarks to use
-provide('landmarkSystem', {
-  showUI: (type, data = {}) => {
-    // Use a simple string identifier for landmark types
-    uiState.value = {
-      type,
-      show: true,
-      data: data || {}
-    };
-  },
-  hideUI: () => {
-    uiState.value = {
-      ...uiState.value,
-      show: false
-    };
+onBeforeUnmount(() => {
+  // Clean up UIs
+  if (uiContainer) {
+    document.body.removeChild(uiContainer);
   }
+
+  // Destroy any active UI instances
+  Object.values(uiInstances).forEach(instance => {
+    if (instance.app) {
+      instance.app.unmount();
+    }
+    if (instance.element) {
+      instance.element.remove();
+    }
+  });
 });
 
-function handleClose() {
-  uiState.value = {
-    ...uiState.value,
-    show: false
-  };
+function showUI(type, data) {
+  if (type === 'trash-can') {
+    const el = document.createElement('div');
+    uiContainer.appendChild(el);
+
+    const app = createApp({
+      render() {
+        return h(TrashCanUI, {
+          data,
+          onClose: () => {
+            app.unmount();
+            el.remove();
+            delete uiInstances[type];
+          }
+        });
+      }
+    });
+
+    app.mount(el);
+    uiInstances[type] = { app, element: el };
+  }
 }
+
+function hideUI(type) {
+  if (uiInstances[type]) {
+    uiInstances[type].app.unmount();
+    uiInstances[type].element.remove();
+    delete uiInstances[type];
+  }
+}
+
+// Provide the landmark system API
+provide('landmarkSystem', {
+  showUI: (type, data) => {
+    if (uiInstances[type]) {
+      hideUI(type);
+    }
+    showUI(type, data);
+  },
+  hideUI
+});
 </script>
 
 <template>
   <slot></slot>
-
-  <!-- Render the appropriate UI component based on type -->
-  <component
-      v-if="uiState.type && uiComponents[uiState.type] && uiState.show"
-      :is="uiComponents[uiState.type]"
-      :show="true"
-      :data="uiState.data"
-      @close="handleClose" />
 </template>

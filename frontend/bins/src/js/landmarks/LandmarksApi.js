@@ -4,7 +4,7 @@ const API_URL = getIpAddress() + '/api/v1/landmarks';
 
 export default class LandmarksApi {
 
-    async getLandmarks(id) {
+    static async getLandmark(id) {
         const response = await fetch(API_URL + '/' + id, {
             credentials: 'include'
         });

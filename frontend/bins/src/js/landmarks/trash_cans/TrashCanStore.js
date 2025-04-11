@@ -43,33 +43,7 @@ const TrashCanStore = {
     },
 
     getTrashCans() {
-        console.log(trashCans);
         return trashCans;
-    },
-
-    // Find trash can by id
-    getTrashCanById(id) {
-        return trashCans.find(trashCan => trashCan.id === id);
-    },
-
-    // Find trash cans by type
-    getTrashCansByType(type) {
-        return trashCans.filter(trashCan => trashCan.type === type);
-    },
-
-    // Get trash cans near a location
-    async getTrashCansNear(latitude, longitude, maxDistance = 500) {
-        const nearbyTrashCans = [];
-
-        // Filter asynchronously since distanceFrom is async
-        for (const trashCan of trashCans) {
-            const distance = await trashCan.distanceFrom(latitude, longitude);
-            if (distance <= maxDistance) {
-                nearbyTrashCans.push(trashCan);
-            }
-        }
-
-        return nearbyTrashCans;
     },
 
     // Subscribe to changes

@@ -1,39 +1,49 @@
 <script setup>
+import {onMounted, ref} from "vue";
+import LandmarksApi from "../../js/landmarks/LandmarksApi.js";
+import AuthService from "../../js/auth/AuthService.js";
+
 const props = defineProps({
-  show: Boolean,
   data: Object
 });
 
 const emit = defineEmits(['close']);
 
+const landmark = ref(null);
+const author = ref(null);
+
 function closeUi() {
   emit('close');
 }
+
+onMounted(async () => {
+  landmark.value = await LandmarksApi.getLandmark(props.data.id);
+  author.value = await AuthService.getUsername(landmark.value.author)
+});
+
 </script>
 
 <template>
-  <div v-if="show" class="can-ui-container" @click.self="closeUi">
+  <div class="can-ui-container" @click.self="closeUi">
     <div class="can-ui">
-      <div class="header">
-        <button class="close-btn" @click="closeUi">×</button>
-      </div>
       <div class="content">
-        Hello world
+        <h3 style="white-space: nowrap">{{ landmark?.name }} - {{ landmark?.type }}</h3>
+        <p>Named by {{ author?.username }}</p>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
+<style>
 .can-ui-container {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 999;
-  background-color: rgba(0,0,0,0.3);
-  animation: fade-in 0.3s ease;
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
 }
 
 .can-ui {
@@ -43,47 +53,14 @@ function closeUi() {
   transform: translate(-50%, -50%);
   background-color: white;
   padding: 20px;
-  border-radius: 8px;
+  border: 3px solid #333;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   min-width: 240px;
   min-height: 140px;
-  animation: scale-in 0.3s ease;
-}
-
-.header {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 10px;
 }
 
 .content {
   text-align: center;
   font-size: 18px;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-  padding: 5px;
-  line-height: 1;
-  width: 40px;
-  height: 40px;
-}
-
-.close-btn:hover {
-  color: #000;
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scale-in {
-  from { transform: translate(-50%, -50%) scale(0.8); }
-  to { transform: translate(-50%, -50%) scale(1); }
 }
 </style>

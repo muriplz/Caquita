@@ -10,7 +10,7 @@ const landmarkSystem = inject('landmarkSystem');
 const mainColor = ref("#444444");
 const canvasElement = ref(null);
 const isInteracting = ref(false);
-const { camera, renderer } = useTres();
+const { camera, renderer, scene } = useTres();
 
 const safeTrashCans = computed(() => {
   const cans = TrashCanStore.getTrashCans();
@@ -26,41 +26,48 @@ function getPosition(trashCan) {
   return [worldPos.x * TILE_SIZE, 1, worldPos.z * TILE_SIZE];
 }
 
-function projectPosition(trashCan) {
-  if (!trashCan || !camera.value || !renderer.value) {
-    return { x: 0, y: 0 };
-  }
-
-  const position = getPosition(trashCan);
-  const vector = new THREE.Vector3(position[0], position[1] + 0.7, position[2]);
-  vector.project(camera.value);
-
-  const x = (vector.x * 0.5 + 0.5) * renderer.value.domElement.clientWidth;
-  const y = (-(vector.y * 0.5) + 0.5) * renderer.value.domElement.clientHeight;
-
-  return { x, y };
-}
-
 function handleTouch(event) {
   if (isInteracting.value) return;
 
   const touch = event.touches ? event.touches[0] : event;
-  const touchX = touch.clientX;
-  const touchY = touch.clientY;
 
-  for (const trashCan of safeTrashCans.value) {
-    if (!trashCan) continue;
+  const rect = renderer.value.domElement.getBoundingClientRect();
+  const mouseX = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
+  const mouseY = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
 
-    const trashScreenPos = projectPosition(trashCan);
-    const distance = Math.sqrt(
-        Math.pow(touchX - trashScreenPos.x, 2) +
-        Math.pow(touchY - trashScreenPos.y, 2)
-    );
+  const raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera(new THREE.Vector2(mouseX, mouseY), camera.value);
 
-    const hitRadius = 100;
-    if (distance < hitRadius) {
-      triggerInteraction(trashCan);
-      break;
+  const allMeshes = [];
+  scene.value.traverse(object => {
+    if (object.isMesh) {
+      allMeshes.push(object);
+    }
+  });
+
+  const intersects = raycaster.intersectObjects(allMeshes, true);
+
+  if (intersects.length > 0) {
+    const clickedPos = intersects[0].point;
+
+    let closestCan = null;
+    let closestDistance = Infinity;
+
+    for (const trashCan of safeTrashCans.value) {
+      if (!trashCan) continue;
+
+      const position = getPosition(trashCan);
+      const distance = new THREE.Vector3(position[0], position[1], position[2])
+          .distanceTo(clickedPos);
+
+      if (distance < closestDistance && distance < 2) {
+        closestDistance = distance;
+        closestCan = trashCan;
+      }
+    }
+
+    if (closestCan) {
+      triggerInteraction(closestCan);
     }
   }
 }
@@ -69,8 +76,7 @@ function triggerInteraction(trashCan) {
   if (isInteracting.value) return;
   isInteracting.value = true;
 
-  // Simply use the type identifier, not the component
-  landmarkSystem.showUI('trashcan', { trashCan });
+  landmarkSystem.showUI('trash-can', trashCan);
 
   setTimeout(() => {
     mainColor.value = "#444444";
@@ -85,6 +91,8 @@ onMounted(() => {
       canvasElement.value.addEventListener('click', handleTouch);
       canvasElement.value.addEventListener('touchstart', handleTouch);
     }
+
+    console.log("Scene structure:", scene.value);
   }, 500);
 });
 
