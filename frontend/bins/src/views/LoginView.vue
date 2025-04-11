@@ -4,6 +4,8 @@ import {ref} from 'vue';
 import {useRouter} from 'vue-router';
 import AuthService from '@/js/auth/AuthService.js';
 import ChangelogMarkdown from "@/components/ChangelogMarkdown.vue";
+import SyncService from '@/js/sync/SyncService.js';
+import SyncStore from '@/js/sync/SyncStore.js';
 
 const username = ref('');
 const password = ref('');
@@ -22,6 +24,8 @@ const handleLogin = async () => {
     }
 
     if (success) {
+      await SyncService.init();
+      await SyncStore.init();
       router.push('/game')
     }
   } catch (error) {
@@ -30,7 +34,6 @@ const handleLogin = async () => {
   } finally {
     loading.value = false;
   }
-
 };
 
 const handleRegister = async () => {
@@ -41,6 +44,8 @@ const handleRegister = async () => {
     const success = await AuthService.register(username.value, password.value);
     if (success) {
       showCreateAccountModal.value = false;
+      await SyncService.init();
+      await SyncStore.init();
       router.push('/game');
     } else {
       alert("Registration failed");
@@ -217,7 +222,6 @@ const closeCreateAccountModal = () => {
   cursor: not-allowed;
 }
 
-/* Modal styles */
 .modal-overlay {
   position: fixed;
   top: 0;
