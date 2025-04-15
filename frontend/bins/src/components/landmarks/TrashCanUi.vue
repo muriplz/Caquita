@@ -27,8 +27,8 @@ onMounted(async () => {
   <div class="can-ui-container" @click.self="closeUi">
     <div class="can-ui">
       <div class="content">
-        <h3 style="white-space: nowrap">{{ landmark?.name }} - {{ landmark?.type }}</h3>
-        <p>Named by {{ author?.username }}</p>
+        <img src="/images/ui/landmark/trash_can.png" alt=""/>
+        <img src="/images/ui/landmark/trash_can_ashtray.png" alt=""/>
       </div>
     </div>
   </div>
@@ -51,10 +51,6 @@ onMounted(async () => {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 20px;
-  border: 3px solid #333;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   min-width: 240px;
   min-height: 140px;
 }
@@ -62,5 +58,9 @@ onMounted(async () => {
 .content {
   text-align: center;
   font-size: 18px;
+}
+
+.content img {
+  position: absolute;
 }
 </style>

@@ -169,26 +169,26 @@ onMounted(async () => {
 
 .petition-header {
   display: flex;
-  justify-content: center;
+  align-items: flex-start;
+  padding: 12px;
+  gap: 15px;
 }
 
 .petition-header img {
-  margin: 12px;
-  border: 3px solid #333;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
-  image-rendering: auto; /* Default rendering for smooth images */
-  image-rendering: -moz-crisp-edges; /* Firefox */
-  image-rendering: -o-crisp-edges; /* Opera */
-  image-rendering: -webkit-optimize-contrast; /* Webkit (non-standard) */
-  image-rendering: crisp-edges; /* Pixelated rendering for pixel art */
-  image-rendering: pixelated;
+  border: 3px solid #333;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .petition-header-title {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-right: 12px;
+  flex-grow: 1;
+  min-width: 0;
 }
 
 .petition-header-title h2 {
@@ -321,6 +321,26 @@ onMounted(async () => {
     margin: 290px auto 0 auto;
   }
 }
+
+@media (max-width: 480px) {
+  .petition-header {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .petition-header img {
+    width: 90%;
+    height: auto;
+    aspect-ratio: 16/9;
+    margin-bottom: 12px;
+  }
+
+  .petition-header-title {
+    width: 100%;
+    align-items: center;
+  }
+}
+
 
 .buttons button{
   color: white;

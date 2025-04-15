@@ -6,6 +6,7 @@ import {startGPSTracking} from "@/components/player/GPSTracker.js";
 import PetitionsHeader from "@/views/landmarks/PetitionsHeader.vue";
 import {LANDMARK_FEATURES} from "@/views/landmarks/js/LandmarkInfo.js";
 import LandmarkTypes from "@/js/landmarks/LandmarkTypes.js";
+import ImageUploader from "./ImageUploader.vue";
 
 const mapRef = ref(null);
 const formData = reactive({
@@ -19,10 +20,9 @@ const formData = reactive({
 // Store the random name placeholder in a ref so it doesn't change on every render
 const randomNamePlaceholder = ref('');
 
-// Image upload state - simplified
+// Image handling
 const selectedImage = ref(null);
-const hasImage = ref(false);
-const uploadStatus = ref(null);
+const uploadStatus = ref({status: 'idle', message: ''});
 const petitionId = ref(null);
 
 // Create dropdown options from landmark types
@@ -32,8 +32,18 @@ const typeOptions = Object.entries(LandmarkTypes.LANDMARK_TYPES).map(([key, valu
 }));
 
 const isLoading = ref(false);
-const error = ref(false);
+const error = ref(null);
 const success = ref(false);
+
+// Form validation
+const isFormValid = computed(() => {
+  return (
+      formData.name.trim() !== '' &&
+      formData.description.trim() !== '' &&
+      formData.position !== null &&
+      selectedImage.value !== null
+  );
+});
 
 onMounted(() => {
   startGPSTracking();
@@ -75,46 +85,40 @@ const onPositionSelected = (position) => {
   formData.position = position;
 };
 
-// Memory optimized image handler
-const handleImageChange = (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  if (!file.type.match('image.*')) {
-    error.value = 'Please select an image file';
-    return;
-  }
-
-  // Only store the file reference, no preview
-  selectedImage.value = file;
-  hasImage.value = true;
+const handleImageUpdate = (image) => {
+  selectedImage.value = image;
   error.value = null;
+};
 
-  // Explicitly trigger garbage collection (optional)
-  event.target.value = null;
+const handleUploadStatus = (status) => {
+  uploadStatus.value = status;
+  if (status.status === 'error') {
+    error.value = status.message;
+  } else {
+    error.value = null;
+  }
 };
 
 const uploadImage = async () => {
-  if (!selectedImage.value || !petitionId.value) return;
+  if (!selectedImage.value || !petitionId.value) return false;
 
   try {
-    uploadStatus.value = 'uploading';
+    uploadStatus.value = {status: 'uploading', message: 'Uploading image...'};
     await PetitionsApi.uploadImage(petitionId.value, selectedImage.value);
-    uploadStatus.value = 'success';
-
-    // Free memory after upload
-    selectedImage.value = null;
+    uploadStatus.value = {status: 'success', message: 'Upload successful'};
+    return true;
   } catch (err) {
-    uploadStatus.value = 'error';
+    uploadStatus.value = {status: 'error', message: 'Failed to upload image'};
     error.value = 'Failed to upload image: ' + err.message;
+    return false;
   }
 };
 
 const submitForm = async (e) => {
   e.preventDefault();
 
-  if (!formData.name || !formData.position || !formData.description) {
-    error.value = "Please fill in all required fields";
+  if (!isFormValid.value) {
+    error.value = selectedImage.value ? "Please fill in all required fields" : "Please add a photo - it's required";
     return;
   }
 
@@ -145,16 +149,19 @@ const submitForm = async (e) => {
           petitionId.value = petitions.petitions[0].id;
 
           if (selectedImage.value) {
-            await uploadImage();
+            const imageUploaded = await uploadImage();
+            success.value = true;
+            if (!imageUploaded) {
+              error.value = "Petition created but the image failed to upload";
+            }
           }
-
-          success.value = true;
         } else {
           success.value = true;
         }
       } catch (fetchErr) {
         console.error('Failed to fetch petition ID:', fetchErr);
         success.value = true;
+        error.value = "Petition created but couldn't retrieve petition ID for image upload";
       }
     }
 
@@ -183,10 +190,10 @@ const getRandomName = () => {
   <div class="container">
     <div v-if="success" class="success-message">
       <p>Your petition has been successfully created!</p>
-      <div v-if="uploadStatus === 'success'" class="image-success">
+      <div v-if="uploadStatus.status === 'success'" class="image-success">
         <p>Your image was uploaded successfully.</p>
       </div>
-      <div v-else-if="uploadStatus === 'error'" class="error-message">
+      <div v-else-if="uploadStatus.status === 'error'" class="error-message">
         <p>Your petition was created, but there was an error uploading the image.</p>
       </div>
     </div>
@@ -256,20 +263,11 @@ const getRandomName = () => {
       </div>
 
       <div class="form-group">
-        <label>Add a photo</label>
-        <div class="image-upload">
-          <input
-              id="camera-input"
-              type="file"
-              accept="image/*"
-              capture="environment"
-              @change="handleImageChange"
-          />
-
-          <label for="camera-input" class="image-upload-label">
-            {{ hasImage ? 'Photo selected ✓' : 'Take Photo' }}
-          </label>
-        </div>
+        <label>Add a photo <span class="required-marker">*</span></label>
+        <ImageUploader
+            v-model:image="selectedImage"
+            @upload-status="handleUploadStatus"
+        />
       </div>
 
       <div v-if="error" class="error-message">{{ error }}</div>
@@ -298,6 +296,10 @@ label {
   font-weight: bold;
   margin-bottom: 8px;
   color: #aeaeae;
+}
+
+.required-marker {
+  color: #f44336;
 }
 
 input, select, textarea {
@@ -424,34 +426,6 @@ textarea {
 
 .feature-label {
   text-transform: capitalize;
-}
-
-.image-upload {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.image-input {
-  display: none;
-}
-
-.image-upload-label {
-  background: #f0f0f0;
-  padding: 12px 20px;
-  border-radius: 4px;
-  border: 1px dashed #ccc;
-  cursor: pointer;
-  font-weight: normal;
-  margin: 0;
-  display: inline-block;
-  color: #333;
-  min-width: 150px;
-  text-align: center;
-}
-
-.image-upload-label:hover {
-  background: #e0e0e0;
 }
 
 @media (max-width: 600px) {

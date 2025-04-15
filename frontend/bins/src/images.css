@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+img {
+    -webkit-user-drag: none;
+    user-drag: none;
+    image-rendering: pixelated;
+}
+
+@utility mask-fade-bottom {
+    mask-image: linear-gradient(to bottom, black 93%, transparent 100%);
+}

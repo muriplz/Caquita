@@ -11,5 +11,7 @@ export default class LandmarksApi {
         return await response.json();
     }
 
-
+    static getImageUrl(id) {
+        return `${API_URL}/${id}/image`;
+    }
 }

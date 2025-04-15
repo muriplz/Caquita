@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-recycle-green-500: oklch(0.759 0.113 149.141);
+  --color-recycle-browm-500: oklch(0.916 0.086 83.546);
+}
+
+@font-face {
+  font-family: 'Minecraftia';
+  src: url('/fonts/Minecraftia.ttf');
+}
+
+body {
+  font-family: 'Minecraftia';
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  -moz-tap-highlight-color: transparent;
+  -ms-tap-highlight-color: transparent;
+  tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+.modal {
+  background-color: #ffdfa1;
+  border: 3px solid #333;
+}

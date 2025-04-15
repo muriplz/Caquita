@@ -4,9 +4,11 @@ import vue from '@vitejs/plugin-vue'
 import {templateCompilerOptions} from '@tresjs/core'
 import Components from 'unplugin-vue-components/vite'
 import MotionResolver from 'motion-v/resolver'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
     plugins: [
+        tailwindcss(),
         vue({
             ...templateCompilerOptions
         }),

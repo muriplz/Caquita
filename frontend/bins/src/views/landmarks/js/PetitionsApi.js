@@ -151,7 +151,7 @@ export default class PetitionsApi {
         const formData = new FormData();
         formData.append('image', image);
 
-        const response = await fetch(`${API_URL}/${id}/images`, {
+        const response = await fetch(`${API_URL}/${id}/image`, {
             method: 'POST',
             credentials: 'include',
             body: formData
@@ -165,8 +165,8 @@ export default class PetitionsApi {
         return await response.json();
     }
 
-    static getImageUrl(id, format = 'webp') {
-        return `${API_URL}/${id}/images?format=${format}`;
+    static getImageUrl(id) {
+        return `${API_URL}/${id}/image`;
     }
 
     static async delete(id) {

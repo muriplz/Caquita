@@ -60,8 +60,8 @@ const parsedMarkdown = computed(() => {
 
 <template>
   <div>
-    <button @click="openModal" class="changelog-button" aria-label="Show Changelog">
-      <img src="/images/ui/changelog_button.png" alt="Changelog" class="changelog-icon" />
+    <button @click="openModal" class="">
+      <img src="/images/ui/changelog_button.png" alt="Changelog" />
     </button>
 
     <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
@@ -103,12 +103,6 @@ const parsedMarkdown = computed(() => {
   transform: scale(0.95);
 }
 
-.changelog-icon {
-  width: 24px;
-  height: 24px;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-}
 
 .modal-overlay {
   position: fixed;
