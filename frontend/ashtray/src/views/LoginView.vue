@@ -1,9 +1,7 @@
 <script setup>
 import { ref } from 'vue';
-import InfoButton from '@/views/login/InfoButton.vue';
 import LoginForm from '@/views/login/LoginForm.vue';
 import CreateAccountModal from '@/views/login/CreateAccountModal.vue';
-import ChangelogMarkdown from "@/components/ChangelogMarkdown.vue";
 
 const showCreateAccountModal = ref(false);
 const username = ref('');

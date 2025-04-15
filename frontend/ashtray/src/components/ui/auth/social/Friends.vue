@@ -1,3 +1,27 @@
+<template>
+  <div v-if="friends && friends.length > 0" class="w-full">
+    <div v-for="friend in friends" :key="friend.id" class="flex justify-between items-center py-2">
+      <div class="flex items-center gap-2.5">
+        <img class="w-[72px]" style="image-rendering: pixelated;" :src="`/images/ui/avatar/${avatars[friend.id]}.png`" />
+        <div class="flex flex-col items-start gap-0.5">
+          <div class="flex items-center gap-1">
+            <h3 class="m-0 pr-0.5 text-lg">{{ friend.username }}</h3>
+          </div>
+          <p
+              class="m-0 text-sm text-gray-500"
+              :class="{ 'text-green-500 font-bold': connectionStatus(friend).isOnline }"
+          >
+            {{ connectionStatus(friend).text }}
+          </p>
+        </div>
+        <FriendLevelBar :friend="friend"/>
+      </div>
+      <img class="w-6 h-6 cursor-pointer" style="image-rendering: pixelated;" @click="removeFriend(friend.id)" src="/images/ui/remove_friend.png" alt="Remove Friend" />
+    </div>
+  </div>
+  <div v-else class="text-center p-5 text-gray-500">No friends yet</div>
+</template>
+
 <script setup>
 import {computed, onBeforeMount, ref} from "vue";
 import FriendshipApi from "./js/FriendshipApi.js";
@@ -86,100 +110,3 @@ function connectionStatus(friend) {
   }
 }
 </script>
-
-<template>
-  <div v-if="friends && friends.length > 0" class="friends-list">
-    <div v-for="friend in friends" :key="friend.id" class="friend-item">
-      <div class="friend-info">
-        <img class="avatar" :src="`/images/ui/avatar/${avatars[friend.id]}.png`" />
-        <div class="friend-details">
-          <div class="name-level">
-            <h3 class="username">{{ friend.username }}</h3>
-          </div>
-          <p
-              class="connection-status"
-              :class="{ 'online-status': connectionStatus(friend).isOnline }"
-          >
-            {{ connectionStatus(friend).text }}
-          </p>
-        </div>
-        <FriendLevelBar :friend="friend"/>
-
-      </div>
-      <img class="remove-friend-btn" @click="removeFriend(friend.id)" src="/images/ui/remove_friend.png" alt="Remove Friend" />
-    </div>
-  </div>
-  <div v-else class="empty-state">No friends yet</div>
-</template>
-
-<style scoped>
-.friends-list {
-  width: 100%;
-}
-
-.friend-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-}
-
-.friend-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.friend-details {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-}
-
-.name-level {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.username {
-  margin: 0;
-  padding-right: 2px;
-  font-size: 1.1rem;
-}
-
-.level {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.connection-status {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #666;
-}
-
-.online-status {
-  color: green;
-  font-weight: bold;
-}
-
-.avatar {
-  width: 72px;
-  image-rendering: pixelated;
-}
-
-.remove-friend-btn {
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-  image-rendering: pixelated;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
-</style>

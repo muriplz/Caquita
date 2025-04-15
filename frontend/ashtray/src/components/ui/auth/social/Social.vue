@@ -1,31 +1,32 @@
 <template>
-  <div class="social-card modal">
-
-    <div class="user-info">
+  <div class="mx-3 shadow-lg flex flex-col p-2 max-w-[800px] h-[calc(100vh-300px)] modal">
+    <div class="flex items-start gap-2 m-2.5 justify-between">
       <UserAvatar/>
-      <div class="user-name">
-        <h3>{{Store.getUser()?.username}}</h3>
-        <p class="creation-date">{{ formatDate(Store.getUser()?.creation) }}</p>
+      <div class="flex flex-col items-start my-3 h-full">
+        <h2 class="text-xl mb-auto">{{Store.getUser()?.username}}</h2>
+        <p class="text-xs text-gray-500 leading-relaxed mb-6">Since {{ formatDate(Store.getUser()?.creation) }}</p>
       </div>
     </div>
 
-    <div class="tabs-container">
-      <div class="tabs">
+    <div class="relative" ref="tabsContainer">
+      <div class="flex relative" ref="tabsNav">
         <button
             v-for="tab in tabs"
             :key="tab.id"
             @click="selectTab(tab.id)"
-            :class="{ active: currentTab === tab.id }">
+            :class="{ 'font-bold': currentTab === tab.id }"
+            class="flex-1 py-3 px-2 bg-transparent border-none cursor-pointer text-xs whitespace-nowrap z-10 relative">
           {{ tab.name }}
         </button>
-        <div class="active-tab-highlight" :style="borderStyle"></div>
+        <div
+            class="absolute bg-transparent border-2 border-gray-800 z-0 transition-transform duration-100 ease-in-out"
+            :style="borderStyle"></div>
       </div>
     </div>
 
-    <div class="tab-container">
+    <div class="relative overflow-hidden flex-1">
       <transition :name="transitionName" mode="out-in" :duration="{ enter: 100, leave: 100 }">
-        <div :key="currentTab" class="tab-content">
-
+        <div :key="currentTab" class="py-2.5 px-0 h-full w-full">
           <div v-if="currentTab === 'profile'">
             <Profile :user="Store.getUser()"/>
           </div>
@@ -37,7 +38,6 @@
           <div v-if="currentTab === 'requests'">
             <Requests/>
           </div>
-
         </div>
       </transition>
     </div>
@@ -45,9 +45,8 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref, computed, nextTick, onMounted, onUnmounted } from "vue";
+import { onBeforeMount, ref, computed, nextTick, onMounted, onUnmounted, watch } from "vue";
 import FriendshipApi from "./js/FriendshipApi.js";
-import LevelBar from "../LevelBar.vue";
 import Store from "@/js/Store.js";
 import Profile from "../Profile.vue";
 import Requests from "./Requests.vue";
@@ -65,6 +64,7 @@ const borderWidth = ref(0);
 const borderLeft = ref(0);
 const borderHeight = ref(0);
 const borderTop = ref(0);
+const tabsNav = ref(null);
 
 const tabs = [
   { id: 'profile', name: 'Profile' },
@@ -88,10 +88,6 @@ function selectTab(tabId) {
   const currentIndex = tabs.findIndex(tab => tab.id === previousTab.value);
   const newIndex = tabs.findIndex(tab => tab.id === tabId);
   transitionName.value = newIndex > currentIndex ? 'slide-right' : 'slide-left';
-
-  nextTick(() => {
-    updateBorderPosition();
-  });
 }
 
 function formatDate(dateString) {
@@ -101,7 +97,9 @@ function formatDate(dateString) {
 }
 
 function updateBorderPosition() {
-  const activeTab = document.querySelector('.tabs button.active');
+  if (!tabsNav.value) return;
+
+  const activeTab = tabsNav.value.querySelector('button.font-bold');
   if (activeTab) {
     borderWidth.value = activeTab.offsetWidth;
     borderHeight.value = activeTab.offsetHeight;
@@ -109,6 +107,13 @@ function updateBorderPosition() {
     borderTop.value = activeTab.offsetTop;
   }
 }
+
+// Watch for tab changes to update border
+watch(currentTab, () => {
+  nextTick(() => {
+    updateBorderPosition();
+  });
+});
 
 onBeforeMount(async () => {
   await loadData();
@@ -120,7 +125,11 @@ onBeforeMount(async () => {
 });
 
 onMounted(() => {
-  updateBorderPosition();
+  // Initial update with a slight delay to ensure DOM is ready
+  setTimeout(() => {
+    updateBorderPosition();
+  }, 50);
+
   window.addEventListener('resize', updateBorderPosition);
 });
 
@@ -170,150 +179,10 @@ async function removeFriend(friendId) {
 </script>
 
 <style scoped>
-.social-card {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
-  width: min(calc(100vw - 48px), 800px);
-  height: calc(100vh - 300px);
-}
-
-.tabs-container {
-  position: relative;
-}
-
-.tabs {
-  display: flex;
-  position: relative;
-}
-
-.tabs button {
-  flex: 1;
-  padding: 12px 8px;
-  background: none;
-  border: none;
-  border-radius: 0;
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.8rem;
-  white-space: nowrap;
-  z-index: 1;
-  position: relative;
-}
-
-.tabs button.active {
-  font-weight: bold;
-}
-
-.active-tab-highlight {
-  position: absolute;
-  background-color: transparent;
-  border: 2px solid #333;
-  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 0;
-}
-
-.tab-container {
-  position: relative;
-  overflow: hidden;
-  flex: 1;
-}
-
-.tab-content {
-  padding: 10px 0;
-  height: 100%;
-  width: 100%;
-}
-
-.friend-item, .request-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-  border-bottom: 1px solid #eee;
-}
-
-.request-actions {
-  display: flex;
-  gap: 4px;
-}
-
-.friend-input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.add-btn, .accept-btn, .reject-btn, .remove-btn {
-  padding: 4px 8px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.add-btn {
-  background: #42b983;
-  color: white;
-  width: 100%;
-}
-
-.accept-btn {
-  background: #42b983;
-  color: white;
-}
-
-.reject-btn, .remove-btn {
-  background: #f56c6c;
-  color: white;
-}
-
-.status-message {
-  margin-top: 8px;
-  text-align: center;
-  color: #42b983;
-}
-
-.empty-state {
-  text-align: center;
-  color: #999;
-  padding: 20px;
-}
-
-.user-info {
-  align-items: flex-start;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  margin: 10px;
-  justify-content: space-between;
-}
-
-.user-name {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin: 12px 0;
-}
-
-.user-name h3 {
-  margin: 0;
-  padding: 0;
-  line-height: 1.2;
-}
-
-.creation-date {
-  margin: 0;
-  padding: 0;
-  font-size: 0.6rem;
-  color: gray;
-  line-height: 2.7;
-}
-
 .slide-right-enter-active,
-.slide-right-leave-active {
+.slide-right-leave-active,
+.slide-left-enter-active,
+.slide-left-leave-active {
   transition: transform 0.1s ease, opacity 0.1s ease;
   position: absolute;
   width: 100%;
@@ -327,13 +196,6 @@ async function removeFriend(friendId) {
 .slide-right-leave-to {
   transform: translateX(-50px);
   opacity: 0;
-}
-
-.slide-left-enter-active,
-.slide-left-leave-active {
-  transition: transform 0.1s ease, opacity 0.1s ease;
-  position: absolute;
-  width: 100%;
 }
 
 .slide-left-enter-from {

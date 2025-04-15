@@ -4,7 +4,6 @@
       <LevelBar :user="user"/>
     </div>
 
-    <h3>Advancements</h3>
     <p class="logout" @click="AuthService.logout()">Logout</p>
   </div>
 </template>
@@ -12,7 +11,7 @@
 <script setup>
 import Store from "@/js/Store.js";
 import LevelBar from './LevelBar.vue';
-import AuthService from "../../../js/auth/AuthService.js";
+import AuthService from "@/js/auth/AuthService.js";
 
 const props = defineProps({
   user: {
@@ -23,13 +22,10 @@ const props = defineProps({
 </script>
 
 <style scoped>
-.profile-card {
-}
-
 .logout {
   color: #bf2323;
   position: absolute;
-  bottom: -12px;
+  bottom: 0;
   width: 100%;
   text-align: end;
   cursor: pointer;

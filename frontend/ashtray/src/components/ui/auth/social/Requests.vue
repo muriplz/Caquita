@@ -1,26 +1,27 @@
 <template>
-  <div class="container">
-    <div class="add-friend-trigger" @click="toggleAddFriend">
-      <img src="/images/ui/add_friend.png" class="plus-icon"/>
+  <div class="relative w-full pt-4 min-h-[60px]">
+    <div class="absolute flex items-center justify-center -top-2.5 right-2.5 w-8 h-9 rounded-b-full shadow-md z-10 border-b-2 border-r-2 border-l-2 border-gray-800 bg-white active:scale-95"
+         @click="toggleAddFriend">
+      <img src="/images/ui/add_friend.png" class=""/>
     </div>
 
-    <div class="content-wrapper">
+    <div class="relative w-full min-h-full">
       <transition name="slide-from-top">
-        <div v-if="showAddFriend" class="add-friend-panel">
-          <div class="add-friend-input">
-            <input type="text" v-model="friendUsername" placeholder="Add a friend" />
-            <button class="add-friend-button" @click="addFriend">Add</button>
+        <div v-if="showAddFriend" class="absolute top-0 left-0 w-full z-[1]">
+          <div class="relative flex w-full text-xs mt-4 px-2">
+            <input type="text" v-model="friendUsername" placeholder="Add a friend" class="w-full border-2 border-gray-800 p-1.5" />
+            <button class="bg-gray-400 border-2 border-gray-800 text-xs my-0.5 ml-1.5 cursor-pointer" @click="addFriend">Add</button>
           </div>
         </div>
       </transition>
 
-      <div class="pending-requests-wrapper" :style="requestsStyle">
-        <div v-if="requests && requests.length > 0" class="pending-requests">
-          <div v-for="request in requests" :key="request.id" class="request-item">
+      <div class="relative w-full" :style="requestsStyle">
+        <div v-if="requests && requests.length > 0" class="p-2">
+          <div v-for="request in requests" :key="request.id" class="flex justify-between items-center p-1.5 border-b border-gray-200 text-base">
             {{ request.username }}
-            <div class="request-actions">
-              <button @click="respondToRequest(request.id, 'ACCEPTED')" class="accept-btn">Accept</button>
-              <button @click="respondToRequest(request.id, 'REJECTED')" class="reject-btn">Reject</button>
+            <div class="flex gap-1">
+              <button @click="respondToRequest(request.id, 'ACCEPTED')" class="py-0.5 px-1 rounded cursor-pointer text-xs bg-green-500 text-white">Accept</button>
+              <button @click="respondToRequest(request.id, 'REJECTED')" class="py-0.5 px-1 rounded cursor-pointer text-xs bg-red-500 text-white">Reject</button>
             </div>
           </div>
         </div>
@@ -30,13 +31,13 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref, computed } from "vue";
+import {onBeforeMount, ref, computed} from "vue";
 import FriendshipApi from "./js/FriendshipApi.js";
 
 const requests = ref([]);
 const showAddFriend = ref(false);
 const friendUsername = ref("");
-const inputHeight = ref(80); // Approximate height of the add friend input section
+const inputHeight = ref(80);
 
 // Computed style for the requests section to move in sync with input
 const requestsStyle = computed(() => {
@@ -79,126 +80,6 @@ async function respondToRequest(requesterId, action) {
 </script>
 
 <style scoped>
-.container {
-  position: relative;
-  width: 100%;
-  padding-top: 16px;
-  min-height: 60px;
-}
-
-.content-wrapper {
-  position: relative;
-  width: 100%;
-  min-height: 100%;
-}
-
-.add-friend-trigger {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  top: -10px;
-  right: 10px;
-  width: 32px;
-  height: 36px;
-  border-bottom-right-radius: 100%;
-  border-bottom-left-radius: 100%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-  overflow: visible;
-  z-index: 2;
-  border-bottom: 2px solid #333;
-  border-right: 2px solid #333;
-  border-left: 2px solid #333;
-}
-
-.add-friend-trigger:active {
-  transform: scale(0.95);
-}
-
-.plus-icon {
-  width: 24px;
-  margin-bottom: 6px;
-}
-
-.add-friend-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1;
-  background-color: white;
-}
-
-.add-friend-input {
-  position: relative;
-  display: flex;
-  width: 100%;
-  font-size: 0.7rem;
-  margin-top: 16px;
-  padding: 0 8px;
-}
-
-.add-friend-input input {
-  width: 100%;
-  font: inherit;
-  border: 2px solid #333;
-  padding: 6px;
-}
-
-.add-friend-input button {
-  background: #9f9f9f;
-  border: 2px solid #333;
-  font: inherit;
-  font-size: 0.6rem;
-  border-radius: 0;
-  margin: 3px 0 3px 6px;
-  cursor: pointer;
-}
-
-.pending-requests-wrapper {
-  position: relative;
-  width: 100%;
-  transform: translateY(0);
-}
-
-.pending-requests {
-  padding: 8px 8px;
-}
-
-.request-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px;
-  border-bottom: 1px solid #eee;
-  font-size: 1rem;
-}
-
-.request-actions {
-  display: flex;
-  gap: 4px;
-}
-
-.accept-btn, .reject-btn {
-  padding: 2px 4px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.6rem;
-}
-
-.accept-btn {
-  background: #42b983;
-  color: white;
-}
-
-.reject-btn {
-  background: #f56c6c;
-  color: white;
-}
-
 /* Transitions */
 .slide-from-top-enter-active,
 .slide-from-top-leave-active {
