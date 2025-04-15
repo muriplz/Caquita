@@ -1,5 +1,9 @@
 <template>
-  <a href="javascript:void(0)" class="section-button" :style="{ transitionDelay }" @click="handleClick">
+  <a
+      href="javascript:void(0)"
+      class="modal px-6 py-3"
+      :style="{ transitionDelay }"
+      @click="handleClick">
     {{ label }}
   </a>
 </template>
@@ -23,19 +27,4 @@ function handleClick() {
 </script>
 
 <style scoped>
-.section-button {
-  display: block;
-  padding: 16px 32px;
-  background-color: white;
-  color: #333;
-  border: 4px solid #333;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  width: 200px;
-  text-align: center;
-  text-decoration: none;
-  transition: transform 0.2s, background-color 0.2s;
-}
-
 </style>

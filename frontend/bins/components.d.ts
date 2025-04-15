@@ -12,7 +12,6 @@ declare module 'vue' {
     AdditionalInfo: typeof import('./src/components/ui/settings/AdditionalInfo.vue')['default']
     AvatarSelector: typeof import('./src/components/ui/auth/social/AvatarSelector.vue')['default']
     ChangelogMarkdown: typeof import('./src/components/ChangelogMarkdown.vue')['default']
-    Contributing: typeof import('./src/components/ui/Contributing.vue')['default']
     Controls: typeof import('./src/components/ui/settings/tabs/Controls.vue')['default']
     CurrencyPanel: typeof import('./src/components/ui/auth/CurrencyPanel.vue')['default']
     CurrencyPanelItem: typeof import('./src/components/ui/auth/CurrencyPanelItem.vue')['default']

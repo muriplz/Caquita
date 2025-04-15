@@ -2,18 +2,14 @@
 import {motion} from 'motion-v'
 import {computed, markRaw, ref, onMounted, onUnmounted} from 'vue'
 import Inventory from "./inventory/Inventory.vue"
-import AuthService from "@/js/auth/AuthService.js"
-import Profile from "@/components/ui/auth/Profile.vue"
 import Settings from "@/components/ui/settings/Settings.vue"
-import Store from "@/js/Store.js"
 import About from "@/components/ui/About.vue"
-import Contributing from "@/components/ui/Contributing.vue"
 import MenuButton from "@/components/ui/MenuButton.vue"
 import uiRouter from "./UIRouter.js"
 import ItemInfoScreen from "@/components/ui/inventory/ItemInfoScreen.vue"
 import CurrencyPanel from "@/components/ui/auth/CurrencyPanel.vue"
-import Social from "./auth/social/Social.vue";
-import router from "../../router/index.js";
+import Social from "@/components/ui/auth/social/Social.vue";
+import router from "@/router/index.js";
 
 const isDevelopment = process.env.NODE_ENV === 'development' || true;
 
@@ -23,12 +19,9 @@ const screenComponents = {
   INVENTORY: markRaw(Inventory),
   SETTINGS: markRaw(Settings),
   ABOUT: markRaw(About),
-  CONTRIBUTING: markRaw(Contributing),
   SOCIAL: markRaw(Social),
   ITEM_INFO: markRaw(ItemInfoScreen)
 }
-
-const centeredScreens = ['SETTINGS', 'CONTRIBUTING']
 
 onMounted(() => {
   uiRouter.reset()
@@ -66,8 +59,6 @@ const screenContentKey = computed(() => {
   return uiRouter.state.currentScreen || 'placeholder';
 })
 
-const isAdmin = computed(() => Store.state.user?.trust === "ADMINISTRATOR")
-
 const menuButtonText = computed(() => {
   if (uiRouter.state.currentScreen || uiRouter.state.isAnimating) return 'Back'
   if (uiRouter.state.isMenuOpen) return 'Close'
@@ -78,13 +69,6 @@ const menuButtonClass = computed(() => {
   if (uiRouter.state.currentScreen || uiRouter.state.isAnimating) return 'back'
   if (uiRouter.state.isMenuOpen) return 'open'
   return 'closed'
-})
-
-const isCenteredScreen = computed(() => {
-  if (uiRouter.state.isAnimating && uiRouter.state.targetScreen) {
-    return centeredScreens.includes(uiRouter.state.targetScreen);
-  }
-  return centeredScreens.includes(uiRouter.state.currentScreen);
 })
 
 const transitionName = computed(() => {
@@ -207,31 +191,6 @@ function handleSettingsClick() {
   settingsRotation.value += 90;
   uiRouter.toggleSettings();
 }
-
-function showContributing() {
-  if (uiRouter.state.isAnimating) return;
-  navigateTo('CONTRIBUTING');
-}
-
-function showMaterial(type) {
-  if (uiRouter.state.isAnimating) return;
-
-  const materialTypeMap = {
-    'cans': 'CANS',
-    'plastic': 'PLASTIC',
-    'cardboard': 'CARDBOARD',
-    'glass': 'GLASS'
-  };
-
-  if (materialTypeMap[type]) {
-    navigateTo(materialTypeMap[type]);
-  }
-}
-
-function handleLogout() {
-  AuthService.logout();
-  uiRouter.closeMenu();
-}
 </script>
 
 <template>
@@ -257,9 +216,8 @@ function handleLogout() {
         <Transition name="fade-scale">
           <a v-if="uiRouter.state.globalElements.showPlusButton"
              href="javascript:void(0)"
-             class="admin-button"
-             @click="showContributing">
-            <img src="/images/ui/plus_button.png" class="admin-icon" alt=""/>
+             @click="router.push('/landmarks')">
+            <img src="/images/ui/plus_button.png" class="mt-3" width="24" height="24" alt=""/>
           </a>
         </Transition>
       </div>
@@ -308,13 +266,11 @@ function handleLogout() {
             <div v-if="showScreenContent"
                  :key="screenContentKey"
                  class="component-container"
-                 :class="{ 'centered-container': isCenteredScreen }"
-                 @click.self="goBack">
+                   @click.self="goBack">
               <component
                   v-if="currentComponent"
                   :is="currentComponent"
                   @close="goBack"
-                  @openMaterial="showMaterial"
               />
               <div v-else class="empty-container"></div>
             </div>
@@ -424,14 +380,6 @@ function handleLogout() {
   opacity: 0.8;
 }
 
-.admin-button img {
-  width: 32px;
-  height: 32px;
-  margin-top: 8px;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-}
-
 .profile-icon {
   width: 52px;
   height: 52px;
@@ -512,12 +460,6 @@ function handleLogout() {
 .empty-container {
   width: 100%;
   height: 100%;
-}
-
-.centered-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .menu-fade-enter-active {

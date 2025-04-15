@@ -6,5 +6,8 @@ module.exports = {
                 sans: ['Minecraftia', 'sans-serif'],
             }
         }
-    }
+    },
+    plugins: [
+        require('@tailwindcss/typography')
+    ]
 }

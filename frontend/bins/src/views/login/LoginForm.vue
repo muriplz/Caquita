@@ -56,28 +56,29 @@ const updatePassword = (e) => emit('update:password', e.target.value);
   <div class="flex flex-col items-center">
     <div class="flex items-center mb-2">
       <InfoButton class="mr-2" />
-      <div class="flex flex-col">
+      <form @submit.prevent="handleLogin" class="flex flex-col">
         <input
             :value="username"
             @input="updateUsername"
             type="text"
-            placeholder=" username"
-            class="mb-2 w-40 modal"
+            placeholder=" Username"
+            autocapitalize="none"
+            class="mb-2 w-40 modal p-1"
         />
         <input
             :value="password"
             @input="updatePassword"
             type="password"
-            placeholder=" password"
-            class="w-40 modal"
+            placeholder=" Password"
+            class="w-40 modal p-1"
         />
-      </div>
+        <button type="submit" class="hidden"></button>
+      </form>
       <ChangelogMarkdown class="ml-2" />
     </div>
 
     <button @click="handleLogin">
       <img
-          :class="{ 'opacity-50': loading }"
           src="/images/ui/confirm_button.png"
       />
     </button>

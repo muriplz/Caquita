@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { marked } from 'marked'
+import {ref, computed} from 'vue'
+import {marked} from 'marked'
 
 const isModalOpen = ref(false)
 const markdownContent = ref('')
@@ -10,15 +10,15 @@ const error = ref(null)
 const browserLanguage = navigator.language.split('-')[0]
 const savedLanguage = ref(localStorage.getItem('language') || browserLanguage || 'en')
 
+const languageFilenames = {
+  en: 'en_us',
+  es: 'es_es'
+}
+
 const getChangelogUrl = () => {
   const lang = savedLanguage.value
-
-  if (lang === 'es') {
-    return 'https://raw.githubusercontent.com/muriplz/Caquita/main/changelog/es_es.md'
-  } else {
-    // Default to English for any other language
-    return 'https://raw.githubusercontent.com/muriplz/Caquita/main/changelog/en_us.md'
-  }
+  const filename = languageFilenames[lang] || languageFilenames.en
+  return `https://raw.githubusercontent.com/muriplz/Caquita/main/changelog/${filename}.md`
 }
 
 const fetchChangelog = async () => {
@@ -28,16 +28,11 @@ const fetchChangelog = async () => {
   error.value = null
 
   try {
-    const changelogUrl = getChangelogUrl()
-    const response = await fetch(changelogUrl)
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch changelog: ${response.status} ${response.statusText}`)
-    }
-
+    const response = await fetch(getChangelogUrl())
+    if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`)
     markdownContent.value = await response.text()
   } catch (err) {
-    console.error('Error fetching changelog:', err)
+    console.error('Error:', err)
     error.value = err.message
   } finally {
     isLoading.value = false
@@ -53,184 +48,123 @@ const closeModal = () => {
   isModalOpen.value = false
 }
 
-const parsedMarkdown = computed(() => {
-  return markdownContent.value ? marked(markdownContent.value) : ''
-})
+const parsedMarkdown = computed(() => markdownContent.value ? marked(markdownContent.value) : '')
 </script>
 
 <template>
   <div>
-    <button @click="openModal" class="">
-      <img src="/images/ui/changelog_button.png" alt="Changelog" />
+    <button @click="openModal" class="cursor-pointer">
+      <img src="/images/ui/changelog_button.png" alt="Changelog"/>
     </button>
 
-    <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <h2>Changelog</h2>
-          <button @click="closeModal" class="close-button">&times;</button>
-        </div>
-
-        <div class="modal-body">
-          <div v-if="isLoading" class="loading">
-            Loading changelog...
+    <Transition name="modal">
+      <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center" @click="closeModal">
+        <div class="w-11/12 max-w-4xl max-h-[75vh] flex flex-col modal" @click.stop>
+          <div class="flex justify-between items-center p-4 border-b">
+            <h2 class="text-2xl">Changelog</h2>
+            <button @click="closeModal" class="text-2xl cursor-pointer">&times;</button>
           </div>
 
-          <div v-else-if="error" class="error">
-            <p>Error loading changelog: {{ error }}</p>
-            <button @click="fetchChangelog" class="retry-button">Retry</button>
-          </div>
+          <div class="p-5 overflow-y-auto">
+            <div v-if="isLoading" class="text-center">Loading changelog...</div>
 
-          <div v-else class="markdown-content" v-html="parsedMarkdown"></div>
+            <div v-else-if="error" class="text-center">
+              <p>Error: {{ error }}</p>
+              <button @click="fetchChangelog" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded">Retry</button>
+            </div>
+
+            <div v-else class="markdown-content" v-html="parsedMarkdown"></div>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
-<style scoped>
-.changelog-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.changelog-button:active {
-  transform: scale(0.95);
-}
-
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: white;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 800px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #eaecef;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: background-color 0.2s;
-}
-
-.close-button:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.modal-body {
-  padding: 20px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
-
-.error {
-  text-align: center;
-  padding: 20px;
-  color: #e53935;
-  border: 1px solid #ffcdd2;
-  border-radius: 4px;
-  background-color: #ffebee;
-}
-
-.retry-button {
-  margin-top: 10px;
-  padding: 8px 16px;
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.retry-button:hover {
-  background-color: #1976d2;
-}
-
+<style>
 .markdown-content {
-  line-height: 1.6;
   text-align: left;
 }
 
-.markdown-content :deep(h1) {
-  border-bottom: 1px solid #eaecef;
-  padding-bottom: 0.3em;
+.markdown-content h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1.5rem 0 1rem 0;
 }
 
-.markdown-content :deep(h2) {
-  margin-top: 24px;
-  margin-bottom: 16px;
-  font-weight: 600;
-  line-height: 1.25;
+.markdown-content h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1.25rem 0 0.75rem 0;
 }
 
-.markdown-content :deep(ul) {
-  padding-left: 2em;
+.markdown-content h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 1rem 0 0.5rem 0;
 }
 
-.markdown-content :deep(li) {
-  margin: 0.25em 0;
+.markdown-content p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
 }
 
-.markdown-content :deep(code) {
-  padding: 0.2em 0.4em;
-  background-color: rgba(27, 31, 35, 0.05);
-  border-radius: 3px;
+.markdown-content ul, .markdown-content ol {
+  margin: 1rem 0;
+  padding-left: 2rem;
+}
+
+.markdown-content ul {
+  list-style-type: disc;
+}
+
+.markdown-content ol {
+  list-style-type: decimal;
+}
+
+.markdown-content li {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content a {
+  color: #3182ce;
+  text-decoration: underline;
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid #e2e8f0;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #4a5568;
+}
+
+.markdown-content pre {
+  background-color: #f7fafc;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.markdown-content code {
+  background-color: #f7fafc;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
   font-family: monospace;
 }
 
-.markdown-content :deep(a) {
-  color: #0366d6;
-  text-decoration: none;
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s ease;
 }
 
-.markdown-content :deep(a:hover) {
-  text-decoration: underline;
+.modal-enter-from {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.modal-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
 }
 </style>
