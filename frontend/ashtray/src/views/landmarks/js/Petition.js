@@ -1,4 +1,4 @@
-import User from "@/js/auth/User.js";
+import User from "@/js/auth/User.ts";
 
 class Petition {
     constructor(id, description, userId, lat, lon, landmarkInfo, status, creation, edition, image) {

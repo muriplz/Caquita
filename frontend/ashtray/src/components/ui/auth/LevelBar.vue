@@ -1,15 +1,16 @@
 <template>
-  <div v-if="level" class="level-container">
-    <span class="level-text">{{ formatNumber(level.progress._value) }}</span>
+  <div v-if="level" class="flex items-center justify-center gap-2">
+    <span class="text-xs font-bold">{{ formatNumber(level.progress._value) }}</span>
     <meter
         min="0"
         :max="level.total._value"
         :low="Math.floor(level.total._value * 0.2)"
         :high="Math.floor(level.total._value * 0.4)"
         :optimum="Math.floor(level.total._value * 0.9)"
-        :value="level.progress._value">
+        :value="level.progress._value"
+        class="appearance-none h-2.5 rounded">
     </meter>
-    <span class="level-text">{{ formatNumber(level.total._value) }}</span>
+    <span class="text-xs font-bold">{{ formatNumber(level.total._value) }}</span>
   </div>
 </template>
 
@@ -23,25 +24,7 @@ function formatNumber(num) {
 }
 </script>
 
-<style scoped>
-.level-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.level-text {
-  font-size: 12px;
-  font-weight: bold;
-}
-
-meter {
-  appearance: none;
-  height: 10px;
-  border-radius: 5px;
-}
-
+<style>
 meter::-webkit-meter-bar {
   background: #e6e6e6;
   border-radius: 5px;

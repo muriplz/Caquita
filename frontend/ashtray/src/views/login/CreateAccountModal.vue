@@ -18,7 +18,6 @@ const router = useRouter();
 const emit = defineEmits(['close']);
 
 const handleRegister = async () => {
-  console.log(props.username, props.password)
   if (!props.username || !props.password) return;
 
   loading.value = true;

@@ -91,8 +91,6 @@ onMounted(() => {
       canvasElement.value.addEventListener('click', handleTouch);
       canvasElement.value.addEventListener('touchstart', handleTouch);
     }
-
-    console.log("Scene structure:", scene.value);
   }, 500);
 });
 

@@ -111,6 +111,7 @@ onMounted(async () => {
     </div>
 
     <div v-if="Store.getUser().trust === 'ADMINISTRATOR'" class="buttons">
+      HI
       <button class="reject-button" @click="updateStatus('REJECTED')">Reject</button>
       <button class="accept-button" @click="updateStatus('ACCEPTED')">Accept</button>
       <button class="delete-button" @click="PetitionsApi.delete(petition.id)">Delete</button>
@@ -343,7 +344,7 @@ onMounted(async () => {
 
 
 .buttons button{
-  color: white;
+  color: black;
   font: inherit;
 }
 </style>

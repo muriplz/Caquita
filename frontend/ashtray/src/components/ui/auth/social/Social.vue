@@ -1,10 +1,10 @@
 <template>
-  <div class="mx-3 shadow-lg flex flex-col p-2 max-w-[800px] h-[calc(100vh-300px)] modal">
-    <div class="flex items-start gap-2 m-2.5 justify-between">
+  <div class="flex flex-col p-2 h-[calc(100vh-200px)] modal">
+    <div class="flex items-start gap-2 justify-between">
       <UserAvatar/>
       <div class="flex flex-col items-start my-3 h-full">
         <h2 class="text-xl mb-auto">{{Store.getUser()?.username}}</h2>
-        <p class="text-xs text-gray-500 leading-relaxed mb-6">Since {{ formatDate(Store.getUser()?.creation) }}</p>
+        <p class="text-xs text-gray-500 leading-relaxed mb-6">{{ formatDate(Store.getUser()?.creation) }}</p>
       </div>
     </div>
 
@@ -15,11 +15,11 @@
             :key="tab.id"
             @click="selectTab(tab.id)"
             :class="{ 'font-bold': currentTab === tab.id }"
-            class="flex-1 py-3 px-2 bg-transparent border-none cursor-pointer text-xs whitespace-nowrap z-10 relative">
+            class="flex-1 py-3 px-2 text-xs z-10 relative">
           {{ tab.name }}
         </button>
         <div
-            class="absolute bg-transparent border-2 border-gray-800 z-0 transition-transform duration-100 ease-in-out"
+            class="absolute border-2 z-0"
             :style="borderStyle"></div>
       </div>
     </div>
@@ -125,10 +125,7 @@ onBeforeMount(async () => {
 });
 
 onMounted(() => {
-  // Initial update with a slight delay to ensure DOM is ready
-  setTimeout(() => {
-    updateBorderPosition();
-  }, 50);
+  updateBorderPosition();
 
   window.addEventListener('resize', updateBorderPosition);
 });
@@ -143,37 +140,6 @@ async function loadData() {
     pendingRequests.value = await FriendshipApi.getPendingRequests();
   } catch (error) {
     console.error('Failed to load data:', error);
-  }
-}
-
-async function sendFriendRequest() {
-  if (!friendId.value) return;
-
-  try {
-    await FriendshipApi.sendRequest(parseInt(friendId.value));
-    requestStatus.value = 'Friend request sent!';
-    friendId.value = '';
-    setTimeout(() => requestStatus.value = '', 3000);
-  } catch (error) {
-    requestStatus.value = 'Failed to send request';
-  }
-}
-
-async function respondToRequest(requesterId, action) {
-  try {
-    await FriendshipApi.respondToRequest(requesterId, action);
-    await loadData();
-  } catch (error) {
-    console.error('Failed to respond to request:', error);
-  }
-}
-
-async function removeFriend(friendId) {
-  try {
-    await FriendshipApi.removeFriend(friendId);
-    await loadData();
-  } catch (error) {
-    console.error('Failed to remove friend:', error);
   }
 }
 </script>

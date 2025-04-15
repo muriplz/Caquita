@@ -26,11 +26,26 @@ onUnmounted(() => {
 <template>
   <div class="relative" ref="componentRef">
     <img src="/images/ui/info_button.png" @click.stop="toggleTooltip"/>
-    <div
-        v-show="showTooltip"
-        class="absolute bottom-full left-0 p-2 w-48 modal"
-    >
-      Enter your desired username if you don't have an account!
-    </div>
+    <Transition name="tooltip">
+      <div
+          v-if="showTooltip"
+          class="absolute bottom-full left-0 p-2 w-48 modal"
+      >
+        Enter your desired username if you don't have an account!
+      </div>
+    </Transition>
   </div>
 </template>
+
+<style scoped>
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+</style>

@@ -1,6 +1,6 @@
 <script setup>
-import {ref, computed} from 'vue'
-import {marked} from 'marked'
+import { ref, computed, onMounted } from 'vue'
+import { marked } from 'marked'
 
 const isModalOpen = ref(false)
 const markdownContent = ref('')
@@ -41,7 +41,6 @@ const fetchChangelog = async () => {
 
 const openModal = () => {
   isModalOpen.value = true
-  fetchChangelog()
 }
 
 const closeModal = () => {
@@ -49,6 +48,10 @@ const closeModal = () => {
 }
 
 const parsedMarkdown = computed(() => markdownContent.value ? marked(markdownContent.value) : '')
+
+onMounted(() => {
+  fetchChangelog()
+})
 </script>
 
 <template>

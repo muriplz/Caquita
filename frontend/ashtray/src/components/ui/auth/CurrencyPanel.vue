@@ -13,20 +13,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="currency-panel">
+  <div class="flex gap-2 modal px-2 py-1">
     <CurrencyPanelItem :value="beans" name="beans"/>
     <CurrencyPanelItem :value="rolls" name="rolls"/>
   </div>
 </template>
 
 <style scoped>
-.currency-panel {
-  display: flex;
-  gap: 8px;
-  background: #bbabab;
-  border: 3px solid #333;
-  padding: 4px 8px;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
+
 </style>

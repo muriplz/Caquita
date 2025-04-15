@@ -1,7 +1,7 @@
 <template>
   <a
       href="javascript:void(0)"
-      class="modal px-6 py-3"
+      class="modal px-6 py-3 font-bold"
       :style="{ transitionDelay }"
       @click="handleClick">
     {{ label }}
@@ -11,7 +11,8 @@
 <script setup>
 
 const emit = defineEmits(['click']);
-const props = defineProps({
+
+defineProps({
   label: {
     type: String,
     required: true
@@ -25,6 +26,3 @@ function handleClick() {
   emit('click');
 }
 </script>
-
-<style scoped>
-</style>

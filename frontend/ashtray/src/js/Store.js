@@ -1,4 +1,4 @@
-import User from './auth/User.js';
+import User from './auth/User.ts';
 import InventoryApi from "@/components/ui/inventory/js/InventoryApi.js";
 import ItemsApi from "@/js/items/ItemsApi.js";
 import {reactive} from "vue";

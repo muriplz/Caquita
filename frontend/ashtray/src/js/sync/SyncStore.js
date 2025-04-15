@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue';
-import Level from '@/js/auth/Level.js';
+import Level from '@/js/auth/Level.ts';
 import SyncService from './SyncService.js';
 
 const currencies = reactive({
