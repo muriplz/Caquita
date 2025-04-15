@@ -1,4 +1,4 @@
-# [Bins](https://caquita.app) Frontend Webapp
+# [Ashtray](https://caquita.app) Frontend Webapp
 
 [Deno](https://deno.com) + [Vue 3](https://vuejs.org) + [TresJS](https://tresjs.org) (ThreeJS wrapper)
 

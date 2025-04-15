@@ -1,5 +1,5 @@
 {
-  "name": "bins",
+  "name": "ashtray",
   "private": true,
   "version": "0.0.1-alpha",
   "type": "module",
@@ -9,13 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.1.4",
     "@tresjs/leches": "^0.14.1",
     "@vueuse/core": "^12.7.0",
     "maplibre-gl": "^5.2.0",
     "marked": "^15.0.7",
-    "motion-v": "^1.0.0-beta.0",
+    "motion-v": "^1.0.0-beta.2",
     "tailwindcss": "^4.1.4",
     "unplugin-vue-components": "^28.4.1",
     "vue": "^3.5.13",

@@ -1,6 +1,6 @@
 # Monorepo of [Caquita app](https://caquita.app)
 
-### [Bins](https://github.com/muriplz/Caquita/tree/main/frontend/bins)
+### [Ashtray](https://github.com/muriplz/Caquita/tree/main/frontend/ashtray)
 ![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D) ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E) ![Threejs](https://img.shields.io/badge/threejs-black?style=for-the-badge&logo=three.js&logoColor=white)
 
 A [TresJs](https://tresjs.org) frontend. The actual game that uses the API provided by Streetlight.
