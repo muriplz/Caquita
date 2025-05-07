@@ -34,7 +34,7 @@ A statistics backend made with R and [Shiny](https://shiny.posit.co). Aims to ha
 A [Discord](https://discord.com) bot made using [JDA](https://jda.wiki).
 
 # Contributing
-We are open for PR's, localization, art and ideas!
+We are open for PR's
 
 Come chat on [Our Discord Server](https://discord.gg/4CqZX2q76A) if you are interested
 
