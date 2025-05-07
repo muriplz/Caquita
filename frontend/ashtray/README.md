@@ -1,26 +1,5 @@
-# [Ashtray](https://caquita.app) Frontend Webapp
+# [Ashtray](https://caquita.app)
 
-[Deno](https://deno.com) + [Vue 3](https://vuejs.org) + [TresJS](https://tresjs.org) (ThreeJS wrapper)
+[Godot 4](https://godotengine.org)
 
-*Recommended editor: [Webstorm](https://www.jetbrains.com/webstorm/)*
-## Development
-
-```bash
-deno install
-```
-
-```bash
-deno run dev
-```
-
-#### Cleaning:
-
-```bash
-deno clean
-```
-
-#### Building:
-
-```bash
-deno run build
-```
+*Recommended editor: [Godot](https://godotengine.org/download)*

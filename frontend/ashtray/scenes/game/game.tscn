@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=3 uid="uid://d13do4fkw325b"]
+
+[ext_resource type="Script" uid="uid://ywhrcbjw2m3r" path="res://addons/orbit-controls/orbit-controls.gd" id="2_7h61r"]
+[ext_resource type="PackedScene" uid="uid://bshmwvc1y7ndg" path="res://scenes/game/player/player.tscn" id="2_kelw5"]
+[ext_resource type="PackedScene" uid="uid://b603gi5y4ktee" path="res://scenes/game/ui.tscn" id="3_0sr1o"]
+[ext_resource type="PackedScene" uid="uid://1doplgopx2uj" path="res://scenes/game/terrain/tile.tscn" id="4_kelw5"]
+
+[node name="Game" type="Node3D"]
+
+[node name="Player" parent="." instance=ExtResource("2_kelw5")]
+transform = Transform3D(0.998889, 0, -0.0471239, 0, 1, 0, 0.0471239, 0, 0.998889, 0, -1.02926, 0.154231)
+
+[node name="MainCamera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.961016, 0.276493, 0, -0.276493, 0.961016, 0, 3.29957, 3.43474)
+
+[node name="OrbitControls" type="Node3D" parent="."]
+script = ExtResource("2_7h61r")
+_camera = NodePath("../MainCamera")
+min_polar_angle = 0.261799
+max_polar_angle = 1.48353
+enable_damping = false
+enable_pan = false
+metadata/_custom_type_script = "uid://ywhrcbjw2m3r"
+
+[node name="UI" parent="." instance=ExtResource("3_0sr1o")]
+
+[node name="Tile" parent="." instance=ExtResource("4_kelw5")]

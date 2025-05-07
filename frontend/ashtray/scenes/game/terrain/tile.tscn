@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3 uid="uid://1doplgopx2uj"]
+
+[ext_resource type="Script" uid="uid://du65u2wke6kmy" path="res://scenes/game/terrain/tile.gd" id="1_ryg4h"]
+[ext_resource type="Script" uid="uid://dw1phevm0p66j" path="res://scenes/game/terrain/MapApi.gd" id="2_86n0t"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_86n0t"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_86n0t"]
+
+[node name="Tile" type="Node3D"]
+
+[node name="MapApi" type="Node" parent="."]
+script = ExtResource("2_86n0t")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PlaneMesh_86n0t")
+
+[node name="Sprite3D" type="Sprite3D" parent="."]
+texture = SubResource("ImageTexture_86n0t")
+script = ExtResource("1_ryg4h")
