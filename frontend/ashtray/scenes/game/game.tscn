@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://ywhrcbjw2m3r" path="res://addons/orbit-controls/orbit-controls.gd" id="2_7h61r"]
 [ext_resource type="PackedScene" uid="uid://bshmwvc1y7ndg" path="res://scenes/game/player/player.tscn" id="2_kelw5"]
 [ext_resource type="PackedScene" uid="uid://b603gi5y4ktee" path="res://scenes/game/ui.tscn" id="3_0sr1o"]
-[ext_resource type="PackedScene" uid="uid://1doplgopx2uj" path="res://scenes/game/terrain/tile.tscn" id="4_kelw5"]
+[ext_resource type="PackedScene" uid="uid://1doplgopx2uj" path="res://scenes/game/terrain/chunk_manager.tscn" id="4_kelw5"]
 
 [node name="Game" type="Node3D"]
 
