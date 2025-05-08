@@ -25,7 +25,7 @@ onUnmounted(() => {
   <Transition name="header-slide">
     <header v-show="isVisible" class="header">
       <div class="left-section">
-        <h4 v-if="store.getUser()">@{{ store.getUser().username }}</h4>
+        <h4 v-if="store.getUser()">@{{ store.getUser() }}</h4>
         <a @click="router.push('/game')">Back to the game</a>
       </div>
       <div class="container">

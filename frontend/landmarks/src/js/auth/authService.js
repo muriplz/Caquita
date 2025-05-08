@@ -1,8 +1,12 @@
 import {useUserStore} from "../Store.js";
 import {getIpAddress} from "../Static.js";
 
-
 class AuthService {
+
+    _getStore() {
+        return useUserStore();
+    }
+
     async getUsername(id) {
         const response = await fetch(getIpAddress() + `/api/v1/auth?id=${id}`, {
             method: 'GET',
@@ -32,7 +36,7 @@ class AuthService {
         if (response.status === 200) {
             const { token, id, username, creation, connection, trust, avatar } = await response.json();
             this.saveToken(token);
-            useUserStore().setUser(id, username, creation, connection, trust, avatar);
+            this._getStore().setUser(id, username, creation, connection, trust, avatar);
 
             return response;
         } else if (response.status === 460) {
@@ -87,7 +91,7 @@ class AuthService {
 
         if (response.status === 200) {
             const { id, username, creation, connection, trust, avatar } = await response.json()
-            useUserStore().setUser(id, username, creation, connection, trust, avatar)
+            this._getStore().setUser(id, username, creation, connection, trust, avatar)
             return true;
         } else {
             return false;
@@ -111,7 +115,7 @@ class AuthService {
     }
 
     logout() {
-        useUserStore().removeUser();
+        this._getStore().removeUser();
         document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     }
 }

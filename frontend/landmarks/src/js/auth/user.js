@@ -8,3 +8,5 @@ class User {
         this.avatar = avatar;
     }
 }
+
+export default User

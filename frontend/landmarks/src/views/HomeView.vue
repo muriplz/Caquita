@@ -1,62 +1,51 @@
 <script setup>
-import router from "@/router/index.js";
-import StatsApi from "../js/stats/StatsApi.js";
-import { onMounted, ref } from "vue";
-import { version } from '/package.json'
+import GithubButton from 'vue-github-button'
+import Hero from "@/views/home/Hero.vue";
+import GlobalStats from "@/views/home/GlobalStats.vue";
+import HomeFooter from "@/views/home/HomeFooter.vue";
 
-const stats = ref(null)
-const onlines = ref(0)
 
-onMounted(async () => {
-  stats.value = await StatsApi.getStats()
-  onlines.value = await StatsApi.getOnlines()
-})
+
 </script>
 
 <template>
   <div class="min-w-screen bg-recycle-green-500">
-    <section class="relative min-h-screen">
-      <img
-          src="/images/ui/login_background.png"
-          class="w-full h-screen object-cover mask-fade-bottom"
-          style="object-position: center 77%;"
-          alt="Hero background"
-      >
-      <p class="absolute top-4 right-4">{{ version }}</p>
-      <div class="absolute inset-0 flex flex-col items-center justify-center">
-        <h1 class="text-4xl font-bold mb-4">Caquita</h1>
-        <h3>A recycling geospatial app</h3>
-      </div>
-    </section>
+    <Hero/>
 
-    <section class="grid grid-cols-2 grid-rows-2 gap-18 mt-12">
-      <div class="text-center justify-self-end pr-8">
-        <h2>Users</h2>
-        <h3>{{ stats ? stats.USERS : 0 }}</h3>
-      </div>
+    <main class="p-6 flex flex-col gap-4 max-w-200 m-auto items-center">
+      <h2 class="text-2xl text-center m-3 font-bold">The game</h2>
 
-      <div class="text-center justify-self-start pl-8">
-        <h2>Views</h2>
-        <h3>{{ stats ? stats.VIEWS : 0 }}</h3>
+      <p class="text-center"><strong>No real-world actions involved</strong> in the game, it's just a game.</p>
+
+      <h2 class="text-2xl text-center m-3 font-bold">Introduction</h2>
+
+      <p>You are a racoon, and the world is filled with crap. You have to find ways of getting rid of them. The most common place to  get rid of them are trash cans, which are where they are in real life.</p>
+
+      <h2 class="text-2xl text-center m-3 font-bold">Why? What is the app's goal?</h2>
+      <p>I, MuriPlz, keep as an objective having a public dataset of real world recycling landmarks.</p>
+      <p>The issue in these kind of apps is having maintainers to keep the data up to date. A smart solution is to build a game around it so the players are the maintainers.</p>
+
+      <h2 class="text-2xl text-center m-3 font-bold">Downloads</h2>
+      <div>
+        <button disabled class="relative right-2">Android</button>
+        <button disabled class="relative left-2">iOS</button>
       </div>
 
-      <div class="text-center col-span-2">
-        <h2>Online</h2>
-        <h3>{{ onlines }}</h3>
-      </div>
-    </section>
-
-    <section class="p-6 md:p-24">
-      <h2 class="text-2xl text-center mb-6">The game</h2>
-
-      <p class="content">
-        <strong>There is no real world recycling actions involved</strong> in the game.
-        The game is a simulation, with the aim of having a database with recycling landmarks of public interest while having fun.
+      <h2 class="text-2xl text-center m-3 font-bold">Contribution portal</h2>
+      <p>
+        Our <router-link to="/landmarks">Landmarks</router-link> portal lets users submit trash cans, plastic containers, etc. Public debate is encouraged, for now petitions are accepted manually by me. Once a petition is accepted it gets automatically added to the game so players can interact with it.
       </p>
-      <p class="content">
-        You can collect items, deposit them in the different recycling bins and get points.
-        You will be able to battle another users and decorate your own virtual house at some point.
-      </p>
-    </section>
+    </main>
   </div>
+
+  <GithubButton
+      class="fixed top-2 left-6 z-50"
+      href="https://github.com/muriplz/Caquita"
+      data-color-scheme="no-preference: dark; light: dark; dark: dark;"
+      data-icon="octicon-star" data-size="large" data-show-count="true"
+      aria-label="Star muriplz/Caquita on GitHub">
+    Star
+  </GithubButton>
+
+  <HomeFooter/>
 </template>

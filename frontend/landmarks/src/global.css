@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --color-recycle-green-500: oklch(0.759 0.113 149.141);
+  --color-recycle-green-500: oklch(0.862 0.108 150.078);
   --color-recycle-browm-500: oklch(0.916 0.086 83.546);
+  --color-browm-500: oklch(0.494 0.077 40.425);
 }
 
 @font-face {
@@ -10,16 +11,21 @@
   src: url('/fonts/Minecraftia.ttf');
 }
 
-body {
-  font-family: 'Minecraftia';
+button {
+  background: var(--color-recycle-browm-500);
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 2px solid var(--color-browm-500);
+  cursor: pointer;
 }
 
-* {
-  -webkit-tap-highlight-color: transparent;
-  -moz-tap-highlight-color: transparent;
-  -ms-tap-highlight-color: transparent;
-  tap-highlight-color: transparent;
-  box-sizing: border-box;
+a:hover {
+  text-decoration: underline;
+}
+
+body {
+  font-family: 'Minecraftia';
+  background-color: var(--color-recycle-green-500);
 }
 
 .modal {
