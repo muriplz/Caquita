@@ -1,6 +1,0 @@
-const LANDMARK_TYPES = {
-    TRASH_CAN: "TRASH_CAN",
-    PLASTIC_CONTAINER: "PLASTIC_CONTAINER",
-};
-
-export default { LANDMARK_TYPES };
