@@ -2,7 +2,7 @@ extends Control
 
 signal validation_complete(success)
 var VALIDATE_API_URL: String
-var gps : Object
+var gps := Engine.get_singleton("GPSPlugin")
 
 func _ready() -> void:
 	VALIDATE_API_URL = Static.API_URL + "api/v1/auth/validate"
@@ -29,15 +29,11 @@ func _on_validate_response(result, response_code, headers, body, request_node):
 	request_node.queue_free()
 	
 func setup_gps():
-	ToastManager.show("Stting up")
-	gps = Engine.get_singleton("GPSPlugin")
-	var os_name = OS.get_name()
-	ToastManager.show("We on %s" % [os_name])
-	if os_name == "Android":
+	if OS.get_name() == "Android":
 		gps.connect("location_updated", Callable(self, "_on_location_updated"))
 		gps.start()
 	# TODO: elif os_name == "iOS":
 	
 func _on_location_updated(lat: float, lon: float) -> void:
-	ToastManager.show("Location updated: (%s, %s)" % [lat, lon])
+	ToastManager.show("Location updated: (%s, %s)" % [lat, lon], 2)
 	

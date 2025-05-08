@@ -1,0 +1,32 @@
+# Gradle cache & build outputs
+.gradle/
+build/
+
+# Local SDK path
+local.properties
+
+# IDE files
+.idea/
+*.iml
+
+# Godot export artefacts
+assetPacks/
+assets/build/
+
+# Downloaded libs
+gradle/libs/
+
+libs/
+
+# Keep everything else (wrapper, scripts, src/, res/, manifest, etc.)
+!.gitignore
+!AndroidManifest.xml
+!build.gradle
+!config.gradle
+!settings.gradle
+!gradle.properties
+!gradlew
+!gradlew.bat
+!gradle/wrapper/
+!src/
+!res/
