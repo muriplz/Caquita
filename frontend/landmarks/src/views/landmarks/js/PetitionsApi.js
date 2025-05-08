@@ -1,7 +1,6 @@
 import {getIpAddress} from "@/js/Static.js";
-import Store from "@/js/Store.js";
 
-const API_URL = getIpAddress() + '/api/v1/petitions';
+const API_URL = getIpAddress() + '/api/v1/petitions'
 
 export default class PetitionsApi {
 
@@ -12,10 +11,10 @@ export default class PetitionsApi {
             headers: {
                 'Content-Type': 'application/json'
             }
-        });
+        })
 
-        if (!response.ok) throw new Error(response.status);
-        return await response.json();
+        if (!response.ok) throw new Error(response.status)
+        return await response.json()
     }
 
     static async byId(id) {
@@ -27,16 +26,16 @@ export default class PetitionsApi {
             }
         })
 
-        if (!response.ok) throw new Error(response.status);
-        return await response.json();
+        if (!response.ok) throw new Error(response.status)
+        return await response.json()
     }
 
     static getName(id) {
-        const language = 'en_us';
-        const key = "items." + id.replace(":", ".");
+        const language = 'en_us'
+        const key = "items." + id.replace(":", ".")
 
         return import(`@/i18n/${language}.json`)
-            .then(translations => translations[key] || id);
+            .then(translations => translations[key] || id)
     }
 
     static async create(description, type, lat, lon, landmarkInfo) {

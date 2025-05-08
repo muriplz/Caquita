@@ -2,8 +2,6 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthService from '@/js/auth/AuthService.js';
-import SyncService from '@/js/sync/SyncService.js';
-import SyncStore from '@/js/sync/SyncStore.js';
 import InfoButton from '@/views/login/InfoButton.vue';
 import ChangelogMarkdown from "@/components/ChangelogMarkdown.vue";
 
@@ -32,14 +30,13 @@ const handleLogin = async () => {
   loading.value = true;
   try {
     const success = await AuthService.login(userInput, passInput);
+
     if (success === null) {
       emit('showCreateAccountModal');
     }
 
     if (success) {
-      await SyncService.init();
-      await SyncStore.init();
-      router.push('/game')
+      router.push('/')
     }
   } catch (error) {
     console.error("Login error:", error);

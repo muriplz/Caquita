@@ -1,7 +1,7 @@
 class_name Static
 extends Node
 
-const PRODUCTION: bool = true
+const PRODUCTION: bool = false
 
 static var API_URL: String:
 	get:

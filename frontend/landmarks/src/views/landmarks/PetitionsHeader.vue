@@ -1,7 +1,9 @@
 <script setup>
-import Store from "@/js/Store.js";
 import router from "@/router/index.js";
 import { ref, onMounted, onUnmounted } from 'vue';
+import {useUserStore} from "@/js/Store.js";
+
+const store = useUserStore();
 
 const isVisible = ref(true);
 const scrollThreshold = 30;
@@ -23,7 +25,7 @@ onUnmounted(() => {
   <Transition name="header-slide">
     <header v-show="isVisible" class="header">
       <div class="left-section">
-        <h4 v-if="Store.getUser()">@{{ Store.getUser().username }}</h4>
+        <h4 v-if="store.getUser()">@{{ store.getUser().username }}</h4>
         <a @click="router.push('/game')">Back to the game</a>
       </div>
       <div class="container">

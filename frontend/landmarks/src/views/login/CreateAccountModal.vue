@@ -1,10 +1,7 @@
-// CreateAccountModal.vue
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthService from '@/js/auth/AuthService.js';
-import SyncService from '@/js/sync/SyncService.js';
-import SyncStore from '@/js/sync/SyncStore.js';
 
 const props = defineProps({
   username: String,
@@ -25,9 +22,7 @@ const handleRegister = async () => {
     const success = await AuthService.register(props.username, props.password);
     if (success) {
       emit('close');
-      await SyncService.init();
-      await SyncStore.init();
-      router.push('/game');
+      router.push('/');
     } else {
       alert("Registration failed");
     }

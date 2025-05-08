@@ -57,13 +57,6 @@ onMounted(async () => {
         You can collect items, deposit them in the different recycling bins and get points.
         You will be able to battle another users and decorate your own virtual house at some point.
       </p>
-
-      <button
-          @click="router.push('/game')"
-          class="cursor-pointer block mx-auto mt-6 px-4 py-2 modal"
-      >
-        Play
-      </button>
     </section>
   </div>
 </template>

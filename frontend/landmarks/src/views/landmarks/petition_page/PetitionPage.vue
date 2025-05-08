@@ -3,8 +3,10 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import PetitionsApi from "@/views/landmarks/js/PetitionsApi.js";
 import PetitionsHeader from "@/views/landmarks/PetitionsHeader.vue";
-import Store from "@/js/Store.js";
 import AuthService from "@/js/auth/AuthService.js";
+import {useUserStore} from "@/js/Store.js";
+
+const store = useUserStore()
 
 const route = useRoute();
 const petitionId = ref(route.params.id);
@@ -110,7 +112,7 @@ onMounted(async () => {
 
     </div>
 
-    <div v-if="Store.getUser().trust === 'ADMINISTRATOR'" class="buttons">
+    <div v-if="store.getUser().trust === 'ADMINISTRATOR'" class="buttons">
       HI
       <button class="reject-button" @click="updateStatus('REJECTED')">Reject</button>
       <button class="accept-button" @click="updateStatus('ACCEPTED')">Accept</button>

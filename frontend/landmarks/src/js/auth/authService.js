@@ -1,7 +1,6 @@
-import Store from "../Store.js";
+import {useUserStore} from "../Store.js";
 import {getIpAddress} from "../Static.js";
-import router from "@/router/index.js";
-import uiRouter from "../../components/ui/UiRouter.js";
+
 
 class AuthService {
     async getUsername(id) {
@@ -17,6 +16,7 @@ class AuthService {
             return await response.json();
         }
     }
+
     async login(username, password) {
         const response = await fetch(getIpAddress() + '/api/v1/auth/login', {
             method: 'POST',
@@ -32,7 +32,7 @@ class AuthService {
         if (response.status === 200) {
             const { token, id, username, creation, connection, trust, avatar } = await response.json();
             this.saveToken(token);
-            await Store.setUser(id, username, creation, connection, trust, avatar);
+            useUserStore().setUser(id, username, creation, connection, trust, avatar);
 
             return response;
         } else if (response.status === 460) {
@@ -87,8 +87,7 @@ class AuthService {
 
         if (response.status === 200) {
             const { id, username, creation, connection, trust, avatar } = await response.json()
-            await Store.setUser(id, username, creation, connection, trust, avatar)
-
+            useUserStore().setUser(id, username, creation, connection, trust, avatar)
             return true;
         } else {
             return false;
@@ -112,22 +111,8 @@ class AuthService {
     }
 
     logout() {
-        // First close any open screens
-        if (uiRouter.state.currentScreen) {
-            uiRouter.goBack();
-        }
-
-        // Close the menu
-        uiRouter.closeMenu();
-
-        // Ensure proper logout sequence
-        Store.removeUser();
+        useUserStore().removeUser();
         document.cookie = 'auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-
-        // Force the redirect with a slight delay to ensure other operations complete
-        setTimeout(() => {
-            router.push('/');
-        }, 100);
     }
 }
 

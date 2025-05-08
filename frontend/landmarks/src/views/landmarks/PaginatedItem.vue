@@ -1,6 +1,4 @@
 <script setup>
-import {createRouter as route} from "vue-router";
-import router from "@/router/index.js";
 import PetitionsApi from "@/views/landmarks/js/PetitionsApi.js";
 
 const props = defineProps({

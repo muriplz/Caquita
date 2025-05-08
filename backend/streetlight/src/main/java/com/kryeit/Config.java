@@ -23,5 +23,9 @@ public class Config {
             ? System.getenv("IP_SALT")
             : "GTo+<A({`d^:b)KxV7#CW|3/l+J?-|gc%lu%e;PV-jtmix?2z5-v3il+W%vLzpVW";
 
+    public static String MAP_TILER_KEY = production
+            ? System.getenv("MAP_TILER_KEY")
+            : "aaaaaaaaaaa";
+
     public static String TILE_SERVER = "https://caquita.app:8080";
 }
