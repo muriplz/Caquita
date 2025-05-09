@@ -11,5 +11,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.133319, 0.548884, -0.20401
 mesh = SubResource("PrismMesh_a6wu5")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.999997, 0, -0.00246091, 0.000308647, 0.992104, 0.125419, 0.00244148, -0.12542, 0.992101, 0.0478191, 1.83482, 3.84979)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.68974, 4.43245)
 script = ExtResource("1_4m2od")
