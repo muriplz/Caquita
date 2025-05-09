@@ -44,8 +44,8 @@ const closeModal = () => {
     <div class="p-4 modal m-4">
       <p>No users by that name. Wanna create an account?</p>
       <div class="flex justify-center mt-4 space-x-4">
-        <img @click="closeModal" src="/images/ui/cancel_button.png" width="24" height="24" />
-        <img @click="handleRegister" src="/images/ui/confirm_button.png" width="24" height="24" />
+        <img @click="closeModal" src="/images/cancel_button.png" width="24" height="24" />
+        <img @click="handleRegister" src="/images/confirm_button.png" width="24" height="24" />
       </div>
     </div>
   </div>

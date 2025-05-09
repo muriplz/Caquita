@@ -20,6 +20,7 @@ config/icon="res://icon.png"
 FontManager="*res://scripts/apply_font.gd"
 UserStore="*res://scripts/stores/user_store.gd"
 ToastManager="*res://scenes/toast/toasts.gd"
+CoordConversion="*res://scenes/game/terrain/coord_conversion.gd"
 
 [display]
 
@@ -28,6 +29,7 @@ window/size/viewport_height=1024
 window/size/resizable=false
 window/size/borderless=true
 window/stretch/mode="viewport"
+window/stretch/aspect="keep_height"
 window/handheld/orientation=1
 
 [editor_plugins]

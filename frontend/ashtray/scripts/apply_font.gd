@@ -5,11 +5,9 @@ func _ready():
 	var font_data = FontFile.new()
 	font_data.font_data = font
 	
-	# Apply font to the root theme if it exists
 	if get_tree().root.theme:
 		get_tree().root.theme.default_font = font_data
 		
-	# Otherwise create a new theme
 	else:
 		var theme = Theme.new()
 		theme.default_font = font_data

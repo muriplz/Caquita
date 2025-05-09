@@ -43,3 +43,4 @@ bin/
 .DS_Store
 
 map_cache/
+tile-cache/

@@ -164,7 +164,7 @@ public class DatabaseUtils {
             return null;
         });
 
-        createForumTables();
+        //createForumTables();
     }
 
     public static void createForumTables() {

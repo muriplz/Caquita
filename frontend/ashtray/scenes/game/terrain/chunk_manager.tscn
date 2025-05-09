@@ -1,21 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://1doplgopx2uj"]
+[gd_scene load_steps=2 format=3 uid="uid://1doplgopx2uj"]
 
 [ext_resource type="Script" uid="uid://dfhiybmjmi7jv" path="res://scenes/game/terrain/chunk_manager.gd" id="1_ldviu"]
-[ext_resource type="Script" uid="uid://du65u2wke6kmy" path="res://scenes/game/terrain/tile.gd" id="1_ryg4h"]
-[ext_resource type="Script" uid="uid://dw1phevm0p66j" path="res://scenes/game/terrain/MapApi.gd" id="2_86n0t"]
-[ext_resource type="Script" uid="uid://c5ua3dc2258qi" path="res://scenes/game/terrain/gps.gd" id="4_ed6gr"]
-
-[sub_resource type="ImageTexture" id="ImageTexture_86n0t"]
 
 [node name="ChunkManager" type="Node3D"]
 script = ExtResource("1_ldviu")
-
-[node name="MapApi" type="Node" parent="."]
-script = ExtResource("2_86n0t")
-
-[node name="Sprite3D" type="Sprite3D" parent="."]
-texture = SubResource("ImageTexture_86n0t")
-script = ExtResource("1_ryg4h")
-
-[node name="GPS" type="Node3D" parent="."]
-script = ExtResource("4_ed6gr")

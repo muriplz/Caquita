@@ -18,7 +18,7 @@ const handleCloseModal = () => {
 
 <template>
   <img
-      src="/images/ui/login_background.png"
+      src="/images/login_background.png"
       class="fixed h-screen w-auto object-contain max-w-none left-0 right-0 mx-auto"
   >
 

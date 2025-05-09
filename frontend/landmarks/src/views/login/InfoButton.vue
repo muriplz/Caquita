@@ -25,7 +25,7 @@ onUnmounted(() => {
 
 <template>
   <div class="relative" ref="componentRef">
-    <img src="/images/ui/info_button.png" @click.stop="toggleTooltip"/>
+    <img src="/images/info_button.png" @click.stop="toggleTooltip"/>
     <Transition name="tooltip">
       <div
           v-if="showTooltip"

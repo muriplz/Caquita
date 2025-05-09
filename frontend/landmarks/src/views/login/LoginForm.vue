@@ -76,7 +76,7 @@ const updatePassword = (e) => emit('update:password', e.target.value);
 
     <button @click="handleLogin">
       <img
-          src="/images/ui/confirm_button.png"
+          src="/images/confirm_button.png"
       />
     </button>
   </div>

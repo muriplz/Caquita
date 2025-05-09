@@ -57,7 +57,7 @@ onMounted(() => {
 <template>
   <div>
     <button @click="openModal" class="cursor-pointer">
-      <img src="/images/ui/changelog_button.png" alt="Changelog"/>
+      <img src="/images/changelog_button.png" alt="Changelog"/>
     </button>
 
     <Transition name="modal">

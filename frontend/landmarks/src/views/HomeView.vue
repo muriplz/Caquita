@@ -9,26 +9,27 @@ import HomeFooter from "@/views/home/HomeFooter.vue";
 </script>
 
 <template>
-  <div class="min-w-screen bg-recycle-green-500">
+  <div class="bg-recycle-green-500">
     <Hero/>
 
     <main class="p-6 flex flex-col gap-4 max-w-200 m-auto items-center">
       <h2 class="text-2xl text-center m-3 font-bold">The game</h2>
 
-      <p class="text-center"><strong>No real-world actions involved</strong> in the game, it's just a game.</p>
+      <p class="text-center"><strong>No real-world recycling actions involved</strong> in the game, it's just a game.</p>
 
       <h2 class="text-2xl text-center m-3 font-bold">Introduction</h2>
 
       <p>You are a racoon, and the world is filled with crap. You have to find ways of getting rid of them. The most common place to  get rid of them are trash cans, which are where they are in real life.</p>
 
       <h2 class="text-2xl text-center m-3 font-bold">Why? What is the app's goal?</h2>
-      <p>I, MuriPlz, keep as an objective having a public dataset of real world recycling landmarks.</p>
+      <p>Having a public dataset of real world recycling landmarks.</p>
       <p>The issue in these kind of apps is having maintainers to keep the data up to date. A smart solution is to build a game around it so the players are the maintainers.</p>
 
       <h2 class="text-2xl text-center m-3 font-bold">Downloads</h2>
+      <p class="text-red-500 text-center text-xs">*not ready for download, in development</p>
       <div>
-        <button disabled class="relative right-2">Android</button>
-        <button disabled class="relative left-2">iOS</button>
+        <button disabled class="caquita-btn relative right-2">Android</button>
+        <button disabled class="caquita-btn relative left-2">iOS</button>
       </div>
 
       <h2 class="text-2xl text-center m-3 font-bold">Contribution portal</h2>
@@ -46,6 +47,5 @@ import HomeFooter from "@/views/home/HomeFooter.vue";
       aria-label="Star muriplz/Caquita on GitHub">
     Star
   </GithubButton>
-
   <HomeFooter/>
 </template>

@@ -1,13 +1,11 @@
 <script setup>
-import { version } from '/package.json'
-
 </script>
 
 <template>
-  <section class="relative min-h-screen">
+  <section class="relative min-h-screen ">
     <img
-        src="/images/ui/login_background.png"
-        class="w-full h-screen object-cover mask-fade-bottom"
+        src="/images/login_background.png"
+        class="w-screen h-screen object-cover mask-fade-bottom"
         style="object-position: center 77%;"
         alt="Hero background"
     >
@@ -18,7 +16,3 @@ import { version } from '/package.json'
     </div>
   </section>
 </template>
-
-<style scoped>
-
-</style>
