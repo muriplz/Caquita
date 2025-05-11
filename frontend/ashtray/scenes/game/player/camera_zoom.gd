@@ -1,37 +1,43 @@
-# camera_zoom.gd
-extends Camera3D
-class_name CameraZoom
+# orbit_zoom.gd
+extends OrbitCamera
+class_name OrbitZoom
 
-@export var zoom_speed: float    = 2.0   # world-units per wheel “notch” or pinch
-@export var min_distance: float  = 2.0
-@export var max_distance: float  = 20.0
+@export var zoom_curve:   Curve = Curve.new()
+@export var min_distance: float = 5.0
+@export var max_distance: float = 20.0
+@export var min_height:   float = 2.0
+@export var max_height:   float = 10.0
+@export var zoom_speed:   float = 0.02  # Δt per wheel notch or pinch
 
-@onready var player = $".."
-
-# backing store for our public property:
-var _distance: float = 5.0
-
-var distance: float = 5.0:
-	set(new_val):
-		_distance = clamp(new_val, min_distance, max_distance)
-		if has_method("_update_camera_transform"):
-			call("_update_camera_transform")
+var _zoom_t: float = 0.0
+var zoom_t: float = 0.0:
+	set(v):
+		_zoom_t = clamp(v, 0.0, 1.0)
+		_apply_zoom()
 	get:
-		return _distance
+		return _zoom_t
 
 func _ready() -> void:
-	if player:
-		var offset = global_transform.origin - player.global_transform.origin
-		_distance = offset.length()
+	set_process_unhandled_input(true)
+	_zoom_t = clamp((distance - min_distance) / (max_distance - min_distance), 0.0, 1.0)
+	_apply_zoom()
 
-func _input(event: InputEvent) -> void:
-	# desktop wheel
-	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
-			distance -= zoom_speed
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
-			distance += zoom_speed
+func _apply_zoom() -> void:
+	# linear zoom for distance
+	distance = lerp(min_distance, max_distance, _zoom_t)
+	# curved zoom for height
+	var h = zoom_curve.sample(_zoom_t)
+	height_offset = lerp(min_height, max_height, h)
+	_update_camera_transform()
 
-	# mobile pinch
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			zoom_t -= zoom_speed
+			get_viewport().set_input_as_handled()
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			zoom_t += zoom_speed
+			get_viewport().set_input_as_handled()
 	elif event is InputEventMagnifyGesture:
-		distance /= event.factor
+		zoom_t -= (event.factor - 1.0) * zoom_speed
+		get_viewport().set_input_as_handled()

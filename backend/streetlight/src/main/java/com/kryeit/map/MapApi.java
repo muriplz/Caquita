@@ -30,7 +30,7 @@ public class MapApi {
 
         if (tileFile.exists()) {
             ctx.contentType("image/jpeg");
-            ctx.result(new FileInputStream(tileFile));
+            ctx.status(200).result(new FileInputStream(tileFile));
             return;
         }
 
@@ -38,7 +38,6 @@ public class MapApi {
                 "https://tiles-eu.stadiamaps.com/tiles/stamen_watercolor/%d/%d/%d.jpg?api_key=%s",
                 ZOOM, x, y, Config.MAP_TILER_KEY
         );
-        System.out.println("Fetching tile from: " + url);
 
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
         conn.setRequestMethod("GET");
@@ -55,6 +54,6 @@ public class MapApi {
         }
 
         ctx.contentType("image/jpeg");
-        ctx.result(new FileInputStream(tileFile));
+        ctx.status(200) .result(new FileInputStream(tileFile));
     }
 }

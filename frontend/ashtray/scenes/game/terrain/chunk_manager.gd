@@ -1,6 +1,6 @@
 extends Node3D
 
-@export var render_distance: int = 4
+@export var render_distance: int = 2
 
 var _loaded_tiles: Dictionary = {}
 var _current_center: Vector2i = Vector2i(0, 0)
@@ -72,13 +72,12 @@ func _on_request_completed(
 	if img.load_jpg_from_buffer(body) != OK:
 		push_error("Failed to decode JPG for tile %d,%d" % [tx, ty])
 		return
-
+	
 	var tex := ImageTexture.create_from_image(img)
 	_create_tile(tx, ty, tex)
 
 func _create_tile(tx: int, ty: int, tex: Texture2D) -> void:
 	var base: Vector3 = CoordConversion.tile_to_world(tx, ty)
-
 	base.x += CoordConversion.TILE_SIZE * 0.5
 	base.z += CoordConversion.TILE_SIZE * 0.5
 
@@ -87,12 +86,13 @@ func _create_tile(tx: int, ty: int, tex: Texture2D) -> void:
 
 	var mi := MeshInstance3D.new()
 	mi.mesh = mesh
-	var mat := StandardMaterial3D.new()
-	mat.albedo_texture = tex
-	mi.material_override = mat
-	
-	add_child(mi)
 
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = StandardMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_texture = tex
+
+	mi.material_override = mat
+	add_child(mi)
 	mi.global_transform = Transform3D(Basis(), base)
 
 	_loaded_tiles[Vector2i(tx, ty)] = mi

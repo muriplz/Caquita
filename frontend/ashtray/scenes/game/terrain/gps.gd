@@ -13,8 +13,7 @@ func _ready() -> void:
 	else:
 		# Only happens when on dev env
 		ToastManager.show("Hey muri :)")
-		_on_location_updated(-33.8688, 151.2093)
-
+		_on_location_updated(43.461237, -3.803431)
 
 func _on_location_updated(lat: float, lon: float) -> void:
 	if not init:

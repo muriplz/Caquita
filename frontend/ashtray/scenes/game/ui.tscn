@@ -1,9 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://b603gi5y4ktee"]
+[gd_scene load_steps=6 format=3 uid="uid://b603gi5y4ktee"]
 
 [ext_resource type="Script" uid="uid://ynpbqaynpr0x" path="res://scenes/game/ui.gd" id="1_eq76c"]
 [ext_resource type="Texture2D" uid="uid://cpm2mqi82d7ux" path="res://assets/textures/ui/avatar/trash_can.png" id="2_1vjhe"]
 [ext_resource type="Script" uid="uid://dlyydhg7kokhc" path="res://scenes/game/horizontal_avatar.gd" id="2_w15o4"]
 [ext_resource type="Script" uid="uid://cr5cv0lo63r7h" path="res://scenes/game/logout_button.gd" id="4_ek8ox"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_ek8ox"]
+outline_size = 5
+outline_color = Color(0, 0, 0, 1)
 
 [node name="UI" type="Control"]
 layout_mode = 3
@@ -59,6 +63,7 @@ stretch_mode = 5
 [node name="Username" type="Label" parent="HorizontalAvatar"]
 layout_mode = 2
 text = "Username"
+label_settings = SubResource("LabelSettings_ek8ox")
 
 [node name="LogoutButton" type="Button" parent="."]
 layout_mode = 1

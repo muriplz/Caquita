@@ -1,20 +1,24 @@
+# orbit_camera.gd
 extends Camera3D
+class_name OrbitCamera
 
-const SENSITIVITY: float       = 1
-const GROUND_PLANE: Plane      = Plane(Vector3.UP, 0)
-const MIN_PIVOT_DIST: float    = 0.1
+const SENSITIVITY: float    = 1.0
+const GROUND_PLANE: Plane   = Plane(Vector3.UP, 0)
+const MIN_PIVOT_DIST: float = 0.1
 
-@onready var player: Node3D     = $".."
+@export var distance: float      = 10.0
+@export var height_offset: float = 5.0
 
-var distance: float
-var height_offset: float
+@onready var player: Node3D = $".."
+
 var yaw: float
-
-var dragging: bool              = false
+var dragging: bool
 var drag_cam_transform: Transform3D
 var last_hit: Vector3
 
 func _ready() -> void:
+	set_process_input(true)
+	set_process_unhandled_input(true)
 	var offset = global_transform.origin - player.global_transform.origin
 	distance      = Vector2(offset.x, offset.z).length()
 	height_offset = offset.y
@@ -24,22 +28,17 @@ func _process(delta: float) -> void:
 	_update_camera_transform()
 
 func _input(event: InputEvent) -> void:
-	# unify “press” for mouse or touch
-	if (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch):
-		var pressed = event.pressed
-		var pos     = event.position
-
-		if pressed:
-			# snapshot camera transform
+	if (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT) \
+	or (event is InputEventScreenTouch):
+		if event.pressed:
 			drag_cam_transform = global_transform
-			# initial pick on y=0 plane
-			var old = global_transform
+			var old_tf = global_transform
 			global_transform = drag_cam_transform
-			var from = project_ray_origin(pos)
-			var dir  = project_ray_normal(pos)
-			global_transform = old
-
-			var hit = GROUND_PLANE.intersects_ray(from, dir)
+			var hit = GROUND_PLANE.intersects_ray(
+				project_ray_origin(event.position),
+				project_ray_normal(event.position)
+			)
+			global_transform = old_tf
 			if hit:
 				dragging = true
 				last_hit = hit
@@ -47,32 +46,22 @@ func _input(event: InputEvent) -> void:
 			dragging = false
 		return
 
-	# unify “move” for mouse or touch‐drag
 	if dragging and (event is InputEventMouseMotion or event is InputEventScreenDrag):
-		var pos    = event.position
-		var rel_x  = event.relative.x
-
-		# use frozen camera for raycast
-		var old = global_transform
+		var old_tf = global_transform
 		global_transform = drag_cam_transform
-		var from = project_ray_origin(pos)
-		var dir  = project_ray_normal(pos)
-		global_transform = old
+		var hit = GROUND_PLANE.intersects_ray(
+			project_ray_origin(event.position),
+			project_ray_normal(event.position)
+		)
+		global_transform = old_tf
 
-		var hit = GROUND_PLANE.intersects_ray(from, dir)
-		var p   = player.global_transform.origin
-
-		if hit == null or hit.distance_to(p) < MIN_PIVOT_DIST:
-			# fallback to raw delta
-			yaw -= rel_x * SENSITIVITY * 0.01
+		var p = player.global_transform.origin
+		if not hit or hit.distance_to(p) < MIN_PIVOT_DIST:
+			yaw -= event.relative.x * SENSITIVITY * 0.01
 		else:
-			# incremental ground‐plane drag
 			var v0 = Vector2(last_hit.x - p.x, last_hit.z - p.z).normalized()
 			var v1 = Vector2(hit.x      - p.x, hit.z      - p.z).normalized()
-			var a0 = atan2(v0.y, v0.x)
-			var a1 = atan2(v1.y, v1.x)
-			var dθ = wrapf(a0 - a1, -PI, PI)
-			yaw += dθ * SENSITIVITY
+			yaw += wrapf(atan2(v0.y, v0.x) - atan2(v1.y, v1.x), -PI, PI) * SENSITIVITY
 			last_hit = hit
 
 func _update_camera_transform() -> void:
