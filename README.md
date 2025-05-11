@@ -1,7 +1,7 @@
 # Monorepo of [Caquita](https://caquita.app)
 
 ### [Ashtray](https://github.com/muriplz/Caquita/tree/main/frontend/ashtray)
-!![GDScript](https://img.shields.io/badge/GDScript-%2374267B.svg?style=for-the-badge&logo=godotengine&logoColor=white) ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+![GDScript](https://img.shields.io/badge/GDScript-%2374267B.svg?style=for-the-badge&logo=godotengine&logoColor=white) ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 
 An Android/iOS app, made in [Godot](https://godotengine.org). All assets(textures, sounds, translations) are in this repository, which get bundled within the game.
 

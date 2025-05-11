@@ -1,4 +1,3 @@
-# orbit_zoom.gd
 extends OrbitCamera
 class_name OrbitZoom
 
@@ -7,7 +6,7 @@ class_name OrbitZoom
 @export var max_distance: float = 20.0
 @export var min_height:   float = 2.0
 @export var max_height:   float = 10.0
-@export var zoom_speed:   float = 0.02  # Δt per wheel notch or pinch
+@export var zoom_speed:   float = 0.02
 
 var _zoom_t: float = 0.0
 var zoom_t: float = 0.0:
@@ -23,9 +22,7 @@ func _ready() -> void:
 	_apply_zoom()
 
 func _apply_zoom() -> void:
-	# linear zoom for distance
 	distance = lerp(min_distance, max_distance, _zoom_t)
-	# curved zoom for height
 	var h = zoom_curve.sample(_zoom_t)
 	height_offset = lerp(min_height, max_height, h)
 	_update_camera_transform()

@@ -1,4 +1,4 @@
-package com.kryeit.content.items.glass;
+package com.kryeit.content.items.classifications;
 
 import com.kryeit.content.items.MaterialClassification;
 

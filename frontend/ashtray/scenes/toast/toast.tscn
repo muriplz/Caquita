@@ -1,11 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://chajul475by1y"]
+[gd_scene load_steps=4 format=3 uid="uid://chajul475by1y"]
 
 [ext_resource type="Script" uid="uid://d1mm3futyu2lf" path="res://scenes/toast/toast.gd" id="1_2l50j"]
+[ext_resource type="FontFile" uid="uid://xwmelyme2n3p" path="res://assets/fonts/Minecraftia.ttf" id="1_hubc8"]
+
+[sub_resource type="Theme" id="Theme_6cb0o"]
+default_font = ExtResource("1_hubc8")
 
 [node name="Toast" type="Control"]
 z_index = 4096
 layout_mode = 3
 anchors_preset = 0
+theme = SubResource("Theme_6cb0o")
 script = ExtResource("1_2l50j")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]

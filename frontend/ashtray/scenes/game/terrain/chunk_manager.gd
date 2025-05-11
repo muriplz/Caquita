@@ -1,6 +1,6 @@
 extends Node3D
 
-@export var render_distance: int = 2
+@export var render_distance: int = 3
 
 var _loaded_tiles: Dictionary = {}
 var _current_center: Vector2i = Vector2i(0, 0)

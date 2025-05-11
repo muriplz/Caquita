@@ -1,4 +1,4 @@
-package com.kryeit.content.items.paper;
+package com.kryeit.content.items.classifications;
 
 import com.kryeit.content.items.MaterialClassification;
 

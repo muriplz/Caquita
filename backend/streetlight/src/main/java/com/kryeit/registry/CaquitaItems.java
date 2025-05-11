@@ -2,10 +2,6 @@ package com.kryeit.registry;
 
 
 import com.kryeit.content.items.Item;
-import com.kryeit.content.items.cardboard.PizzaBox;
-import com.kryeit.content.items.glass.GlassBottle;
-import com.kryeit.content.items.glass.GlassShard;
-import com.kryeit.content.items.metal.MetalChains;
 import com.kryeit.content.items.plastic.*;
 
 import java.util.Collection;
@@ -16,7 +12,7 @@ public class CaquitaItems {
     private static final Map<String, Item> ITEMS = new HashMap<>();
 
     public static void register(Item item) {
-        ITEMS.put(item.getId(), item);
+        ITEMS.put(item.id(), item);
     }
 
     public static Item getItem(String id) {
@@ -32,22 +28,8 @@ public class CaquitaItems {
     }
 
     static {
-        // GLASS
-        register(new GlassBottle());
-        register(new GlassShard());
-
         // PLASTIC
         register(new PlasticBottle());
-        register(new PlasticCap());
-        register(new PlasticTupper());
-        register(new PlasticGloves());
-        register(new PlasticPipe());
-
-        // CARDBOARD
-        register(new PizzaBox());
-
-        // METAL
-        register(new MetalChains());
     }
 
     public static void register() {

@@ -34,10 +34,11 @@ window/handheld/orientation=1
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/orbit-controls/plugin.cfg")
+enabled=PackedStringArray()
 
 [rendering]
 
 renderer/rendering_method="mobile"
 textures/vram_compression/import_etc2_astc=true
 textures/decals/filter=0
+textures/light_projectors/filter=4

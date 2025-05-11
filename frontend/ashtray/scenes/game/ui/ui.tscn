@@ -1,9 +1,13 @@
-[gd_scene load_steps=6 format=3 uid="uid://b603gi5y4ktee"]
+[gd_scene load_steps=8 format=3 uid="uid://b603gi5y4ktee"]
 
-[ext_resource type="Script" uid="uid://ynpbqaynpr0x" path="res://scenes/game/ui.gd" id="1_eq76c"]
+[ext_resource type="Script" uid="uid://ynpbqaynpr0x" path="res://scenes/game/ui/ui.gd" id="1_eq76c"]
+[ext_resource type="FontFile" uid="uid://xwmelyme2n3p" path="res://assets/fonts/Minecraftia.ttf" id="1_hy4qm"]
 [ext_resource type="Texture2D" uid="uid://cpm2mqi82d7ux" path="res://assets/textures/ui/avatar/trash_can.png" id="2_1vjhe"]
-[ext_resource type="Script" uid="uid://dlyydhg7kokhc" path="res://scenes/game/horizontal_avatar.gd" id="2_w15o4"]
-[ext_resource type="Script" uid="uid://cr5cv0lo63r7h" path="res://scenes/game/logout_button.gd" id="4_ek8ox"]
+[ext_resource type="Script" uid="uid://dlyydhg7kokhc" path="res://scenes/game/ui/horizontal_avatar.gd" id="2_w15o4"]
+[ext_resource type="Script" uid="uid://cr5cv0lo63r7h" path="res://scenes/game/ui/logout_button.gd" id="4_ek8ox"]
+
+[sub_resource type="Theme" id="Theme_sowjt"]
+default_font = ExtResource("1_hy4qm")
 
 [sub_resource type="LabelSettings" id="LabelSettings_ek8ox"]
 outline_size = 5
@@ -17,6 +21,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+theme = SubResource("Theme_sowjt")
 script = ExtResource("1_eq76c")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
@@ -29,18 +34,27 @@ grow_horizontal = 2
 grow_vertical = 2
 tooltip_text = "wadawdawdaw"
 
-[node name="Button" type="Button" parent="."]
+[node name="Button" type="Button" parent="PanelContainer"]
+layout_mode = 2
+text = "Inventory"
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -50.5
-offset_top = -31.0
-offset_right = 50.5
+offset_left = -26.5
+offset_top = -40.0
+offset_right = 26.5
 grow_horizontal = 2
 grow_vertical = 0
+
+[node name="MenuButton" type="Button" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
 text = "Menu"
 
 [node name="HorizontalAvatar" type="HBoxContainer" parent="."]

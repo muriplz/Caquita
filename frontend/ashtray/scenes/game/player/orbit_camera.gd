@@ -1,4 +1,3 @@
-# orbit_camera.gd
 extends Camera3D
 class_name OrbitCamera
 
