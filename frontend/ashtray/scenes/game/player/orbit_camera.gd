@@ -1,24 +1,20 @@
-# CameraController.gd
 extends Camera3D
-class_name CameraController
 
-# --- constants (tweak these!)
-const SENSITIVITY: float    = 1.1               # drag→angle multiplier
-const GROUND_PLANE: Plane   = Plane(Vector3.UP, 0)
+const SENSITIVITY: float       = 1
+const GROUND_PLANE: Plane      = Plane(Vector3.UP, 0)
+const MIN_PIVOT_DIST: float    = 0.1
 
-@onready var player: Node3D = $".."
+@onready var player: Node3D     = $".."
 
-# --- runtime vars
-var distance: float          # horizontal distance from player
-var height_offset: float     # vertical offset from player.y
-var yaw: float               # current heading around player
+var distance: float
+var height_offset: float
+var yaw: float
 
-var dragging: bool = false
-var drag_start_hit: Vector3
-var drag_start_yaw: float
+var dragging: bool              = false
+var drag_cam_transform: Transform3D
+var last_hit: Vector3
 
 func _ready() -> void:
-	# compute initial horizontal circle & height
 	var offset = global_transform.origin - player.global_transform.origin
 	distance      = Vector2(offset.x, offset.z).length()
 	height_offset = offset.y
@@ -28,43 +24,58 @@ func _process(delta: float) -> void:
 	_update_camera_transform()
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			var from = project_ray_origin(event.position)
-			var dir  = project_ray_normal(event.position)
-			var hit  = GROUND_PLANE.intersects_ray(from, dir)
-			if hit != null:
-				dragging         = true
-				drag_start_hit   = hit
-				drag_start_yaw   = yaw
+	# unify “press” for mouse or touch
+	if (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch):
+		var pressed = event.pressed
+		var pos     = event.position
+
+		if pressed:
+			# snapshot camera transform
+			drag_cam_transform = global_transform
+			# initial pick on y=0 plane
+			var old = global_transform
+			global_transform = drag_cam_transform
+			var from = project_ray_origin(pos)
+			var dir  = project_ray_normal(pos)
+			global_transform = old
+
+			var hit = GROUND_PLANE.intersects_ray(from, dir)
+			if hit:
+				dragging = true
+				last_hit = hit
 		else:
 			dragging = false
 		return
 
-	if dragging and event is InputEventMouseMotion:
-		var from = project_ray_origin(event.position)
-		var dir  = project_ray_normal(event.position)
-		var hit  = GROUND_PLANE.intersects_ray(from, dir)
-		if hit == null:
-			return
+	# unify “move” for mouse or touch‐drag
+	if dragging and (event is InputEventMouseMotion or event is InputEventScreenDrag):
+		var pos    = event.position
+		var rel_x  = event.relative.x
 
-		# compute normalized 2D directions from player to hit points
-		var p = player.global_transform.origin
-		var v0 = Vector2(drag_start_hit.x - p.x, drag_start_hit.z - p.z).normalized()
-		var v1 = Vector2(hit.x - p.x,           hit.z - p.z).normalized()
-		# signed angle delta between them
-		var angle0 = atan2(v0.y, v0.x)
-		var angle1 = atan2(v1.y, v1.x)
-		var Δθ     = wrapf(angle0 - angle1, -PI, PI)
+		# use frozen camera for raycast
+		var old = global_transform
+		global_transform = drag_cam_transform
+		var from = project_ray_origin(pos)
+		var dir  = project_ray_normal(pos)
+		global_transform = old
 
-		yaw = drag_start_yaw + Δθ * SENSITIVITY
+		var hit = GROUND_PLANE.intersects_ray(from, dir)
+		var p   = player.global_transform.origin
 
-		# no need to call _update here; it'll run in your next _process
-		# but you can if you want immediate feedback:
-		_update_camera_transform()
+		if hit == null or hit.distance_to(p) < MIN_PIVOT_DIST:
+			# fallback to raw delta
+			yaw -= rel_x * SENSITIVITY * 0.01
+		else:
+			# incremental ground‐plane drag
+			var v0 = Vector2(last_hit.x - p.x, last_hit.z - p.z).normalized()
+			var v1 = Vector2(hit.x      - p.x, hit.z      - p.z).normalized()
+			var a0 = atan2(v0.y, v0.x)
+			var a1 = atan2(v1.y, v1.x)
+			var dθ = wrapf(a0 - a1, -PI, PI)
+			yaw += dθ * SENSITIVITY
+			last_hit = hit
 
 func _update_camera_transform() -> void:
-	# rebuild horizontal-offset + fixed height
 	var x = sin(yaw) * distance
 	var z = cos(yaw) * distance
 	global_transform.origin = player.global_transform.origin + Vector3(x, height_offset, z)
