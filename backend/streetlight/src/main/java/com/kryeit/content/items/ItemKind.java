@@ -1,7 +1,5 @@
 package com.kryeit.content.items;
 
-import com.kryeit.recycling.ResourceType;
-
 import java.util.List;
 
 public interface ItemKind {

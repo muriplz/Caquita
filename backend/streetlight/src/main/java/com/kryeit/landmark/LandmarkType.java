@@ -1,11 +1,9 @@
 package com.kryeit.landmark;
 
-import com.kryeit.landmark.plastic_container.PlasticContainer;
 import com.kryeit.landmark.trash_can.TrashCan;
 
 public enum LandmarkType {
     TRASH_CAN(TrashCan.class, "trash_cans", 50),
-    PLASTIC_CONTAINER(PlasticContainer.class, "plastic_containers", 100),
     ;
 
     private Class<? extends Landmark> clazz;

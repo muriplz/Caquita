@@ -1,8 +1,8 @@
 package com.kryeit.content.items.plastic;
 
 import com.kryeit.content.items.ItemKind;
+import com.kryeit.content.items.ResourceType;
 import com.kryeit.content.items.classifications.PlasticClassification;
-import com.kryeit.recycling.ResourceType;
 
 import java.util.List;
 

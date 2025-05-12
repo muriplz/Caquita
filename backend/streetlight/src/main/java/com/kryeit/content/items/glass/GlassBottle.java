@@ -1,8 +1,8 @@
 package com.kryeit.content.items.glass;
 
 import com.kryeit.content.items.ItemKind;
+import com.kryeit.content.items.ResourceType;
 import com.kryeit.content.items.classifications.GlassClassification;
-import com.kryeit.recycling.ResourceType;
 
 import java.util.List;
 

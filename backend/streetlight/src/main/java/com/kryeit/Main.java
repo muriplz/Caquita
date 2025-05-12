@@ -5,7 +5,6 @@ import com.kryeit.auth.FriendshipApi;
 import com.kryeit.auth.LoginApi;
 import com.kryeit.auth.avatar.UnlockedAvatar;
 import com.kryeit.auth.inventory.InventoryApi;
-import com.kryeit.content.items.ItemKindsApi;
 import com.kryeit.landmark.forum.petitions.PetitionImageApi;
 import com.kryeit.landmark.forum.petitions.PetitionsApi;
 import com.kryeit.landmark.trash_can.TrashCanApi;
@@ -69,7 +68,7 @@ public class Main {
 
             path("item-kinds", () -> {
                 get(ctx -> ctx.status(200).json(CaquitaItems.getAllItems()));
-                get("{id}", ItemKindsApi::getItem);
+                get("{id}", ctx -> ctx.status(200).json(CaquitaItems.getItem(ctx.pathParam("id"))));
             });
 
             path("inventory", () -> {
@@ -160,9 +159,7 @@ public class Main {
                 put(TrashCanApi::create);
 
                 path("{id}", () -> {
- //                   get(TrashCanApi::get);
- //                   patch(TrashCanApi::update);
- //                   delete(TrashCanApi::delete);
+
                 });
             });
         });

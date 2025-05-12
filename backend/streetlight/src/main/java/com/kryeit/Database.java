@@ -11,7 +11,6 @@ import com.kryeit.landmark.forum.Reply;
 import com.kryeit.landmark.forum.petitions.Petition;
 import com.kryeit.landmark.forum.petitions.PetitionMessage;
 import com.kryeit.landmark.forum.petitions.PetitionReply;
-import com.kryeit.landmark.plastic_container.PlasticContainer;
 import com.kryeit.landmark.trash_can.TrashCan;
 import com.kryeit.stats.GlobalStats;
 import com.zaxxer.hikari.HikariConfig;
@@ -42,7 +41,6 @@ public class Database {
 
         // LANDMARKS
         JDBI.registerRowMapper(ConstructorMapper.factory(TrashCan.class));
-        JDBI.registerRowMapper(ConstructorMapper.factory(PlasticContainer.class));
         // LANDMARKS END
 
         // FORUMS

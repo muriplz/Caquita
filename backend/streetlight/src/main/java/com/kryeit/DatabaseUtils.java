@@ -87,18 +87,6 @@ public class DatabaseUtils {
                 )
             """);
 
-            handle.execute("""
-                CREATE TABLE IF NOT EXISTS spawning_items (
-                    id SERIAL PRIMARY KEY,
-                    item_id BIGINT NOT NULL,
-                    user_id BIGINT NOT NULL,
-                    position GEOMETRY(POINT, 4326) NOT NULL,
-                    creation TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
-                    duration TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-                )
-            """);
-
             // Create trash_cans table
             handle.execute("""
                 CREATE TABLE IF NOT EXISTS trash_cans (
@@ -107,20 +95,24 @@ public class DatabaseUtils {
                     name VARCHAR(255) NOT NULL,
                     description TEXT NOT NULL,
                     author BIGINT NOT NULL,
+                    broken BOOLEAN NOT NULL DEFAULT FALSE,
                     ashtray BOOLEAN NOT NULL DEFAULT FALSE,
                     windblown BOOLEAN NOT NULL DEFAULT FALSE,
                     flooded BOOLEAN NOT NULL DEFAULT FALSE,
-                    overwhelmed BOOLEAN NOT NULL DEFAULT FALSE
+                    overwhelmed BOOLEAN NOT NULL DEFAULT FALSE,
+                    poopbag BOOLEAN NOT NULL DEFAULT FALSE,
+                    art BOOLEAN NOT NULL DEFAULT FALSE
                 )
             """);
 
             handle.execute("""
-                CREATE TABLE IF NOT EXISTS plastic_containers (
+                CREATE TABLE IF NOT EXISTS plastic_bins (
                     id BIGSERIAL PRIMARY KEY,
                     position GEOMETRY(POINT, 4326) NOT NULL,
                     name VARCHAR(255) NOT NULL,
                     description TEXT NOT NULL,
                     author BIGINT NOT NULL,
+                    broken BOOLEAN NOT NULL DEFAULT FALSE,
                     underground BOOLEAN NOT NULL DEFAULT FALSE,
                     bottlenecked BOOLEAN NOT NULL DEFAULT FALSE,
                     modern BOOLEAN NOT NULL DEFAULT FALSE,
