@@ -1,5 +1,13 @@
 # Monorepo of [Caquita](https://caquita.app)
 
+<p align="center">
+  <img 
+    src="https://raw.githubusercontent.com/muriplz/Caquita/main/images/onboarding.png" 
+    alt="Onboarding" 
+    width="100%" 
+  />
+</p>
+
 ### [Ashtray](https://github.com/muriplz/Caquita/tree/main/frontend/ashtray)
 ![GDScript](https://img.shields.io/badge/GDScript-%2374267B.svg?style=for-the-badge&logo=godotengine&logoColor=white) ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 
