@@ -1,21 +1,20 @@
 package com.kryeit.content.items.plastic;
 
-import com.kryeit.content.items.Item;
-import com.kryeit.content.items.MaterialClassification;
+import com.kryeit.content.items.ItemKind;
 import com.kryeit.content.items.classifications.PlasticClassification;
 import com.kryeit.recycling.ResourceType;
 
 import java.util.List;
 
-public class PlasticBottle implements Item {
+public class PlasticBottle implements ItemKind {
 
     @Override
-    public String id() {
+    public String getId() {
         return "plastic:bottle";
     }
 
     @Override
-    public List<int[]> shape() {
+    public List<int[]> getShape() {
         return List.of(
                 new int[]{1, 0},
                 new int[]{1, 0}
@@ -23,12 +22,12 @@ public class PlasticBottle implements Item {
     }
 
     @Override
-    public ResourceType resourceType() {
+    public ResourceType getResourceType() {
         return ResourceType.PLASTIC;
     }
 
     @Override
-    public MaterialClassification classification() {
-        return PlasticClassification.PET;
+    public String getClassification() {
+        return String.valueOf(PlasticClassification.PET.code);
     }
 }

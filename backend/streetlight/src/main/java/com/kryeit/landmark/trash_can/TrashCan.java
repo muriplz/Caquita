@@ -3,7 +3,6 @@ package com.kryeit.landmark.trash_can;
 import com.kryeit.landmark.Landmark;
 import com.kryeit.landmark.LandmarkType;
 import com.kryeit.recycling.ResourceType;
-import com.kryeit.sync.LocationSyncable;
 
 import java.util.List;
 

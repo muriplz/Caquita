@@ -8,3 +8,4 @@ func _ready():
 	var theme = Theme.new()
 	theme.default_font = font_data
 	get_tree().root.theme = theme
+	

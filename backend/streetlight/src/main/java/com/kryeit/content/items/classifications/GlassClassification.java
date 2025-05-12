@@ -1,8 +1,6 @@
 package com.kryeit.content.items.classifications;
 
-import com.kryeit.content.items.MaterialClassification;
-
-public enum GlassClassification implements MaterialClassification {
+public enum GlassClassification {
     CLEAR("Clear/Flint Glass"),
     GREEN("Green Glass"),
     AMBER("Amber/Brown Glass"),
@@ -21,15 +19,7 @@ public enum GlassClassification implements MaterialClassification {
         return fullName;
     }
 
-    @Override
-    public String getId() {
-        return name();
-    }
 
-    @Override
-    public String getName() {
-        return fullName;
-    }
 
     public boolean isRecyclable() {
         return this == CLEAR || this == GREEN || this == AMBER || this == BLUE;

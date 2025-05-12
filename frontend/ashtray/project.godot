@@ -21,15 +21,16 @@ FontManager="*res://scripts/apply_font.gd"
 UserStore="*res://scripts/stores/user_store.gd"
 ToastManager="*res://scenes/toast/toasts.gd"
 CoordConversion="*res://scenes/game/terrain/coord_conversion.gd"
+ItemKindStore="*res://scripts/stores/item_kind_store.gd"
 
 [display]
 
-window/size/viewport_width=576
-window/size/viewport_height=1024
+window/size/viewport_width=720
+window/size/viewport_height=1280
 window/size/resizable=false
 window/size/borderless=true
-window/stretch/mode="viewport"
-window/stretch/aspect="keep_height"
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/handheld/orientation=1
 
 [editor_plugins]
@@ -41,4 +42,4 @@ enabled=PackedStringArray()
 renderer/rendering_method="mobile"
 textures/vram_compression/import_etc2_astc=true
 textures/decals/filter=0
-textures/light_projectors/filter=4
+textures/light_projectors/filter=0

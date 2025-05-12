@@ -1,9 +1,6 @@
 package com.kryeit;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kryeit.auth.Friendship;
 import com.kryeit.auth.User;
 import com.kryeit.auth.avatar.UnlockedAvatar;
@@ -21,11 +18,8 @@ import com.kryeit.stats.GlobalStats;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.core.argument.ArgumentFactory;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.jackson2.Jackson2Plugin;
-
-import java.util.Optional;
 
 
 public class Database {
@@ -64,39 +58,7 @@ public class Database {
 
         JDBI.registerRowMapper(ConstructorMapper.factory(GlobalStats.class));
 
-        jsonMappers();
         JDBI.installPlugin(new Jackson2Plugin());
-    }
-
-    private static void jsonMappers() {
-        ObjectMapper mapper = new ObjectMapper();
-
-        JDBI.registerColumnMapper(ArrayNode.class, (r, idx, ctx) -> {
-            String json = r.getString(idx);
-            if (json == null) return null;
-            try {
-                return mapper.readTree(json);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Failed to parse JSON", e);
-            }
-        });
-
-        JDBI.registerColumnMapper(ObjectNode.class, (r, idx, ctx) -> {
-            String json = r.getString(idx);
-            if (json == null) return null;
-            try {
-                return mapper.readTree(json);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Failed to parse JSON", e);
-            }
-        });
-
-        JDBI.registerArgument((ArgumentFactory) (type, value, config) -> {
-            if (value instanceof ArrayNode || value instanceof ObjectNode) {
-                return Optional.of((position, statement, ctx) -> statement.setString(position, value.toString()));
-            }
-            return Optional.empty();
-        });
     }
 
     public static Jdbi getJdbi() {

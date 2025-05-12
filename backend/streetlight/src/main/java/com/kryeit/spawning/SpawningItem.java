@@ -1,7 +1,6 @@
 package com.kryeit.spawning;
 
 import com.kryeit.Database;
-import com.kryeit.sync.LocationSyncable;
 
 import java.sql.Timestamp;
 import java.util.List;

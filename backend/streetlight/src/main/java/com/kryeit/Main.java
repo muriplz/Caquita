@@ -5,10 +5,9 @@ import com.kryeit.auth.FriendshipApi;
 import com.kryeit.auth.LoginApi;
 import com.kryeit.auth.avatar.UnlockedAvatar;
 import com.kryeit.auth.inventory.InventoryApi;
-import com.kryeit.content.items.ItemsApi;
+import com.kryeit.content.items.ItemKindsApi;
 import com.kryeit.landmark.forum.petitions.PetitionImageApi;
 import com.kryeit.landmark.forum.petitions.PetitionsApi;
-import com.kryeit.landmark.trash_can.TrashCan;
 import com.kryeit.landmark.trash_can.TrashCanApi;
 import com.kryeit.map.MapApi;
 import com.kryeit.registry.CaquitaItems;
@@ -68,9 +67,9 @@ public class Main {
         path("api/v1", () -> {
             get(ctx -> ctx.result("Hello from Streetlight!"));
 
-            path("items", () -> {
-                get(ctx -> ctx.json(CaquitaItems.getAllItems()));
-                get("{id}", ItemsApi::getItem);
+            path("item-kinds", () -> {
+                get(ctx -> ctx.status(200).json(CaquitaItems.getAllItems()));
+                get("{id}", ItemKindsApi::getItem);
             });
 
             landmarkRoutes();
@@ -145,10 +144,10 @@ public class Main {
 
             path("inventory", () -> {
                 get(InventoryApi::getInventory);
-                post(InventoryApi::addItem);
+                post(InventoryApi::rotateItem);
+                put(InventoryApi::addItem);
                 delete(InventoryApi::removeItem);
                 patch(InventoryApi::moveItem);
-                post("rotate", InventoryApi::rotateItem);
                 post("can-place", InventoryApi::canPlaceItem);
             });
         });

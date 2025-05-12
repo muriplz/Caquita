@@ -1,8 +1,6 @@
 package com.kryeit.content.items.classifications;
 
-import com.kryeit.content.items.MaterialClassification;
-
-public enum PaperClassification implements MaterialClassification {
+public enum PaperClassification {
     NEWSPRINT("Newsprint/Newspaper"),
     OFFICE("Office/Writing Paper"),
     MAGAZINE("Magazine/Glossy Paper"),
@@ -11,31 +9,10 @@ public enum PaperClassification implements MaterialClassification {
     SHREDDED("Shredded Paper"),
     LAMINATED("Laminated Paper");
 
-    private final String fullName;
+    private final String name;
 
-    PaperClassification(String fullName) {
-        this.fullName = fullName;
+    PaperClassification(String name) {
+        this.name = name;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    @Override
-    public String getId() {
-        return name();
-    }
-
-    @Override
-    public String getName() {
-        return fullName;
-    }
-
-    public boolean isRecyclable() {
-        return this != THERMAL && this != LAMINATED;
-    }
-
-    public boolean isHighValueRecyclable() {
-        return this == OFFICE;
-    }
 }

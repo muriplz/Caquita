@@ -1,25 +1,25 @@
 package com.kryeit.registry;
 
 
-import com.kryeit.content.items.Item;
-import com.kryeit.content.items.plastic.*;
+import com.kryeit.content.items.ItemKind;
+import com.kryeit.content.items.plastic.PlasticBottle;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CaquitaItems {
-    private static final Map<String, Item> ITEMS = new HashMap<>();
+    private static final Map<String, ItemKind> ITEMS = new HashMap<>();
 
-    public static void register(Item item) {
-        ITEMS.put(item.id(), item);
+    public static void register(ItemKind item) {
+        ITEMS.put(item.getId(), item);
     }
 
-    public static Item getItem(String id) {
+    public static ItemKind getItem(String id) {
         return ITEMS.get(id);
     }
 
-    public static Collection<Item> getAllItems() {
+    public static Collection<ItemKind> getAllItems() {
         return ITEMS.values();
     }
 

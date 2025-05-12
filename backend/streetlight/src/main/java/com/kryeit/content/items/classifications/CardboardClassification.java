@@ -1,8 +1,6 @@
 package com.kryeit.content.items.classifications;
 
-import com.kryeit.content.items.MaterialClassification;
-
-public enum CardboardClassification implements MaterialClassification {
+public enum CardboardClassification {
     CORRUGATED("Corrugated Cardboard"),
     PAPERBOARD("Paperboard/Boxboard"),
     BEVERAGE("Beverage Cartons"),
@@ -20,15 +18,6 @@ public enum CardboardClassification implements MaterialClassification {
         return fullName;
     }
 
-    @Override
-    public String getId() {
-        return name();
-    }
-
-    @Override
-    public String getName() {
-        return fullName;
-    }
 
     public boolean isRecyclable() {
         return this != COATED;

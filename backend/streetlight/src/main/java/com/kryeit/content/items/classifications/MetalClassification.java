@@ -1,8 +1,6 @@
 package com.kryeit.content.items.classifications;
 
-import com.kryeit.content.items.MaterialClassification;
-
-public enum MetalClassification implements MaterialClassification {
+public enum MetalClassification {
     ALUMINUM("Aluminum"),
     STEEL("Steel/Tin"),
     COPPER("Copper"),
@@ -24,15 +22,7 @@ public enum MetalClassification implements MaterialClassification {
         return fullName;
     }
 
-    @Override
-    public String getId() {
-        return name();
-    }
 
-    @Override
-    public String getName() {
-        return fullName;
-    }
 
     public boolean isRecyclable() {
         return true;
