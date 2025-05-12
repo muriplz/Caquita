@@ -1,4 +1,3 @@
-# User.gd
 class_name User
 extends RefCounted
 
@@ -17,7 +16,6 @@ func _init(user_data: Dictionary = {}):
 	id = int(user_data.get("id", 0))
 	username = user_data.get("username", "")
 	
-	# Simply convert whatever we receive to float
 	creation = float(user_data.get("creation", 0))
 	connection = float(user_data.get("connection", 0))
 		

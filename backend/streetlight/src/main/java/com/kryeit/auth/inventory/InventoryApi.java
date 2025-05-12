@@ -1,7 +1,6 @@
 package com.kryeit.auth.inventory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kryeit.Database;
 import com.kryeit.auth.AuthUtils;
 import io.javalin.http.Context;
@@ -36,21 +35,20 @@ public class InventoryApi {
         );
 
         List<InventoryItem> items = List.of(bottle);
-
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String itemsJson = objectMapper.writeValueAsString(items);
-            Database.getJdbi().useHandle(handle -> {
-                handle.createUpdate("""
-                            INSERT INTO inventories (user_id, items, height, width)
-                            VALUES (:user_id, cast(:items as jsonb), :height, :width)
-                            """)
-                        .bind("user_id", user)
-                        .bind("items", itemsJson)
-                        .bind("height", 3)
-                        .bind("width", 2)
-                        .execute();
-            });
+            String itemsJson = Database.MAPPER.writeValueAsString(items);
+
+            Database.getJdbi().useHandle(handle ->
+                    handle.createUpdate("""
+                        INSERT INTO inventories (user_id, items, height, width)
+                        VALUES (:user_id, cast(:items AS jsonb), :height, :width)
+                        """)
+                            .bind("user_id", user)
+                            .bind("items",   itemsJson)
+                            .bind("height",  3)
+                            .bind("width",   2)
+                            .execute()
+            );
         } catch (JsonProcessingException ignored) {}
     }
 

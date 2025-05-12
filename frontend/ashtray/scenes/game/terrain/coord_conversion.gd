@@ -33,7 +33,7 @@ static func tile_to_latlon(x: int, y: int) -> Vector2:
 
 static func tile_to_world(x: int, y: int) -> Vector3:
 	var rel := Vector2i(x, y) - origin_tile
-	return Vector3(rel.x * TILE_SIZE, 0, rel.y * TILE_SIZE)
+	return Vector3(rel.x * TILE_SIZE, 0.5, rel.y * TILE_SIZE)
 
 
 static func world_to_tile(world_pos: Vector3) -> Vector2i:

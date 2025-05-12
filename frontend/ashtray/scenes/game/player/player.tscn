@@ -1,21 +1,21 @@
-[gd_scene load_steps=4 format=3 uid="uid://bshmwvc1y7ndg"]
+[gd_scene load_steps=5 format=3 uid="uid://bshmwvc1y7ndg"]
 
 [ext_resource type="Script" uid="uid://0i88fnry1rvt" path="res://scenes/game/player/camera_zoom.gd" id="1_4m2od"]
-
-[sub_resource type="PrismMesh" id="PrismMesh_a6wu5"]
+[ext_resource type="Material" uid="uid://e4khbk5feb8r" path="res://assets/models/Textures/colormap.png" id="2_bkoau"]
+[ext_resource type="ArrayMesh" uid="uid://yj6q3g5yeoqi" path="res://assets/models/character-female-a.obj" id="3_abehh"]
 
 [sub_resource type="Curve" id="Curve_4m2od"]
 _limits = [0.0, 2.15191, 0.0, 1.0]
-_data = [Vector2(0, 0), 0.0, -1.5152, 0, 0, Vector2(0.0744681, 0), 0.0, 0.0, 0, 0, Vector2(0.351064, 0), 0.0, 0.0, 0, 0, Vector2(0.914894, 1.03969), 4.9244, 4.9244, 0, 0, Vector2(0.994681, 2.15191), 1.37018, 1.37018, 0, 0]
-point_count = 5
+_data = [Vector2(0, 0), 0.0, 1.21216, 0, 0, Vector2(0.521277, 0.77372), 2.44763, 2.44763, 0, 0, Vector2(0.851064, 2.15191), 1.37018, 1.37018, 0, 0]
+point_count = 3
 
 [node name="Player" type="Node3D"]
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.133319, 0.548884, -0.204017)
-mesh = SubResource("PrismMesh_a6wu5")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.68974, 4.43245)
 script = ExtResource("1_4m2od")
 zoom_curve = SubResource("Curve_4m2od")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+material_override = ExtResource("2_bkoau")
+mesh = ExtResource("3_abehh")

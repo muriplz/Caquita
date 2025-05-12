@@ -72,6 +72,15 @@ public class Main {
                 get("{id}", ItemKindsApi::getItem);
             });
 
+            path("inventory", () -> {
+                get(InventoryApi::getInventory);
+                post(InventoryApi::rotateItem);
+                put(InventoryApi::addItem);
+                delete(InventoryApi::removeItem);
+                patch(InventoryApi::moveItem);
+                post("can-place", InventoryApi::canPlaceItem);
+            });
+
             landmarkRoutes();
 
             authRoutes();
@@ -141,22 +150,14 @@ public class Main {
                 delete("{friendId}", FriendshipApi::removeFriend);
                 post("block", FriendshipApi::blockUser);
             });
-
-            path("inventory", () -> {
-                get(InventoryApi::getInventory);
-                post(InventoryApi::rotateItem);
-                put(InventoryApi::addItem);
-                delete(InventoryApi::removeItem);
-                patch(InventoryApi::moveItem);
-                post("can-place", InventoryApi::canPlaceItem);
-            });
         });
     }
 
     private static void landmarkRoutes() {
         path("landmarks", () -> {
             path("trash_cans", () -> {
-                post(TrashCanApi::create);
+                get(TrashCanApi::get);
+                put(TrashCanApi::create);
 
                 path("{id}", () -> {
  //                   get(TrashCanApi::get);

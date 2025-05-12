@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://b603gi5y4ktee"]
+[gd_scene load_steps=9 format=3 uid="uid://b603gi5y4ktee"]
 
 [ext_resource type="Script" uid="uid://ynpbqaynpr0x" path="res://scenes/game/ui/ui.gd" id="1_eq76c"]
 [ext_resource type="FontFile" uid="uid://xwmelyme2n3p" path="res://assets/fonts/Minecraftia.ttf" id="1_hy4qm"]
 [ext_resource type="Texture2D" uid="uid://cpm2mqi82d7ux" path="res://assets/textures/ui/avatar/trash_can.png" id="2_1vjhe"]
 [ext_resource type="Script" uid="uid://dlyydhg7kokhc" path="res://scenes/game/ui/horizontal_avatar.gd" id="2_w15o4"]
+[ext_resource type="PackedScene" uid="uid://b02ror12y1asc" path="res://scenes/game/ui/inventory/inventory.tscn" id="3_sowjt"]
 [ext_resource type="Script" uid="uid://cr5cv0lo63r7h" path="res://scenes/game/ui/logout_button.gd" id="4_ek8ox"]
 
 [sub_resource type="Theme" id="Theme_sowjt"]
@@ -24,6 +25,9 @@ grow_vertical = 2
 mouse_filter = 2
 theme = SubResource("Theme_sowjt")
 script = ExtResource("1_eq76c")
+
+[node name="Inventory" parent="." instance=ExtResource("3_sowjt")]
+layout_mode = 1
 
 [node name="HorizontalAvatar" type="HBoxContainer" parent="."]
 layout_mode = 1

@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://b02ror12y1asc"]
+
+[ext_resource type="Script" uid="uid://bwpse8jy36wc0" path="res://scenes/game/ui/inventory/grid_container.gd" id="1_pk873"]
+
+[node name="Inventory" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="GridContainer" type="GridContainer" parent="Panel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_pk873")

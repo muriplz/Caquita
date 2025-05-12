@@ -2,6 +2,7 @@ package com.kryeit.registry;
 
 
 import com.kryeit.content.items.ItemKind;
+import com.kryeit.content.items.glass.GlassBottle;
 import com.kryeit.content.items.plastic.PlasticBottle;
 
 import java.util.Collection;
@@ -30,6 +31,9 @@ public class CaquitaItems {
     static {
         // PLASTIC
         register(new PlasticBottle());
+
+        // GLASS
+        register(new GlassBottle());
     }
 
     public static void register() {

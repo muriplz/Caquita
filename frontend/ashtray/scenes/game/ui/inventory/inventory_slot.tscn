@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://bkj35rr2w4dt2"]
+
+[node name="InventorySlot" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 24.0
+offset_bottom = 24.0
+
+[node name="Panel" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 0
+offset_right = 24.0
+offset_bottom = 24.0

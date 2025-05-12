@@ -21,7 +21,8 @@ FontManager="*res://scripts/apply_font.gd"
 UserStore="*res://scripts/stores/user_store.gd"
 ToastManager="*res://scenes/toast/toasts.gd"
 CoordConversion="*res://scenes/game/terrain/coord_conversion.gd"
-ItemKindStore="*res://scripts/stores/item_kind_store.gd"
+ItemKindStore="*res://scripts/stores/item_kinds_store.gd"
+InventoryStore="*res://scripts/stores/inventory_store.gd"
 
 [display]
 

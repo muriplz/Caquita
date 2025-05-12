@@ -3,7 +3,7 @@
 ### [Ashtray](https://github.com/muriplz/Caquita/tree/main/frontend/ashtray)
 ![GDScript](https://img.shields.io/badge/GDScript-%2374267B.svg?style=for-the-badge&logo=godotengine&logoColor=white) ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 
-An Android/iOS app, made in [Godot](https://godotengine.org). All assets(textures, sounds, translations) are in this repository, which get bundled within the game.
+An Android/iOS app, made in [Godot](https://godotengine.org). All assets(textures, sounds, translations) are in this repository, which get bundled within the game. As a placeholder we will be using [Kenney's assets](https://kenney.nl) for the 3D models/textures, all 2D is our own pixelart though.
 
 ### [Streetlight](https://github.com/muriplz/Caquita/tree/main/backend/streetlight)
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)

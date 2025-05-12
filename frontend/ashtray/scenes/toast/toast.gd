@@ -12,21 +12,13 @@ func _ready():
 	
 	label.text = message_text
 	
-	# Start timer for auto-dismiss
-	var timer = get_tree().create_timer(duration)
-	timer.timeout.connect(func(): 
-		_dismiss()
-	)
+	var timer = get_tree().create_timer(duration).timeout.connect(_dismiss)
 
 func set_message(text: String):
 	message_text = text
 	
 	if label:
 		label.text = text
-
-func _gui_input(event):
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_dismiss()
 
 func _dismiss():
 	emit_signal("finished")

@@ -8,3 +8,4 @@ func _ready():
 
 func _on_button_pressed():
 	menu.visible = !menu.visible
+	ToastManager.show(str(InventoryStore.get_inventory().height))

@@ -79,6 +79,7 @@ public class InventoryManager {
         inventory.items().add(
                 new InventoryItem(itemId, willOccupy, InventoryItem.Orientation.UP)
         );
+        Inventory.update(user, inventory.items());
         return true;
     }
 
@@ -91,6 +92,7 @@ public class InventoryManager {
             return false;
         }
         inventory.items().remove(item);
+        Inventory.update(user, inventory.items());
         return true;
     }
 
@@ -123,6 +125,7 @@ public class InventoryManager {
 
         inventory.items().remove(item);
         inventory.items().add(new InventoryItem(item.id(), willOccupy, item.orientation().rotate(clockwise)));
+        Inventory.update(user, inventory.items());
         return true;
     }
 
@@ -150,7 +153,6 @@ public class InventoryManager {
                 .filter(i -> willOccupy.stream().anyMatch(c -> i.cells().contains(c)))
                 .toList();
 
-        // if swap is true, we need to check if the new position is occupied by another item, and if so moveItem() that item with swap false
         if (swap) {
 
             if (collisionedItems.size() > 1) return false;
