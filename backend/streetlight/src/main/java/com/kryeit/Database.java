@@ -44,8 +44,8 @@ public class Database {
         // LANDMARKS END
 
         // FORUMS
-        JDBI.registerRowMapper(ConstructorMapper.factory(Message.class));
-        JDBI.registerRowMapper(ConstructorMapper.factory(Reply.class));
+        //JDBI.registerRowMapper(ConstructorMapper.factory(Message.class));
+        //JDBI.registerRowMapper(ConstructorMapper.factory(Reply.class));
 
         JDBI.registerRowMapper(ConstructorMapper.factory(PetitionMessage.class));
         JDBI.registerRowMapper(ConstructorMapper.factory(PetitionReply.class));

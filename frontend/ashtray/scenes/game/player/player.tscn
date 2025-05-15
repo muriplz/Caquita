@@ -1,12 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://bshmwvc1y7ndg"]
+[gd_scene load_steps=4 format=3 uid="uid://bshmwvc1y7ndg"]
 
 [ext_resource type="Script" uid="uid://0i88fnry1rvt" path="res://scenes/game/player/camera_zoom.gd" id="1_4m2od"]
-[ext_resource type="Material" uid="uid://e4khbk5feb8r" path="res://assets/models/Textures/colormap.png" id="2_bkoau"]
-[ext_resource type="ArrayMesh" uid="uid://yj6q3g5yeoqi" path="res://assets/models/character-female-a.obj" id="3_abehh"]
+[ext_resource type="PackedScene" uid="uid://cdliq7tmwyfn5" path="res://assets/models/characters/racoon.glb" id="2_t5cse"]
 
 [sub_resource type="Curve" id="Curve_4m2od"]
 _limits = [0.0, 2.15191, 0.0, 1.0]
-_data = [Vector2(0, 0), 0.0, 1.21216, 0, 0, Vector2(0.521277, 0.77372), 2.44763, 2.44763, 0, 0, Vector2(0.851064, 2.15191), 1.37018, 1.37018, 0, 0]
+_data = [Vector2(0, 0), 0.0, 0.712141, 0, 0, Vector2(0.644518, 0.813492), 3.78276, 3.78276, 0, 0, Vector2(1, 2.13306), 5.23766, 0.0, 0, 0]
 point_count = 3
 
 [node name="Player" type="Node3D"]
@@ -16,6 +15,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.68974, 4.43245)
 script = ExtResource("1_4m2od")
 zoom_curve = SubResource("Curve_4m2od")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-material_override = ExtResource("2_bkoau")
-mesh = ExtResource("3_abehh")
+[node name="Character" parent="." instance=ExtResource("2_t5cse")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)

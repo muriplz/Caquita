@@ -156,7 +156,6 @@ public class Main {
         path("landmarks", () -> {
             path("trash_cans", () -> {
                 get(TrashCanApi::get);
-                put(TrashCanApi::create);
 
                 path("{id}", () -> {
 

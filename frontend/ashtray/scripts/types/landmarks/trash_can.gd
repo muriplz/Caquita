@@ -1,51 +1,35 @@
+extends Resource
 class_name TrashCan
-extends RefCounted
 
-var id: int
-var lat: float
-var lon: float
-var name: String
-var description: String
-var author: int
+@export var id: int = 0
+@export var lat: float = 0
+@export var lon: float = 0
+@export var name: String = ""
+@export var description: String = ""
+@export var author: int = 0
 
-var broken: bool
-var ashtray: bool; var windblown: bool; var flooded: bool; var overwhelmed: bool
-var poopbag: bool; var art: bool
+@export var broken: bool = false
+@export var ashtray: bool = false
+@export var windblown: bool = false
+@export var flooded: bool = false
+@export var overwhelmed: bool = false
+@export var poopbag: bool = false
+@export var art: bool = false
 
-func _init(trash_can_data: Dictionary = {}):
-	if trash_can_data.is_empty():
-		return
-		
-	id = int(trash_can_data.get("id", 0))
-	lat = float(trash_can_data.get("lat", 0))
-	lon = float(trash_can_data.get("lon", 0))
-	name = trash_can_data.get("name", "")
-	description = trash_can_data.get("description", "")
-	author = int(trash_can_data.get("author", 0))
+static func from_dict(dict: Dictionary) -> TrashCan:
+	var trash_can = TrashCan.new()
+	trash_can.id = dict.get("id", 0)
+	trash_can.lat = dict.get("lat", 0)
+	trash_can.lon = dict.get("lon", 0)
+	trash_can.name = dict.get("name", "")
+	trash_can.description = dict.get("description", "")
+	trash_can.author = dict.get("author", 0)
 	
-	broken = bool(trash_can_data.get("broken", false))
-	
-	ashtray = bool(trash_can_data.get("ashtray", false))
-	windblown = bool(trash_can_data.get("windblown", false))
-	flooded = bool(trash_can_data.get("flooded", false))
-	overwhelmed = bool(trash_can_data.get("overwhelmed", false))
-	poopbag = bool(trash_can_data.get("poopbag", false))
-	art = bool(trash_can_data.get("art", false))
-
-
-func to_dict() -> Dictionary:
-	return {
-		"id": id,
-		"lat": lat,
-		"lon": lon,
-		"name": name,
-		"description": description,
-		"author": author,
-		"broken": broken,
-		"ashtray": ashtray,
-		"windblown": windblown,
-		"flooded": flooded,
-		"overwhelmed": overwhelmed,
-		"poopbag": poopbag,
-		"art": art
-	}
+	trash_can.broken = dict.get("broken", false)
+	trash_can.ashtray = dict.get("ashtray", false)
+	trash_can.windblown = dict.get("windblown", false)
+	trash_can.flooded = dict.get("flooded", false)
+	trash_can.overwhelmed = dict.get("overwhelmed", false)
+	trash_can.poopbag = dict.get("poopbag", false)
+	trash_can.art = dict.get("art", false)
+	return trash_can

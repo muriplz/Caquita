@@ -4,20 +4,22 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kryeit.Database;
 import com.kryeit.auth.AuthUtils;
-import com.kryeit.auth.TrustLevel;
+import com.kryeit.auth.User;
 import com.kryeit.auth.avatar.UnlockedAvatar;
 import com.kryeit.landmark.LandmarkType;
+import com.kryeit.landmark.trash_can.TrashCanApi;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PetitionsApi {
 
     public static void getPetitions(Context ctx) {
-        long user = AuthUtils.getUser(ctx);
+        AuthUtils.getUser(ctx);
 
         int page = ctx.queryParamAsClass("page", Integer.class).getOrDefault(0);
         String orderBy = ctx.queryParam("orderBy");
@@ -32,7 +34,7 @@ public class PetitionsApi {
         }
 
         String query = """
-                SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon, landmark_info, status, creation, edition, image
+                SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon, Info, status, creation, edition
                 FROM petitions
                 WHERE status = :status
                 ORDER BY creation %s
@@ -67,22 +69,20 @@ public class PetitionsApi {
         long user = AuthUtils.getUser(ctx);
         CreatePetitionPayload payload = ctx.bodyAsClass(CreatePetitionPayload.class);
 
-        // Validate landmark info matches the expected structure for the type
-        validateLandmarkInfoStructure(ctx, payload.type(), payload.landmarkInfo());
-
-        String landmarkInfoJson = payload.landmarkInfo().toString();
+        // Validate landmark info matches the expected structure for the type TODO
+        //validateLandmarkInfoStructure(ctx, payload.type(), payload.info);
 
         Database.getJdbi().useHandle(handle -> {
             handle.createUpdate("""
-                INSERT INTO petitions (description, user_id, type, position, landmark_info, status)
-                VALUES (:description, :userId, :type, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), cast(:landmarkInfo as jsonb), 'PENDING')
+                INSERT INTO petitions (description, user_id, type, position, info, status)
+                VALUES (:description, :userId, :type, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), cast(:info as jsonb), 'PENDING')
                 """)
                     .bind("description", payload.description())
                     .bind("userId", user)
                     .bind("type", payload.type().name())
                     .bind("lat", payload.lat())
                     .bind("lon", payload.lon())
-                    .bind("landmarkInfo", landmarkInfoJson)
+                    .bind("info", payload.info())
                     .execute();
         });
 
@@ -108,13 +108,13 @@ public class PetitionsApi {
     }
 
     public static void getPetition(Context ctx) {
-        long user = AuthUtils.getUser(ctx);
+        AuthUtils.getUser(ctx);
         long id = Long.parseLong(ctx.pathParam("id"));
 
         Petition petition = Database.getJdbi().withHandle(handle ->
                 handle.createQuery("""
                         SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon,
-                               landmark_info, status, creation, edition, image
+                               info, status, creation, edition
                         FROM petitions
                         WHERE id = :id
                         """)
@@ -140,7 +140,7 @@ public class PetitionsApi {
         Petition petition = Database.getJdbi().withHandle(handle ->
                 handle.createQuery("""
                         SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon,
-                               landmark_info, status, creation, edition, image
+                               info, status, creation, edition
                         FROM petitions
                         WHERE id = :id
                         """)
@@ -155,7 +155,7 @@ public class PetitionsApi {
             return;
         }
 
-        if (petition.userId() != user && !AuthUtils.check(user, TrustLevel.ADMINISTRATOR)) {
+        if (petition.userId() != user && !AuthUtils.check(user, User.Trust.ADMINISTRATOR)) {
             ctx.status(403).result("You are not the owner of this petition.");
             return;
         }
@@ -164,13 +164,13 @@ public class PetitionsApi {
             handle.createUpdate("""
                     UPDATE petitions
                     SET position = ST_SetSRID(ST_MakePoint(:lon, :lat), 4326),
-                        landmark_info = cast(:landmarkInfo as jsonb),
+                        info = cast(:info as jsonb),
                         edition = NOW()
                     WHERE id = :id
                     """)
                     .bind("lat", payload.lat())
                     .bind("lon", payload.lon())
-                    .bind("landmarkInfo", payload.landmarkInfo().toString())
+                    .bind("info", payload.info())
                     .bind("id", id)
                     .execute();
         });
@@ -186,7 +186,7 @@ public class PetitionsApi {
         Petition petition = Database.getJdbi().withHandle(handle ->
                 handle.createQuery("""
                     SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon,
-                           landmark_info, status, creation, edition, image
+                           info, status, creation, edition, image
                     FROM petitions
                     WHERE id = :id
                     """)
@@ -201,7 +201,7 @@ public class PetitionsApi {
             return;
         }
 
-        if (petition.userId() != user && !AuthUtils.check(user, TrustLevel.ADMINISTRATOR)) {
+        if (petition.userId() != user && !AuthUtils.check(user, User.Trust.ADMINISTRATOR)) {
             ctx.status(403).result("You are not the owner of this petition.");
             return;
         }
@@ -227,7 +227,7 @@ public class PetitionsApi {
         Petition petition = Database.getJdbi().withHandle(handle ->
                 handle.createQuery("""
                     SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon,
-                           landmark_info, status, creation, edition, image
+                           info, status, creation, edition, image
                     FROM petitions
                     WHERE id = :id
                     """)
@@ -242,7 +242,7 @@ public class PetitionsApi {
             return;
         }
 
-        if (!AuthUtils.check(user, TrustLevel.ADMINISTRATOR)) {
+        if (!AuthUtils.check(user, User.Trust.ADMINISTRATOR)) {
             ctx.status(403).result("You are not an administrator.");
             return;
         }
@@ -266,21 +266,23 @@ public class PetitionsApi {
 
         if (updated && status.equals("ACCEPTED")) {
             try {
-                String jsonString = petition.landmarkInfo().toString();
-                JSONObject landmarkInfo = new JSONObject(jsonString);
-                String name = landmarkInfo.getString("name");
+                String jsonString = petition.info().toString();
+                JSONObject info = new JSONObject(jsonString);
+                String name = info.getString("name");
 
                 JSONObject featuresOnly = new JSONObject(jsonString);
                 featuresOnly.remove("name");
 
-                //long landmarkId = LandmarkApi.create(
-                //        petition.userId(),
-                //        name,
-                //        petition.lat(),
-                //        petition.lon(),
-                //        petition.type(),
-                //        featuresOnly.toString()
-                //);
+                switch (petition.type()) {
+                    case TRASH_CAN -> TrashCanApi.create(
+                            petition.lat(),
+                            petition.lon(),
+                            name,
+                            petition.description(),
+                            petition.userId(),
+                            featuresOnly
+                            );
+                }
 
                 UnlockedAvatar.grant("bottles", petition.userId());
 
@@ -353,9 +355,9 @@ public class PetitionsApi {
         ctx.status(201);
     }
 
-    public record UpdatePetitionPayload(double lat, double lon, ObjectNode landmarkInfo) {}
+    public record UpdatePetitionPayload(double lat, double lon, HashMap<String, Boolean> info) {}
 
-    public record CreatePetitionPayload(String description, LandmarkType type, double lat, double lon, ObjectNode landmarkInfo) {}
+    public record CreatePetitionPayload(String description, LandmarkType type, double lat, double lon, HashMap<String, Boolean> info) {}
 
     public static class MessagesApi {
 
@@ -380,7 +382,7 @@ public class PetitionsApi {
         }
 
         public static void getReplies(Context ctx) {
-            long user = AuthUtils.getUser(ctx);
+            AuthUtils.getUser(ctx);
             long messageId = Long.parseLong(ctx.pathParam("id"));
 
             List<Map<String, Object>> replies = Database.getJdbi().withHandle(handle ->

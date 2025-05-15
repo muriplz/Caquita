@@ -75,10 +75,8 @@ public class FriendshipApi {
     public static void sendRequest(Context ctx) {
         long userId = AuthUtils.getUser(ctx);
         JSONObject body = new JSONObject(ctx.body());
-        System.out.println("Body: " + body);
         String friend = body.getString("username");
 
-        // Check if user exists and check if trying to add self
         long friendId = Database.getJdbi().withHandle(handle ->
                 handle.createQuery("SELECT id FROM users WHERE username = :username")
                         .bind("username", friend)

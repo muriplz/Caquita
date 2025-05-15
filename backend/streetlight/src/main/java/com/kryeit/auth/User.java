@@ -4,6 +4,14 @@ import java.sql.Timestamp;
 
 public record User(
         long id, String username, String password, Timestamp creation, Timestamp connection,
-        TrustLevel trust, String avatar) {
+        Trust trust, String avatar) {
 
+    public enum Trust {
+        DEFAULT,
+        TRUSTED,
+        CONTRIBUTOR,
+        MODERATOR,
+        ADMINISTRATOR,
+        ;
+    }
 }

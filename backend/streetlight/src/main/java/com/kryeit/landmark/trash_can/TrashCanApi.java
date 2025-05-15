@@ -6,6 +6,7 @@ import com.kryeit.auth.TrustLevel;
 import com.kryeit.landmark.LandmarkApi;
 import com.kryeit.landmark.LandmarkType;
 import io.javalin.http.Context;
+import org.json.JSONObject;
 
 public class TrashCanApi {
 
@@ -13,11 +14,16 @@ public class TrashCanApi {
         LandmarkApi.get(ctx, LandmarkType.TRASH_CAN);
     }
 
-    public static void create(Context ctx) {
-        long user = AuthUtils.getUser(ctx);
-        if (!AuthUtils.check(user, TrustLevel.ADMINISTRATOR)) return;
+    public static void create(double lat, double lon, String name, String description, long author,
+                              JSONObject features) {
 
-        CreateTrashCanPayload payload = ctx.bodyAsClass(CreateTrashCanPayload.class);
+        boolean broken = features.optBoolean("broken", false);
+        boolean ashtray = features.optBoolean("ashtray", false);
+        boolean windblown = features.optBoolean("windblown", false);
+        boolean flooded = features.optBoolean("flooded", false);
+        boolean overwhelmed = features.optBoolean("overwhelmed", false);
+        boolean poopbag = features.optBoolean("poopbag", false);
+        boolean art = features.optBoolean("art", false);
 
         Database.getJdbi().withHandle(handle ->
                 handle.createUpdate("""
@@ -48,25 +54,23 @@ public class TrashCanApi {
                             :art
                         )
                         """)
-                        .bind("lat", payload.lat())
-                        .bind("lon", payload.lon())
-                        .bind("name", payload.name())
-                        .bind("description", payload.description())
-                        .bind("author", payload.author())
-                        .bind("broken", payload.broken())
-                        .bind("ashtray", payload.ashtray())
-                        .bind("windblown", payload.windblown())
-                        .bind("flooded", payload.flooded())
-                        .bind("overwhelmed", payload.overwhelmed())
-                        .bind("poopbag", payload.poopbag())
-                        .bind("art", payload.art())
+                        .bind("lat", lat)
+                        .bind("lon", lon)
+                        .bind("name", name)
+                        .bind("description", description)
+                        .bind("author", author)
+                        .bind("broken", broken)
+                        .bind("ashtray", ashtray)
+                        .bind("windblown", windblown)
+                        .bind("flooded", flooded)
+                        .bind("overwhelmed", overwhelmed)
+                        .bind("poopbag", poopbag)
+                        .bind("art", art)
                         .execute()
         );
     }
 
     record CreateTrashCanPayload(
-            double lat, double lon, String name, String description, long author,
-            boolean broken,
-            boolean ashtray, boolean windblown, boolean flooded, boolean overwhelmed, boolean poopbag, boolean art
+
     ) {}
 }

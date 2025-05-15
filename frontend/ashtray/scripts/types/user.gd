@@ -1,35 +1,28 @@
+extends Resource
 class_name User
-extends RefCounted
 
-var id: int
-var username: String
-var creation: float
-var connection: float
-var trust: String
-var avatar: String
-var token: String
+@export var id: int = 0
+@export var username: String = ""
+@export var creation: float = 0
+@export var connection: float = 0
+@export var trust: int = Trust.DEFAULT
+@export var avatar: String = ""
+@export var token: String = ""
 
-func _init(user_data: Dictionary = {}):
-	if user_data.is_empty():
-		return
-		
-	id = int(user_data.get("id", 0))
-	username = user_data.get("username", "")
+enum Trust { DEFAULT, TRUSTED, CONTRIBUTOR, MODERATOR, ADMINISTRATOR }
+
+static func from_dict(dict: Dictionary) -> User:
+	var user = User.new()
+	user.id = dict.get("id", 0)
+	user.username = dict.get("username", "")
+	user.creation = dict.get("creation", 0)
+	user.connection = dict.get("connection", 0)
 	
-	creation = float(user_data.get("creation", 0))
-	connection = float(user_data.get("connection", 0))
+	var t_name = dict.get("trust", "")
+	if Trust.has(t_name):
+		user.trust = Trust[t_name]
 		
-	trust = user_data.get("trust", "")
-	avatar = user_data.get("avatar", "")
-	token = user_data.get("token", "")
-
-func to_dict() -> Dictionary:
-	return {
-		"id": id,
-		"username": username,
-		"creation": creation,
-		"connection": connection,
-		"trust": trust,
-		"avatar": avatar,
-		"token": token
-	}
+	user.avatar = dict.get("avatar", "")
+	user.token = dict.get("token", "")
+	
+	return user

@@ -14,7 +14,9 @@ import org.godotengine.godot.Godot;
 import org.godotengine.godot.GodotActivity;
 import org.godotengine.godot.plugin.GodotPlugin;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public class GodotApp extends GodotActivity {
@@ -36,7 +38,10 @@ public class GodotApp extends GodotActivity {
 
 	@Override
 	public Set<GodotPlugin> getHostPlugins(Godot engine) {
-		return Collections.singleton(new GPSPlugin(engine));
+		return new HashSet<>(Arrays.asList(
+				new GPSPlugin(engine),
+				new GyroscopePlugin(engine)
+		));
 	}
 
 	@Override

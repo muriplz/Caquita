@@ -1,22 +1,37 @@
-[gd_scene load_steps=2 format=3 uid="uid://b02ror12y1asc"]
+[gd_scene load_steps=3 format=3 uid="uid://b02ror12y1asc"]
 
-[ext_resource type="Script" uid="uid://bwpse8jy36wc0" path="res://scenes/game/ui/inventory/grid_container.gd" id="1_pk873"]
+[ext_resource type="Script" uid="uid://b46s0i8na20dx" path="res://scenes/game/ui/inventory/slots.gd" id="1_pk873"]
 
-[node name="Inventory" type="Control"]
-layout_mode = 3
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pk873"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 20
+border_width_top = 20
+border_width_right = 20
+border_width_bottom = 20
+border_color = Color(0.154876, 0.154876, 0.154876, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="Inventory" type="MarginContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 120
 
-[node name="Panel" type="Panel" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Background" type="Panel" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_pk873")
 
-[node name="GridContainer" type="GridContainer" parent="Panel"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="Slots" type="Control" parent="."]
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
 script = ExtResource("1_pk873")

@@ -1,0 +1,14 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://dnhhgnttx1r20"]
+
+[ext_resource type="FontFile" uid="uid://xwmelyme2n3p" path="res://assets/fonts/Minecraftia.ttf" id="1_6e8se"]
+
+[resource]
+Button/constants/outline_size = 17
+Button/fonts/font = ExtResource("1_6e8se")
+ColorPickerButton/constants/outline_size = 7
+Label/constants/outline_size = 24
+LineEdit/constants/outline_size = 17
+ProgressBar/constants/outline_size = 7
+TabBar/constants/outline_size = 7
+TextEdit/constants/outline_size = 7
+Tree/constants/outline_size = 7

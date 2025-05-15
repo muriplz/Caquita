@@ -88,11 +88,11 @@ public record Level(
         return totalExp;
     }
 
-    public TrustLevel getTrustLevel() {
-        if (level >= 30) return TrustLevel.MODERATOR;
-        if (level >= 25) return TrustLevel.CONTRIBUTOR;
-        if (level >= 20) return TrustLevel.TRUSTED;
-        return TrustLevel.DEFAULT;
+    public User.Trust getTrustLevel() {
+        if (level >= 30) return User.Trust.MODERATOR;
+        if (level >= 25) return User.Trust.CONTRIBUTOR;
+        if (level >= 20) return User.Trust.TRUSTED;
+        return User.Trust.DEFAULT;
     }
 
     public ObjectNode toJson() {

@@ -1,19 +1,20 @@
-[gd_scene load_steps=9 format=3 uid="uid://b603gi5y4ktee"]
+[gd_scene load_steps=11 format=3 uid="uid://b603gi5y4ktee"]
 
 [ext_resource type="Script" uid="uid://ynpbqaynpr0x" path="res://scenes/game/ui/ui.gd" id="1_eq76c"]
 [ext_resource type="FontFile" uid="uid://xwmelyme2n3p" path="res://assets/fonts/Minecraftia.ttf" id="1_hy4qm"]
-[ext_resource type="Texture2D" uid="uid://cpm2mqi82d7ux" path="res://assets/textures/ui/avatar/trash_can.png" id="2_1vjhe"]
-[ext_resource type="Script" uid="uid://dlyydhg7kokhc" path="res://scenes/game/ui/horizontal_avatar.gd" id="2_w15o4"]
+[ext_resource type="Script" uid="uid://d160n6q3lr6c8" path="res://scenes/game/ui/inventory_button.gd" id="3_fcay1"]
 [ext_resource type="PackedScene" uid="uid://b02ror12y1asc" path="res://scenes/game/ui/inventory/inventory.tscn" id="3_sowjt"]
 [ext_resource type="Script" uid="uid://cr5cv0lo63r7h" path="res://scenes/game/ui/logout_button.gd" id="4_ek8ox"]
+[ext_resource type="Script" uid="uid://ciysbarl7nc2a" path="res://scenes/game/ui/profile_button.gd" id="4_fxik1"]
+[ext_resource type="Script" uid="uid://csx77oak3ggeb" path="res://scenes/game/ui/menu_button.gd" id="6_fxik1"]
 
 [sub_resource type="Theme" id="Theme_sowjt"]
 default_font = ExtResource("1_hy4qm")
+Button/constants/outline_size = 28
 
-[sub_resource type="LabelSettings" id="LabelSettings_ek8ox"]
-font_size = 20
-outline_size = 5
-outline_color = Color(0, 0, 0, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fxik1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fcay1"]
 
 [node name="UI" type="Control"]
 layout_mode = 3
@@ -22,50 +23,45 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
+mouse_filter = 1
 theme = SubResource("Theme_sowjt")
 script = ExtResource("1_eq76c")
 
-[node name="Inventory" parent="." instance=ExtResource("3_sowjt")]
+[node name="Menu" type="PanelContainer" parent="."]
+visible = false
 layout_mode = 1
-
-[node name="HorizontalAvatar" type="HBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -40.0
-offset_right = 40.0
-grow_vertical = 0
-script = ExtResource("2_w15o4")
-
-[node name="TextureButton" type="TextureButton" parent="HorizontalAvatar"]
-texture_filter = 1
-custom_minimum_size = Vector2(70, 70)
-layout_mode = 2
-texture_normal = ExtResource("2_1vjhe")
-stretch_mode = 5
-
-[node name="Username" type="Label" parent="HorizontalAvatar"]
-layout_mode = 2
-text = "Username"
-label_settings = SubResource("LabelSettings_ek8ox")
-
-[node name="LogoutButton" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -62.0
-offset_top = -50.0
-grow_horizontal = 0
-grow_vertical = 0
-text = "Logout"
-script = ExtResource("4_ek8ox")
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="Menu"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 0
+
+[node name="InventoryButton" type="Button" parent="Menu/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+theme_override_styles/normal = SubResource("StyleBoxFlat_fxik1")
+text = "Inventory"
+script = ExtResource("3_fcay1")
+
+[node name="Button" type="Button" parent="Menu/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_fcay1")
+text = "hehe"
+
+[node name="SettingsButton" type="Button" parent="Menu"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "Settings"
+
+[node name="Profile" type="PanelContainer" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -74,27 +70,60 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Menu" type="HBoxContainer" parent="PanelContainer"]
+[node name="CenterContainer" type="MarginContainer" parent="Profile"]
 layout_mode = 2
-size_flags_horizontal = 4
-size_flags_vertical = 0
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 80
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 80
 
-[node name="SettingsButton" type="Button" parent="PanelContainer/Menu"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Profile/CenterContainer"]
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
-text = "Settings"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer/Menu"]
+[node name="Label" type="Label" parent="Profile/CenterContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 4
+text = "Profile"
 
-[node name="Button" type="Button" parent="PanelContainer/Menu/VBoxContainer"]
+[node name="TabContainer" type="TabContainer" parent="Profile/CenterContainer/VBoxContainer"]
 layout_mode = 2
-text = "Inventory"
+current_tab = 0
 
-[node name="Button" type="Button" parent="PanelContainer/Menu"]
+[node name="Information" type="VBoxContainer" parent="Profile/CenterContainer/VBoxContainer/TabContainer"]
 layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="Label" type="Label" parent="Profile/CenterContainer/VBoxContainer/TabContainer/Information"]
+layout_mode = 2
+text = "rrgrgrg"
+
+[node name="Friends" type="VBoxContainer" parent="Profile/CenterContainer/VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="Label" type="Label" parent="Profile/CenterContainer/VBoxContainer/TabContainer/Friends"]
+layout_mode = 2
+text = "rrgrgrg"
+
+[node name="Requests" type="VBoxContainer" parent="Profile/CenterContainer/VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 2
+
+[node name="Label" type="Label" parent="Profile/CenterContainer/VBoxContainer/TabContainer/Requests"]
+layout_mode = 2
+text = "rrgrgrg"
+
+[node name="LogoutButton" type="Button" parent="Profile/CenterContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+text = "Logout"
+script = ExtResource("4_ek8ox")
+
+[node name="Inventory" parent="." instance=ExtResource("3_sowjt")]
+visible = false
+layout_mode = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -103,14 +132,32 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -28.0
-offset_top = -40.0
-offset_right = 28.0
+offset_left = -53.0
+offset_top = -132.0
+offset_right = 53.0
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 50
 
 [node name="MenuButton" type="Button" parent="MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
-size_flags_vertical = 0
+size_flags_vertical = 8
 text = "Menu"
+script = ExtResource("6_fxik1")
+
+[node name="ProfileButton" type="TextureButton" parent="."]
+texture_filter = 1
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -100.0
+offset_right = 100.0
+grow_vertical = 0
+ignore_texture_size = true
+script = ExtResource("4_fxik1")

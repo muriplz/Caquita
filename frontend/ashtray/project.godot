@@ -21,22 +21,27 @@ FontManager="*res://scripts/apply_font.gd"
 UserStore="*res://scripts/stores/user_store.gd"
 ToastManager="*res://scenes/toast/toasts.gd"
 CoordConversion="*res://scenes/game/terrain/coord_conversion.gd"
-ItemKindStore="*res://scripts/stores/item_kinds_store.gd"
-InventoryStore="*res://scripts/stores/inventory_store.gd"
+ItemKindStore="*res://scripts/stores/inventory/item_kinds_store.gd"
+InventoryStore="*res://scripts/stores/inventory/inventory_store.gd"
 
 [display]
 
-window/size/viewport_width=720
-window/size/viewport_height=1280
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/mode=4
 window/size/resizable=false
 window/size/borderless=true
-window/stretch/mode="canvas_items"
+window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
 [editor_plugins]
 
 enabled=PackedStringArray()
+
+[gui]
+
+theme/custom="uid://dnhhgnttx1r20"
 
 [rendering]
 

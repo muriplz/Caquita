@@ -68,9 +68,8 @@ public class DatabaseUtils {
             handle.execute("""
                 CREATE TABLE IF NOT EXISTS currencies (
                     id BIGINT PRIMARY KEY,
-                    level JSONB NOT NULL DEFAULT '{}',
+                    experience INTEGER NOT NULL DEFAULT 0,
                     beans INTEGER NOT NULL DEFAULT 0,
-                    rolls INTEGER NOT NULL DEFAULT 0,
                     FOREIGN KEY (id) REFERENCES users(id)
                 )
             """);
@@ -105,20 +104,20 @@ public class DatabaseUtils {
                 )
             """);
 
-            handle.execute("""
-                CREATE TABLE IF NOT EXISTS plastic_bins (
-                    id BIGSERIAL PRIMARY KEY,
-                    position GEOMETRY(POINT, 4326) NOT NULL,
-                    name VARCHAR(255) NOT NULL,
-                    description TEXT NOT NULL,
-                    author BIGINT NOT NULL,
-                    broken BOOLEAN NOT NULL DEFAULT FALSE,
-                    underground BOOLEAN NOT NULL DEFAULT FALSE,
-                    bottlenecked BOOLEAN NOT NULL DEFAULT FALSE,
-                    modern BOOLEAN NOT NULL DEFAULT FALSE,
-                    overwhelmed BOOLEAN NOT NULL DEFAULT FALSE
-                )
-            """);
+            //handle.execute("""
+            //    CREATE TABLE IF NOT EXISTS plastic_bins (
+            //        id BIGSERIAL PRIMARY KEY,
+            //        position GEOMETRY(POINT, 4326) NOT NULL,
+            //        name VARCHAR(255) NOT NULL,
+            //        description TEXT NOT NULL,
+            //        author BIGINT NOT NULL,
+            //        broken BOOLEAN NOT NULL DEFAULT FALSE,
+            //        underground BOOLEAN NOT NULL DEFAULT FALSE,
+            //        bottlenecked BOOLEAN NOT NULL DEFAULT FALSE,
+            //        modern BOOLEAN NOT NULL DEFAULT FALSE,
+            //        overwhelmed BOOLEAN NOT NULL DEFAULT FALSE
+            //    )
+            //""");
 
             // Create spatial index for faster queries
             handle.execute("""
@@ -156,7 +155,7 @@ public class DatabaseUtils {
             return null;
         });
 
-        //createForumTables();
+        createForumTables();
     }
 
     public static void createForumTables() {
@@ -164,30 +163,30 @@ public class DatabaseUtils {
 
         jdbi.withHandle(handle -> {
             // Create posts table
-            handle.execute("""
-                CREATE TABLE IF NOT EXISTS messages (
-                    id SERIAL PRIMARY KEY,
-                    landmark_id BIGINT NOT NULL,
-                    user_id BIGINT NOT NULL,
-                    content VARCHAR(255) NOT NULL,
-                    creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-                    FOREIGN KEY (user_id) REFERENCES users(id),
-                    FOREIGN KEY (landmark_id) REFERENCES landmarks(id)
-                )
-            """);
-
-            // Create comments table
-            handle.execute("""
-                CREATE TABLE IF NOT EXISTS replies (
-                    id SERIAL PRIMARY KEY,
-                    message_id BIGINT NOT NULL,
-                    user_id BIGINT NOT NULL,
-                    content TEXT NOT NULL,
-                    creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-                    FOREIGN KEY (message_id) REFERENCES messages(id),
-                    FOREIGN KEY (user_id) REFERENCES users(id)
-                )
-            """);
+            //handle.execute("""
+            //    CREATE TABLE IF NOT EXISTS messages (
+            //        id SERIAL PRIMARY KEY,
+            //        landmark_id BIGINT NOT NULL,
+            //        user_id BIGINT NOT NULL,
+            //        content VARCHAR(255) NOT NULL,
+            //        creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+            //        FOREIGN KEY (user_id) REFERENCES users(id),
+            //        FOREIGN KEY (landmark_id) REFERENCES landmarks(id)
+            //    )
+            //""");
+//
+            //// Create comments table
+            //handle.execute("""
+            //    CREATE TABLE IF NOT EXISTS replies (
+            //        id SERIAL PRIMARY KEY,
+            //        message_id BIGINT NOT NULL,
+            //        user_id BIGINT NOT NULL,
+            //        content TEXT NOT NULL,
+            //        creation TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+            //        FOREIGN KEY (message_id) REFERENCES messages(id),
+            //        FOREIGN KEY (user_id) REFERENCES users(id)
+            //    )
+            //""");
 
             handle.execute("""
                 CREATE TABLE IF NOT EXISTS petitions (
@@ -196,11 +195,10 @@ public class DatabaseUtils {
                     user_id BIGINT NOT NULL,
                     type VARCHAR(255) NOT NULL,
                     position GEOMETRY(POINT, 4326) NOT NULL,
-                    landmark_info JSONB NOT NULL,
+                    info JSONB NOT NULL,
                     status VARCHAR(255) NOT NULL DEFAULT 'PENDING',
                     creation TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
                     edition TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
-                    image VARCHAR(255) NOT NULL DEFAULT '',
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """);

@@ -10,7 +10,7 @@ func _ready() -> void:
 	attempt_restore_session()
 
 func store_user(user_data: Dictionary) -> void:
-	_current_user = User.new(user_data)
+	_current_user = User.from_dict(user_data)
 	
 	if "token" in user_data and not user_data["token"].is_empty():
 		_token_store.save_token(user_data["token"])
@@ -50,7 +50,7 @@ func attempt_restore_session() -> bool:
 	var data = JSON.parse_string(json_string)
 	
 	if data != null:
-		_current_user = User.new(data)
+		_current_user = User.from_dict(data)
 		user_changed.emit(_current_user)
 		return true
 	

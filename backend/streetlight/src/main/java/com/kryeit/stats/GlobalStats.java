@@ -16,7 +16,8 @@ public record GlobalStats(GlobalStat stat, long value) {
 
     public enum GlobalStat {
         VIEWS,
-        USERS
+        USERS,
+        TRASH_CANS,
     }
 
     static {
@@ -26,9 +27,21 @@ public record GlobalStats(GlobalStat stat, long value) {
                         .one()
         );
 
+        int trashCanCount = Database.getJdbi().withHandle(handle ->
+                handle.createQuery("SELECT COUNT(*) FROM trash_cans")
+                        .mapTo(Integer.class)
+                        .one()
+        );
+
         Database.getJdbi().useHandle(handle ->
                 handle.createUpdate("UPDATE global_stats SET value = :value WHERE stat = 'USERS'")
                         .bind("value", userCount)
+                        .execute()
+        );
+
+        Database.getJdbi().useHandle(handle ->
+                handle.createUpdate("UPDATE global_stats SET value = :value WHERE stat = 'TRASH_CANS'")
+                        .bind("value", trashCanCount)
                         .execute()
         );
     }

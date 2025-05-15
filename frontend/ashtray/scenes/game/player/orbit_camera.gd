@@ -2,14 +2,14 @@ extends Camera3D
 class_name OrbitCamera
 
 const SENSITIVITY: float    = 1.0
-const GROUND_PLANE: Plane   = Plane(Vector3.UP, 0)
+const GROUND_PLANE: Plane   = Plane(Vector3.UP, 0.5)
 const MIN_PIVOT_DIST: float = 0.1
 
 @export var distance: float      = 10.0
 @export var height_offset: float = 10.0
 
 @onready var player: Node3D = $".."
-var player_height = 2
+var player_height = 5
 
 var yaw: float
 var dragging: bool

@@ -29,4 +29,4 @@ func _on_response(result, code, headers, body):
 
 # API
 func get_inventory() -> Inventory:
-	return Inventory.new(inventory)
+	return Inventory.from_dict(inventory)

@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://d13do4fkw325b"]
+[gd_scene load_steps=6 format=3 uid="uid://d13do4fkw325b"]
 
 [ext_resource type="PackedScene" uid="uid://bshmwvc1y7ndg" path="res://scenes/game/player/player.tscn" id="2_kelw5"]
 [ext_resource type="PackedScene" uid="uid://b603gi5y4ktee" path="res://scenes/game/ui/ui.tscn" id="3_0sr1o"]
 [ext_resource type="PackedScene" uid="uid://1doplgopx2uj" path="res://scenes/game/terrain/chunk_manager.tscn" id="4_kelw5"]
+[ext_resource type="Script" uid="uid://jrftltk16r6a" path="res://scenes/game/terrain/gyroscope.gd" id="5_5i0tg"]
 [ext_resource type="Script" uid="uid://c5ua3dc2258qi" path="res://scenes/game/terrain/gps.gd" id="5_lfrn8"]
 
 [node name="Game" type="Node3D"]
@@ -16,6 +17,15 @@ transform = Transform3D(0.999958, 0, 0.00918028, 0, 1, 0, -0.00918028, 0, 0.9999
 
 [node name="GPS" type="Node3D" parent="."]
 script = ExtResource("5_lfrn8")
+
+[node name="Gyroscope" type="Node3D" parent="."]
+script = ExtResource("5_5i0tg")
+
+[node name="Compass" type="Control" parent="Gyroscope"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 122.758, 72.1031, 0)

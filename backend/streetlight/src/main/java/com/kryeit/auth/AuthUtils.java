@@ -31,13 +31,13 @@ public class AuthUtils {
         return Jwt.validateToken(token);
     }
 
-    public static boolean check(long user, TrustLevel trust) {
+    public static boolean check(long user, User.Trust trust) {
         return Database.getJdbi().withHandle(handle ->
                 handle.createQuery("SELECT trust FROM users WHERE id = :id")
                         .bind("id", user)
-                        .mapTo(TrustLevel.class)
+                        .mapTo(User.Trust.class)
                         .findOne()
-                        .orElse(TrustLevel.DEFAULT)
+                        .orElse(User.Trust.DEFAULT)
                         .ordinal() >= trust.ordinal()
         );
     }
