@@ -34,7 +34,7 @@ public class PetitionsApi {
         }
 
         String query = """
-                SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon, Info, status, creation, edition
+                SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon, info, status, creation, edition
                 FROM petitions
                 WHERE status = :status
                 ORDER BY creation %s

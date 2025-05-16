@@ -31,6 +31,6 @@ func _on_response(result, code, headers, body):
 # API
 func get_trash_cans() -> Array[TrashCan]:
 	return trash_cans.map(func(item):
-		return TrashCan.new(item)
+		return TrashCan.from_dict(item)
 	)
 	

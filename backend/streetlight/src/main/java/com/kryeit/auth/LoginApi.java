@@ -41,6 +41,7 @@ public class LoginApi {
      */
     public static void login(Context ctx) {
         JSONObject body = new JSONObject(ctx.body());
+        System.out.println(body);
 
         String username = body.getString("username");
         String password = body.getString("password");

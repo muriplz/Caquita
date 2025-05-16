@@ -1,5 +1,5 @@
 const IP_ADDRESSES = {
-    production: 'https://caquita.app',
+    production: 'https://erre.app',
     development: 'http://localhost:6996'
 };
 

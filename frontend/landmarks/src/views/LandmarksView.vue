@@ -10,7 +10,7 @@ import PetitionsHeader from "@/views/landmarks/PetitionsHeader.vue";
     <div class="introduction">
       <h3>A public archive</h3>
       <p>Anyone can contribute to adding Landmarks of cans, containers, etc.<br/> And everyone can retrieve the data from
-      <a href="https://townhall.caquita.app">
+      <a href="https://townhall.erre.app">
         Townhall
       </a>Portal. </p>
     </div>

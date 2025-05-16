@@ -207,9 +207,7 @@ public class PetitionImageApi {
         if (Files.exists(petitionImagePath)) {
             try {
                 Files.copy(petitionImagePath, landmarkImagePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-            }
-        } else {
+            } catch (IOException ignored) {}
         }
     }
-}
+}p

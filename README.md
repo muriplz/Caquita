@@ -18,7 +18,7 @@ An Android/iOS app, made in [Godot](https://godotengine.org). All assets(texture
 
 A [Javalin](https://javalin.io/) backend with JWT authentication.
 
-Uses [PostGIS](https://postgis.net), an extension that adds geographic object support to [PostgreSQL](https://www.postgresql.org).
+Uses [PostGIS](https://postgis.net), an extension that adds geospatial object support to [PostgreSQL](https://www.postgresql.org).
 
 And [S2 Geometry Library](https://github.com/google/s2-geometry-library-java), Google's library for manipulating geometric shapes on a sphere.
 

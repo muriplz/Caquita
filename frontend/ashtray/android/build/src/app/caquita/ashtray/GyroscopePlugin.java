@@ -23,7 +23,7 @@ public class GyroscopePlugin extends GodotPlugin implements SensorEventListener 
         super(godot);
         ctx = godot.getActivity();
         sensorManager = (SensorManager)ctx.getSystemService(Context.SENSOR_SERVICE);
-        gyroscope     = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
     }
 
     @Override

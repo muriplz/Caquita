@@ -18,7 +18,7 @@ const languageFilenames = {
 const getChangelogUrl = () => {
   const lang = savedLanguage.value
   const filename = languageFilenames[lang] || languageFilenames.en
-  return `https://raw.githubusercontent.com/muriplz/Caquita/main/changelog/${filename}.md`
+  return `https://raw.githubusercontent.com/muriplz/Erre/main/changelog/${filename}.md`
 }
 
 const fetchChangelog = async () => {

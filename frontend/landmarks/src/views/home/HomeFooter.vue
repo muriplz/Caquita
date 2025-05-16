@@ -14,7 +14,7 @@
 
       <div class="flex flex-col items-left">
         <h2 class="text-xl font-bold">Social</h2>
-        <a href="https://github.com/muriplz/Caquita">GitHub</a>
+        <a href="https://github.com/muriplz/Erre">GitHub</a>
         <a href="https://discord.gg/nZaUfYtN">Discord</a>
       </div>
     </div>
