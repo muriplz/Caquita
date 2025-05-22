@@ -17,7 +17,6 @@ config/icon="res://icon.png"
 
 [autoload]
 
-FontManager="*res://scripts/apply_font.gd"
 InventoryStore="*res://scripts/stores/inventory/inventory_store.gd"
 UserStore="*res://scripts/stores/user_store.gd"
 ToastManager="*res://scenes/toast/toasts.gd"
@@ -43,6 +42,7 @@ enabled=PackedStringArray()
 [gui]
 
 theme/custom="uid://dnhhgnttx1r20"
+theme/custom_font="uid://xwmelyme2n3p"
 
 [rendering]
 
