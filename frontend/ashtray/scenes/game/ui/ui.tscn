@@ -114,6 +114,40 @@ metadata/_tab_index = 2
 layout_mode = 2
 text = "rrgrgrg"
 
+[node name="Settings" type="VBoxContainer" parent="Profile/CenterContainer/VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Profile/CenterContainer/VBoxContainer/TabContainer/Settings"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Profile/CenterContainer/VBoxContainer/TabContainer/Settings/HBoxContainer"]
+layout_mode = 2
+text = "Zoom sensitivity"
+
+[node name="HSlider" type="HSlider" parent="Profile/CenterContainer/VBoxContainer/TabContainer/Settings/HBoxContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+max_value = 3.0
+step = 0.1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Profile/CenterContainer/VBoxContainer/TabContainer/Settings"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Profile/CenterContainer/VBoxContainer/TabContainer/Settings/HBoxContainer2"]
+layout_mode = 2
+text = "Language"
+
+[node name="HSlider" type="OptionButton" parent="Profile/CenterContainer/VBoxContainer/TabContainer/Settings/HBoxContainer2"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+item_count = 2
+popup/item_0/text = "Español"
+popup/item_0/id = 0
+popup/item_1/text = "English"
+popup/item_1/id = 1
+
 [node name="LogoutButton" type="Button" parent="Profile/CenterContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 8
@@ -122,7 +156,6 @@ text = "Logout"
 script = ExtResource("4_ek8ox")
 
 [node name="Inventory" parent="." instance=ExtResource("3_sowjt")]
-visible = false
 layout_mode = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="."]

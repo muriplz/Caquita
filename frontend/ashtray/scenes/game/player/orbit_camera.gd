@@ -24,7 +24,7 @@ func _ready() -> void:
 	height_offset = offset.y
 	yaw           = atan2(offset.x, offset.z)
 
-func _process(delta: float) -> void:
+func _process(_delta) -> void:
 	_update_camera_transform()
 
 func _input(event: InputEvent) -> void:

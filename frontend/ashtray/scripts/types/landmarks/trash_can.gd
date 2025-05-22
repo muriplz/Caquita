@@ -1,20 +1,20 @@
 extends Resource
 class_name TrashCan
 
-@export var id: int = 0
-@export var lat: float = 0
-@export var lon: float = 0
-@export var name: String = ""
-@export var description: String = ""
-@export var author: int = 0
+@export var id: int
+@export var lat: float
+@export var lon: float
+@export var name: String
+@export var description: String
+@export var author: int
 
-@export var broken: bool = false
-@export var ashtray: bool = false
-@export var windblown: bool = false
-@export var flooded: bool = false
-@export var overwhelmed: bool = false
-@export var poopbag: bool = false
-@export var art: bool = false
+@export var broken: bool
+@export var ashtray: bool
+@export var windblown: bool
+@export var flooded: bool
+@export var overwhelmed: bool
+@export var poopbag: bool
+@export var art: bool
 
 static func from_dict(dict: Dictionary) -> TrashCan:
 	var trash_can = TrashCan.new()
@@ -32,4 +32,5 @@ static func from_dict(dict: Dictionary) -> TrashCan:
 	trash_can.overwhelmed = dict.get("overwhelmed", false)
 	trash_can.poopbag = dict.get("poopbag", false)
 	trash_can.art = dict.get("art", false)
+	
 	return trash_can

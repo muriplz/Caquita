@@ -36,7 +36,7 @@ func login(username: String, password: String) -> void:
 	
 	http_request.request(LOGIN_API_URL, headers, HTTPClient.METHOD_POST, body)
 
-func _on_login_response(result, response_code, headers, body):
+func _on_login_response(_result, response_code, _headers, body):
 	if response_code == 200:
 		var json = JSON.parse_string(body.get_string_from_utf8())
 		if json != null:
@@ -59,7 +59,7 @@ func register(username: String, password: String) -> void:
 	
 	http_request.request(REGISTER_API_URL, headers, HTTPClient.METHOD_POST, body)
 		
-func _on_register_response(result, response_code, headers, body):
+func _on_register_response(_result, response_code, _headers, body):
 	if response_code == 200:
 		var json = JSON.parse_string(body.get_string_from_utf8())
 		if json != null:

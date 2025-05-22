@@ -1,7 +1,5 @@
 extends Control
 
-signal validation_complete(success)
-
 func _ready() -> void:
 	validate()
 		
@@ -14,7 +12,7 @@ func validate() -> void:
 	
 	http_request.request(Static.API_URL + "api/v1/auth/validate", headers, HTTPClient.METHOD_POST, "")
 
-func _on_validate_response(result, response_code, headers, body, request_node):
+func _on_validate_response(_result, response_code, _headers, body, request_node):
 	if response_code == 200:
 		var json = JSON.parse_string(body.get_string_from_utf8())
 		if json != null:

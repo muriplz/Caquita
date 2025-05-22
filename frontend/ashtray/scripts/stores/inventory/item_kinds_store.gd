@@ -12,7 +12,7 @@ func _ready():
 	http_request.request_completed.connect(_on_response)
 	http_request.request(API_URL)
 
-func _on_response(result: int, code: int, headers: Array, body: PackedByteArray) -> void:
+func _on_response(_result, code, _headers, body) -> void:
 	if code != 200:
 		return
 

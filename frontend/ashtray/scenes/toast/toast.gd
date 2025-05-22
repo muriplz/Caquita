@@ -12,7 +12,7 @@ func _ready():
 	
 	label.text = message_text
 	
-	var timer = get_tree().create_timer(duration).timeout.connect(_dismiss)
+	get_tree().create_timer(duration).timeout.connect(_dismiss)
 
 func set_message(text: String):
 	message_text = text

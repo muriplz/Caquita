@@ -4,8 +4,8 @@ plugins {
     id("application")
 }
 
-group = "com.kryeit"
-version = "1.0"
+group = "app.caquita"
+version = "1.0-alpha"
 
 repositories {
     mavenCentral()
@@ -49,12 +49,12 @@ tasks {
 
 tasks.jar {
     manifest {
-        attributes("Main-Class" to "com.kryeit.Main")
+        attributes("Main-Class" to "app.caquita.Main")
     }
 }
 
 application {
-    mainClass.set("com.kryeit.Main")
+    mainClass.set("app.caquita.Main")
 }
 
 tasks.test {

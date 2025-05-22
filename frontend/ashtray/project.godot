@@ -23,6 +23,7 @@ UserStore="*res://scripts/stores/user_store.gd"
 ToastManager="*res://scenes/toast/toasts.gd"
 CoordConversion="*res://scenes/game/terrain/coord_conversion.gd"
 ItemKindStore="*res://scripts/stores/inventory/item_kinds_store.gd"
+SettingsStore="*res://scripts/stores/settings_store.gd"
 
 [display]
 
@@ -45,6 +46,7 @@ theme/custom="uid://dnhhgnttx1r20"
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="mobile"
 textures/vram_compression/import_etc2_astc=true
 textures/decals/filter=0

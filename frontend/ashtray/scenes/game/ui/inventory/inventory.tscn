@@ -1,37 +1,38 @@
 [gd_scene load_steps=3 format=3 uid="uid://b02ror12y1asc"]
 
-[ext_resource type="Script" uid="uid://b46s0i8na20dx" path="res://scenes/game/ui/inventory/slots.gd" id="1_pk873"]
+[ext_resource type="Script" uid="uid://c04s2v44hxtmr" path="res://scenes/game/ui/inventory/inventory.gd" id="1_ed16a"]
+[ext_resource type="Texture2D" uid="uid://dg0mta4acykfu" path="res://assets/textures/ui/inventory.png" id="1_pk873"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pk873"]
-bg_color = Color(0.6, 0.6, 0.6, 0)
-border_width_left = 20
-border_width_top = 20
-border_width_right = 20
-border_width_bottom = 20
-border_color = Color(0.154876, 0.154876, 0.154876, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-
-[node name="Inventory" type="MarginContainer"]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="Inventory" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 100
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 120
+script = ExtResource("1_ed16a")
 
-[node name="Background" type="Panel" parent="."]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_pk873")
-
-[node name="Slots" type="Control" parent="."]
-texture_filter = 1
-layout_mode = 2
+[node name="NinePatchRect" type="NinePatchRect" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -3.0
+offset_top = -3.0
+offset_right = 3.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-script = ExtResource("1_pk873")
+texture = ExtResource("1_pk873")
+patch_margin_left = 3
+patch_margin_top = 3
+patch_margin_right = 3
+patch_margin_bottom = 3
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2

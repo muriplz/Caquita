@@ -1,22 +1,40 @@
 extends TextureRect
 
-const CELL_SIZE = Vector2(120, 120)
-
-var id: String
+var item: InventoryItem
 var anchor: Cell
 
-var inventory: Inventory
-
-const BASE_VALUE = 24
+var _dragging := false
+var _drag_offset := Vector2.ZERO
 
 func _ready() -> void:
-	var tex = load("res://assets/textures/items/%s.png" % [id.replace(":", "/")])
+	var tex = load(get_texture_path())
 	set_texture(tex)
-	
-	var cols = inventory.width
-	var rows = inventory.height
 
-	var total_w = cols * CELL_SIZE.x + cols - 1
-	var total_h = rows * CELL_SIZE.y + rows - 1
 
-	var origin = -Vector2(total_w, total_h) * 0.5
+func get_texture_path():
+	return "res://assets/textures/items/%s.png" % [item.id.replace(":", "/")]
+
+
+func _on_mouse_entered() -> void:
+	get_parent().get_parent().hovered_item = self
+
+
+func _on_mouse_exited() -> void:
+	get_parent().get_parent().hovered_item = null
+
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_dragging = event.pressed
+		if _dragging:
+			get_viewport().set_input_as_handled()
+	elif event is InputEventMouseMotion and _dragging:
+		position += event.relative
+		get_viewport().set_input_as_handled()
+	elif event is InputEventScreenTouch:
+		_dragging = event.pressed
+		if _dragging:
+			get_viewport().set_input_as_handled()
+	elif event is InputEventScreenDrag and _dragging:
+		position += event.relative
+		get_viewport().set_input_as_handled()

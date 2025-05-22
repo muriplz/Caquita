@@ -7,7 +7,6 @@ var inventory
 
 func _ready():
 	API_URL = Static.API_URL + "api/v1/inventory"
-	sync()
 	
 func sync():
 	var http_request = HTTPRequest.new()
@@ -20,7 +19,7 @@ func sync():
 	
 	http_request.request(API_URL, headers)
 
-func _on_response(result, code, headers, body):
+func _on_response(_result, code, _headers, body):
 	if code != 200:
 		return
 

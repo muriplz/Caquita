@@ -55,7 +55,7 @@ func _load_tile(tx: int, ty: int) -> void:
 func _on_request_completed(
 		result: int,
 		response_code: int,
-		headers: PackedStringArray,
+		_headers: PackedStringArray,
 		body: PackedByteArray,
 		tx: int,
 		ty: int,

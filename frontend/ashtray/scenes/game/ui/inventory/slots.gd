@@ -20,8 +20,7 @@ func _on_inventory_ready() -> void:
 
 	for y in range(rows):
 		for x in range(cols):
-			var slot = SLOT_SCENE.instantiate() as Control
-			slot.set_anchors_preset(Control.PRESET_TOP_LEFT)
+			var slot = SLOT_SCENE.instantiate()
 			slot.size = CELL_SIZE
 			var offset = Vector2(x * CELL_SIZE.x, y * CELL_SIZE.y)
 			slot.slot_coords = Vector2(x, y)
@@ -30,7 +29,7 @@ func _on_inventory_ready() -> void:
 			add_child(slot)
 			
 	for inventory_item in inventory.items:
-		var inventory_item_scene = INVENTORY_ITEM_SCENE. instantiate() as TextureRect
+		var inventory_item_scene = INVENTORY_ITEM_SCENE.instantiate()
 		
 		inventory_item_scene.id = inventory_item.id
 		
