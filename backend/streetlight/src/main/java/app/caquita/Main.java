@@ -31,7 +31,7 @@ public class Main {
         SslPlugin sslPlugin = new SslPlugin(sslConfig -> {
             sslConfig.http2 = true;
             sslConfig.secure = false;
-            sslConfig.insecurePort = Config.apiPort;
+            sslConfig.insecurePort = Config.API_PORT;
         });
 
         Javalin app = Javalin.create(config -> {

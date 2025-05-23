@@ -14,7 +14,7 @@ import java.util.Date;
 
 public class Jwt {
 
-    public static final Algorithm algorithm = Algorithm.HMAC256(Config.jwtSecret);
+    public static final Algorithm algorithm = Algorithm.HMAC256(Config.JWT_SECRET);
     private static final long EXPIRATION = Duration.ofDays(30).toMillis();
 
     public static String generateToken(long id) {

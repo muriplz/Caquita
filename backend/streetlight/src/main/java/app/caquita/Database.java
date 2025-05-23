@@ -23,8 +23,8 @@ public class Database {
     static {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setUsername(Config.dbUser);
-        hikariConfig.setPassword(Config.dbPassword);
-        hikariConfig.setJdbcUrl(Config.dbUrl);
+        hikariConfig.setPassword(Config.DB_PASSWORD);
+        hikariConfig.setJdbcUrl(Config.DB_URL);
 
         JDBI = Jdbi.create(new HikariDataSource(hikariConfig));
         JDBI.installPlugin(new Jackson2Plugin());

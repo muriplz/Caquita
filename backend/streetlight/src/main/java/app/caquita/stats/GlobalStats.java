@@ -107,7 +107,7 @@ public record GlobalStats(GlobalStat stat, long value) {
     private static String hashIp(String ip) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest((ip + Config.ipSalt).getBytes(StandardCharsets.UTF_8));
+            byte[] digest = md.digest((ip + Config.IP_SALT).getBytes(StandardCharsets.UTF_8));
             StringBuilder hexString = new StringBuilder();
             for (byte b : digest) {
                 String hex = Integer.toHexString(0xff & b);

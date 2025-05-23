@@ -32,7 +32,7 @@ public class MapApi {
 
         String url = String.format(
                 "https://tiles-eu.stadiamaps.com/tiles/stamen_watercolor/%d/%d/%d.jpg?api_key=%s",
-                ZOOM, x, y, Config.MAP_TILER_KEY
+                ZOOM, x, y, Config.STADIA_MAPS_KEY
         );
 
         HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
