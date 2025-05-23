@@ -2,27 +2,37 @@ extends Control
 
 const CELL_SCENE = preload("res://scenes/game/ui/inventory/cell.tscn")
 const INVENTORY_ITEM_SCENE = preload("res://scenes/game/ui/inventory/inventory_item.tscn")
-
 const CELL_SIZE := Vector2(120, 120)
-
 var hovered_cell
 
 func _ready() -> void:
 	InventoryStore.connect("inventory_ready", Callable(self, "_on_inventory_ready"))
+	InventoryStore.connect("inventory_updated", Callable(self, "_on_inventory_updated"))
+
+func rebuild_inventory() -> void:
 	InventoryStore.sync()
-	
+	await InventoryStore.inventory_ready
 
 func _on_inventory_ready() -> void:
+	clear_inventory()
+	build_inventory()
+
+func _on_inventory_updated() -> void:
+	update_item_positions()
+
+func clear_inventory() -> void:
+	for child in $NinePatchRect.get_children():
+		child.queue_free()
+
+func build_inventory() -> void:
 	var cols = InventoryStore.inventory.width
 	var rows = InventoryStore.inventory.height
-
 	var total_w = cols * CELL_SIZE.x + cols
 	var total_h = rows * CELL_SIZE.y + rows
 	$NinePatchRect.custom_minimum_size = Vector2(total_w, total_h)
 	
 	create_cells(cols, rows)
 	populate_items()
-	
 
 func populate_items() -> void: 
 	for inventory_item in InventoryStore.inventory.items:
@@ -37,9 +47,14 @@ func populate_items() -> void:
 		)
 		
 		inventory_item_scene.item = InventoryItem.from_dict(inventory_item)
-
+		
+		var anchor = ShapeUtils.get_anchor(inventory_item_scene.item)
+		inventory_item_scene.position = Vector2(
+			anchor.col * CELL_SIZE.x,
+			anchor.row * CELL_SIZE.y
+		)
+		
 		$NinePatchRect.add_child(inventory_item_scene)
-
 
 func create_cells(cols, rows) -> void:
 	for y in range(rows):
@@ -50,5 +65,9 @@ func create_cells(cols, rows) -> void:
 			cell.i = x
 			cell.j = y
 			cell.position = offset
-
 			$NinePatchRect.add_child(cell)
+
+func update_item_positions():
+	for child in $NinePatchRect.get_children():
+		if child.has_method("update_position_from_anchor"):
+			child.update_position_from_anchor()

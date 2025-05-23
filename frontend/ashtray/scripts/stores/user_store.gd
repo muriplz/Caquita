@@ -56,8 +56,5 @@ func attempt_restore_session() -> bool:
 	
 	return false
 
-func get_auth_header() -> Dictionary:
-	var token = get_token()
-	if token.is_empty():
-		return {}
-	return {"Authorization": "Bearer " + token}
+func get_auth_header():
+	return ["Cookie: auth=" + get_token()]

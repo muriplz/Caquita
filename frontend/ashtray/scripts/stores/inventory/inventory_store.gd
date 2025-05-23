@@ -1,6 +1,7 @@
 extends Node
 
 signal inventory_ready
+signal inventory_updated
 
 var API_URL: String
 var inventory
@@ -29,3 +30,7 @@ func _on_response(_result, code, _headers, body):
 # API
 func get_inventory() -> Inventory:
 	return Inventory.from_dict(inventory)
+
+func update_inventory(response_data):
+	inventory = Inventory.from_dict(response_data)
+	emit_signal("inventory_updated")

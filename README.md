@@ -1,8 +1,8 @@
-# Monorepo of [Erre](https://erre.app)
+# Monorepo of [Caquita](https://caquita.app)
 
 <p align="center">
   <img 
-    src="https://raw.githubusercontent.com/muriplz/Erre/main/images/onboarding.png" 
+    src="https://raw.githubusercontent.com/muriplz/Caquita/main/images/onboarding.png" 
     alt="Onboarding" 
     width="100%" 
   />

@@ -34,15 +34,16 @@ static func trim_shape(shape: Array) -> Array:
 	return result
 	
 static func get_anchor(item: InventoryItem) -> Cell:
-	var rect = get_bounding_box(ItemKindStore.get_item_kind(item.id).shape)
-	if rect.size == Vector2i():
+	if item.cells.is_empty():
 		return null
-
-	var anchor_col = rect.position.x
-	var anchor_row = rect.position.y
-
-	for cell in item.cells:
-		if cell.col == anchor_col and cell.row == anchor_row:
-			return Cell.from_dict(cell)
-	return null
 	
+	var min_col = item.cells[0].col
+	var min_row = item.cells[0].row
+	for cell_dict in item.cells:
+		min_col = min(min_col, cell_dict.col)
+		min_row = min(min_row, cell_dict.row)
+	
+	var anchor = Cell.new()
+	anchor.col = min_col
+	anchor.row = min_row
+	return anchor

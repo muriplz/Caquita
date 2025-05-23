@@ -10,3 +10,9 @@ static func from_dict(dict: Dictionary) -> Cell:
 	cell.row = dict.get("row", 0)
 	
 	return cell
+
+func to_dict() -> Dictionary:
+	return {
+	"col": col,
+	"row": row
+	}

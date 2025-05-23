@@ -15,7 +15,7 @@ static func remove(anchor: Cell, callback: Callable) -> void:
 	_make_request("DELETE", "", data, callback)
 
 static func move(anchor: Cell, new_anchor: Cell, callback: Callable) -> void:
-	var data = {"anchor": anchor.to_dict(), "new_anchor": new_anchor.to_dict()}
+	var data = {"anchor": anchor.to_dict(), "newAnchor": new_anchor.to_dict()}
 	_make_request("PATCH", "", data, callback)
 
 static func can_place(item_id: String, anchor: Cell, callback: Callable) -> void:
@@ -28,6 +28,7 @@ static func _make_request(method: String, endpoint: String, data: Dictionary, ca
 	
 	var url = API_URL + endpoint
 	var headers = ["Content-Type: application/json"]
+	headers.append_array(UserStore.get_auth_header())
 	var json_data = JSON.stringify(data)
 	
 	http_request.request_completed.connect(func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):

@@ -1,6 +1,4 @@
-package app.caquita.content.items;
-
-import app.caquita.auth.inventory.InventoryItem;
+package app.caquita.auth.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,5 +70,27 @@ public final class ShapeUtils {
             rotated.add(newRow);
         }
         return rotated;
+    }
+
+    public static InventoryItem.Cell getTopLeftOccupied(List<int[]> shape) {
+        int minRow = Integer.MAX_VALUE;
+        int minCol = Integer.MAX_VALUE;
+
+        for (int i = 0; i < shape.size(); i++) {
+            int[] row = shape.get(i);
+            for (int j = 0; j < row.length; j++) {
+                if (row[j] == 1) {
+                    minRow = Math.min(minRow, i);
+                    minCol = Math.min(minCol, j);
+                }
+            }
+        }
+
+        return new InventoryItem.Cell(minCol, minRow);
+    }
+
+    public static InventoryItem.Cell anchorToPlacement(int anchorCol, int anchorRow, List<int[]> shape) {
+        InventoryItem.Cell topLeft = getTopLeftOccupied(shape);
+        return new InventoryItem.Cell(anchorCol - topLeft.col(), anchorRow - topLeft.row());
     }
 }

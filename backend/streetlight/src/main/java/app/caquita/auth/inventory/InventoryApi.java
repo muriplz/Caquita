@@ -16,7 +16,7 @@ public class InventoryApi {
 
             Database.getJdbi().withHandle(handle ->
                     handle.createUpdate("""
-                        UPDATE SET items = cast(:items AS jsonb)
+                        UPDATE inventories SET items = cast(:items AS jsonb)
                         WHERE user_id = :userId
                         """)
                             .bind("userId", user)
@@ -84,7 +84,7 @@ public class InventoryApi {
 
         InventoryManager manager = new InventoryManager(user);
 
-        if (manager.addItem(payload.itemId(), payload.col(), payload.row())) {
+        if (manager.addItem(payload.itemId(), payload.anchor.col(), payload.anchor.row())) {
             ctx.status(200).json(manager.inventory);
         } else {
             ctx.status(400).result("Failed to add item");
@@ -97,7 +97,7 @@ public class InventoryApi {
 
         InventoryManager manager = new InventoryManager(user);
 
-        if (manager.removeItem(payload.col(), payload.row())) {
+        if (manager.removeItem(payload.anchor.col(), payload.anchor.row())) {
             ctx.status(200).json(manager.inventory);
         } else {
             ctx.status(400).result("Failed to remove item");
@@ -105,12 +105,15 @@ public class InventoryApi {
     }
 
     public static void moveItem(Context ctx) {
+        System.out.println("heyy");
+
         long user = AuthUtils.getUser(ctx);
         MoveItemPayload payload = ctx.bodyAsClass(MoveItemPayload.class);
+        System.out.println("heyy" + payload);
 
         InventoryManager manager = new InventoryManager(user);
 
-        if (manager.moveItem(payload.col(), payload.row(), payload.newCol(), payload.newRow(), true)) {
+        if (manager.moveItem(payload.anchor.col(), payload.anchor.row(), payload.newAnchor.col(), payload.newAnchor.row(), true)) {
             ctx.status(200).json(manager.inventory);
         } else {
             ctx.status(400).result("Failed to move item");
@@ -123,7 +126,7 @@ public class InventoryApi {
 
         InventoryManager manager = new InventoryManager(user);
 
-        if (manager.rotateItem(payload.col(), payload.row(), payload.clockwise())) {
+        if (manager.rotateItem(payload.anchor.col(), payload.anchor.row(), payload.clockwise())) {
             ctx.status(200).json(manager.inventory);
         } else {
             ctx.status(400).result("Failed to rotate item");
@@ -136,16 +139,16 @@ public class InventoryApi {
 
         InventoryManager manager = new InventoryManager(user);
 
-        if (manager.canPlaceItem(payload.itemId(), payload.col(), payload.row())) {
+        if (manager.canPlaceItem(payload.itemId(), payload.anchor.col(), payload.anchor.row())) {
             ctx.status(200).result("true");
         } else {
             ctx.status(200).result("false");
         }
     }
 
-    record AddItemPayload(String itemId, int col, int row) {}
-    record RemoveItemPayload(int col, int row) {}
-    record MoveItemPayload(int col, int row, int newCol, int newRow) {}
-    record RotateItemRequest(int col, int row, boolean clockwise) {}
-    record CanPlaceItemRequest(String itemId, int col, int row) {}
+    record AddItemPayload(String itemId, InventoryItem.Cell anchor) {}
+    record RemoveItemPayload(InventoryItem.Cell anchor) {}
+    record MoveItemPayload(InventoryItem.Cell anchor, InventoryItem.Cell newAnchor) {}
+    record RotateItemRequest(InventoryItem.Cell anchor, boolean clockwise) {}
+    record CanPlaceItemRequest(String itemId, InventoryItem.Cell anchor) {}
 }

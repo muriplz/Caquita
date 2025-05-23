@@ -26,7 +26,7 @@ public class Config {
 
     public static String MAP_TILER_KEY = production
             ? System.getenv("MAP_TILER_KEY")
-            : "";
+            : "8e189d4a-775c-445c-a4d5-5fe1f3f1d866";
 
     public static String TILE_SERVER = "https://caquita.app:8080";
 }

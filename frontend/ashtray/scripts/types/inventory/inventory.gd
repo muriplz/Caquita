@@ -13,7 +13,6 @@ static func from_dict(dict: Dictionary) -> Inventory:
 	inventory.id = dict.get("id", 0)
 	inventory.user_id = dict.get("user_id", 0)
 	inventory.items = dict.get("items", [])
-	print(inventory.items)
 	inventory.height = dict.get("height", 3)
 	inventory.width = dict.get("width", 2)
 	
