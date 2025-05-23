@@ -48,7 +48,7 @@ public class Main {
             config.bundledPlugins.enableCors(cors -> {
                 cors.addRule(it -> {
                     it.allowCredentials = true;
-                    it.allowHost("https://erre.app", "http://localhost:5173", "http://localhost:5174");
+                    it.allowHost("https://caquita.app", "http://localhost:5173", "http://localhost:5174");
                 });
             });
 
