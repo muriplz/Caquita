@@ -3,9 +3,8 @@ extends Control
 const CELL_SCENE = preload("res://scenes/game/ui/inventory/cell.tscn")
 const INVENTORY_ITEM_SCENE = preload("res://scenes/game/ui/inventory/inventory_item.tscn")
 
-const CELL_SIZE = Vector2(120, 120)
+const CELL_SIZE := Vector2(120, 120)
 
-var hovered_item
 var hovered_cell
 
 func _ready() -> void:

@@ -1,17 +1,15 @@
 extends Control
 
-var screens = []
-
-func _ready() -> void:
-	screens = [
+@onready var screens := [
 		$Menu,
 		$Profile,
 		$Inventory
 	]
 	
-func toggle_screen(screen) -> void:
-	if screen.visible:
-		screen.visible = false
-	else:
-		for scr in screens:
-			scr.visible = (scr == screen)
+func toggle_screen(screen: Control) -> void:
+	var will_open = not screen.visible
+
+	for scr in screens:
+		scr.visible = false
+	if will_open:
+		screen.visible = true

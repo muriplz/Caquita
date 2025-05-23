@@ -4,23 +4,16 @@ var item: InventoryItem
 var anchor: Cell
 
 var _dragging := false
-var _drag_offset := Vector2.ZERO
+
 
 func _ready() -> void:
 	var tex = load(get_texture_path())
 	set_texture(tex)
+	anchor = ShapeUtils.get_anchor(item)
 
 
 func get_texture_path():
 	return "res://assets/textures/items/%s.png" % [item.id.replace(":", "/")]
-
-
-func _on_mouse_entered() -> void:
-	get_parent().get_parent().hovered_item = self
-
-
-func _on_mouse_exited() -> void:
-	get_parent().get_parent().hovered_item = null
 
 
 func _gui_input(event: InputEvent) -> void:

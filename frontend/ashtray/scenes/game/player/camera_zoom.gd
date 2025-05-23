@@ -1,14 +1,14 @@
 extends OrbitCamera
 class_name OrbitZoom
 
-@export var zoom_curve:   Curve = Curve.new()
-@export var min_distance: float = 3.0
-@export var max_distance: float = 30.0
-@export var min_height:   float = 1.0
-@export var max_height:   float = 10.0
-@export var zoom_speed:   float = 0.02
+@export var zoom_curve := Curve.new()
+@export var min_distance := 3.0
+@export var max_distance := 30.0
+@export var min_height := 1.0
+@export var max_height := 10.0
+@export var zoom_speed := 0.02
 
-var _zoom_t: float = 0.0
+var _zoom_t : = 0.0
 var zoom_t: float:
 	set(v):
 		_zoom_t = clamp(v, 0.0, 1.0)

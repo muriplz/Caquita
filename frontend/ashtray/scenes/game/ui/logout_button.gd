@@ -3,7 +3,7 @@ extends Button
 const LOGIN_SCENE_PATH = "res://scenes/auth/login.tscn"
 
 func _ready():
-	connect("pressed", Callable(self, "_on_logout_pressed"))
+	pressed.connect(self._on_logout_pressed)
 
 func _on_logout_pressed():
 	UserStore.clear_session()

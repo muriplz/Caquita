@@ -1,11 +1,11 @@
 extends Node
 
 var toast_scene = preload("res://scenes/toast/toast.tscn")
-var active_toasts = []
-var toast_queue = []
-var max_visible_toasts = 20
-var toast_spacing = 5
-var toast_height = 40
+var active_toasts := []
+var toast_queue := []
+var max_visible_toasts := 20
+var toast_spacing := 5
+var toast_height := 40
 
 func show(message: String, duration: float = 5.0):
 	toast_queue.append({"message": message, "duration": duration})

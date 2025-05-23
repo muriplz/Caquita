@@ -1,11 +1,11 @@
 extends Node
 
-const ZOOM: int = 16
-const TILE_SIZE: float = 128.0
+const ZOOM := 16
+const TILE_SIZE := 128.0
 
 # Default
-static var origin_latlon: Vector2 = Vector2()
-static var origin_tile: Vector2i = Vector2i()
+static var origin_latlon := Vector2()
+static var origin_tile := Vector2i()
 
 static func set_origin(lat: float, lon: float) -> void:
 	origin_latlon = Vector2(lat, lon)

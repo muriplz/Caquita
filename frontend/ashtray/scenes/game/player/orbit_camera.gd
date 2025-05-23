@@ -1,15 +1,15 @@
 extends Camera3D
 class_name OrbitCamera
 
-const SENSITIVITY: float    = 1.0
-const GROUND_PLANE: Plane   = Plane(Vector3.UP, 0.5)
-const MIN_PIVOT_DIST: float = 0.1
+const SENSITIVITY := 1.0
+const GROUND_PLANE := Plane(Vector3.UP, 0.5)
+const MIN_PIVOT_DIST := 0.1
 
-@export var distance: float      = 10.0
-@export var height_offset: float = 10.0
+@export var distance := 10.0
+@export var height_offset := 10.0
 
 @onready var player: Node3D = $".."
-var player_height = 5
+var player_height := 5
 
 var yaw: float
 var dragging: bool
@@ -68,4 +68,4 @@ func _update_camera_transform() -> void:
 	var x = sin(yaw) * distance
 	var z = cos(yaw) * distance
 	global_transform.origin = player.global_transform.origin + Vector3(x, height_offset, z)
-	look_at(player.global_transform.origin + Vector3(0, player_height / 2, 0), Vector3.UP)
+	look_at(player.global_transform.origin + Vector3(0, player_height / 2.0, 0), Vector3.UP)

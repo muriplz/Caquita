@@ -2,10 +2,10 @@ extends Control
 
 signal finished
 
-@export var duration: float = 5.0
+@export var duration := 5.0
 
 var label
-var message_text: String = ""
+var message_text := ""
 
 func _ready():
 	label = $PanelContainer/MarginContainer/Label

@@ -32,3 +32,17 @@ static func trim_shape(shape: Array) -> Array:
 	for i in range(rect.position.y, rect.position.y + rect.size.y):
 		result.append(shape[i].slice(rect.position.x, rect.size.x))
 	return result
+	
+static func get_anchor(item: InventoryItem) -> Cell:
+	var rect = get_bounding_box(ItemKindStore.get_item_kind(item.id).shape)
+	if rect.size == Vector2i():
+		return null
+
+	var anchor_col = rect.position.x
+	var anchor_row = rect.position.y
+
+	for cell in item.cells:
+		if cell.col == anchor_col and cell.row == anchor_row:
+			return Cell.from_dict(cell)
+	return null
+	

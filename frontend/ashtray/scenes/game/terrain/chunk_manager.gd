@@ -1,9 +1,9 @@
 extends Node3D
 
-@export var render_distance: int = 3
+@export var render_distance := 3
 
-var _loaded_tiles: Dictionary = {}
-var _current_center: Vector2i = Vector2i(0, 0)
+var _loaded_tiles := {}
+var _current_center := Vector2i(0, 0)
 
 @onready var _gps_node: Node = $"../GPS"
 
