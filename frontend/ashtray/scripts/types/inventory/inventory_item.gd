@@ -5,7 +5,7 @@ enum Orientation { UP, DOWN, LEFT, RIGHT }
 
 @export var id: String
 @export var cells: Array
-@export var orientation: int
+@export var orientation: Orientation
 @export var erre: float
 
 static func from_dict(dict: Dictionary) -> InventoryItem:

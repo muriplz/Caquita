@@ -156,6 +156,7 @@ text = "Logout"
 script = ExtResource("4_ek8ox")
 
 [node name="Inventory" parent="." instance=ExtResource("3_sowjt")]
+visible = false
 layout_mode = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
