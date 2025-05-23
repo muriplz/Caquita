@@ -20,7 +20,7 @@ public class TrashCanApi {
         boolean windblown = features.optBoolean("windblown", false);
         boolean flooded = features.optBoolean("flooded", false);
         boolean overwhelmed = features.optBoolean("overwhelmed", false);
-        boolean poopbag = features.optBoolean("poopbag", false);
+        boolean poopbag = features.optBoolean("poopbags", false);
         boolean art = features.optBoolean("art", false);
 
         Database.getJdbi().withHandle(handle ->
@@ -35,7 +35,7 @@ public class TrashCanApi {
                             windblown,
                             flooded,
                             overwhelmed,
-                            poopbag,
+                            poopbags,
                             art
                         )
                         VALUES (
@@ -48,7 +48,7 @@ public class TrashCanApi {
                             :windblown,
                             :flooded,
                             :overwhelmed,
-                            :poopbag,
+                            :poopbags,
                             :art
                         )
                         """)
@@ -62,13 +62,10 @@ public class TrashCanApi {
                         .bind("windblown", windblown)
                         .bind("flooded", flooded)
                         .bind("overwhelmed", overwhelmed)
-                        .bind("poopbag", poopbag)
+                        .bind("poopbags", poopbag)
                         .bind("art", art)
                         .execute()
         );
     }
 
-    record CreateTrashCanPayload(
-
-    ) {}
 }

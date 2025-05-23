@@ -42,15 +42,14 @@ func start_drag(event_pos: Vector2):
 	z_index = 100
 	
 	var inventory = get_parent().get_parent()
+	
 	var item_local_cell = Vector2(
 		int(event_pos.x / inventory.CELL_SIZE.x),
 		int(event_pos.y / inventory.CELL_SIZE.y)
 	)
+	
 	var anchor_cell = Vector2(anchor.col, anchor.row)
-	var item_anchor_pos = Vector2(
-		int(_original_position.x / inventory.CELL_SIZE.x),
-		int(_original_position.y / inventory.CELL_SIZE.y)
-	)
+
 	_drag_start_cell = anchor_cell + item_local_cell
 
 func stop_drag():

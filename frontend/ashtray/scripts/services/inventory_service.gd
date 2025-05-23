@@ -31,7 +31,7 @@ static func _make_request(method: String, endpoint: String, data: Dictionary, ca
 	headers.append_array(UserStore.get_auth_header())
 	var json_data = JSON.stringify(data)
 	
-	http_request.request_completed.connect(func(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray):
+	http_request.request_completed.connect(func(_result: int, _response_code: int, _headers: PackedStringArray, body: PackedByteArray):
 		var json = JSON.new()
 		var parse_result = json.parse(body.get_string_from_utf8())
 		

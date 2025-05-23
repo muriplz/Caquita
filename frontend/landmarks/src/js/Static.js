@@ -1,10 +1,10 @@
 const IP_ADDRESSES = {
-    production: 'https://erre.app',
+    production: 'https://caquita.app',
     development: 'http://localhost:6996'
 };
 
 function isProduction() {
-    return true;
+    return false;
 }
 
 function getIpAddress() {

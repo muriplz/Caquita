@@ -11,8 +11,8 @@
     >
     <p class="absolute top-2 right-8">{{ version }}</p>
     <div class="absolute inset-0 flex flex-col items-center justify-center">
-      <h1 class="text-4xl font-bold mb-4">Erre</h1>
-      <h3>Una app geoespacial de reciclaje</h3>
+      <h1 class="text-4xl font-bold mb-4">Caquita</h1>
+      <h3>A geospatial recycling app</h3>
     </div>
   </section>
 </template>

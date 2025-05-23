@@ -1,4 +1,4 @@
-# [Landmarks](https://erre.app)
+# [Landmarks](https://caquita.app)
 
 [Deno](https://deno.com) + [Vue 3](https://vuejs.org)
 

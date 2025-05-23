@@ -28,8 +28,8 @@ import HomeFooter from "@/views/home/HomeFooter.vue";
       <h2 class="text-2xl text-center m-3 font-bold">Downloads</h2>
       <p class="text-red-500 text-center text-xs">*not ready for download, in development</p>
       <div>
-        <button disabled class="erre-btn relative right-2">Android</button>
-        <button disabled class="erre-btn relative left-2">iOS</button>
+        <button disabled class="caquita-btn relative right-2">Android</button>
+        <button disabled class="caquita-btn relative left-2">iOS</button>
       </div>
 
       <h2 class="text-2xl text-center m-3 font-bold">Contribution portal</h2>
@@ -41,10 +41,10 @@ import HomeFooter from "@/views/home/HomeFooter.vue";
 
   <GithubButton
       class="fixed top-2 left-6 z-50"
-      href="https://github.com/muriplz/Erre"
+      href="https://github.com/muriplz/Caquita"
       data-color-scheme="no-preference: dark; light: dark; dark: dark;"
       data-icon="octicon-star" data-size="large" data-show-count="true"
-      aria-label="Star muriplz/Erre on GitHub">
+      aria-label="Star muriplz/Caquita on GitHub">
     Star
   </GithubButton>
   <HomeFooter/>

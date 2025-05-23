@@ -99,7 +99,7 @@ public class DatabaseUtils {
                     windblown BOOLEAN NOT NULL DEFAULT FALSE,
                     flooded BOOLEAN NOT NULL DEFAULT FALSE,
                     overwhelmed BOOLEAN NOT NULL DEFAULT FALSE,
-                    poopbag BOOLEAN NOT NULL DEFAULT FALSE,
+                    poopbags BOOLEAN NOT NULL DEFAULT FALSE,
                     art BOOLEAN NOT NULL DEFAULT FALSE
                 )
             """);
@@ -162,7 +162,6 @@ public class DatabaseUtils {
         Jdbi jdbi = Database.getJdbi();
 
         jdbi.withHandle(handle -> {
-            // Create posts table
             //handle.execute("""
             //    CREATE TABLE IF NOT EXISTS messages (
             //        id SERIAL PRIMARY KEY,
@@ -174,8 +173,7 @@ public class DatabaseUtils {
             //        FOREIGN KEY (landmark_id) REFERENCES landmarks(id)
             //    )
             //""");
-//
-            //// Create comments table
+
             //handle.execute("""
             //    CREATE TABLE IF NOT EXISTS replies (
             //        id SERIAL PRIMARY KEY,
@@ -191,6 +189,7 @@ public class DatabaseUtils {
             handle.execute("""
                 CREATE TABLE IF NOT EXISTS petitions (
                     id SERIAL PRIMARY KEY,
+                    name VARCHAR(15) NOT NULL,
                     description TEXT NOT NULL,
                     user_id BIGINT NOT NULL,
                     type VARCHAR(255) NOT NULL,

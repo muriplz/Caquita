@@ -14,7 +14,7 @@ public record TrashCan(
         long id, double lat, double lon,
         String name, String description, long author,
         boolean broken,
-        boolean ashtray, boolean windblown, boolean flooded, boolean overwhelmed, boolean poopbag, boolean art
+        boolean ashtray, boolean windblown, boolean flooded, boolean overwhelmed, boolean poopbags, boolean art
 ) implements Landmark {
 
     @Override
