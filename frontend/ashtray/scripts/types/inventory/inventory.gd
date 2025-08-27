@@ -3,7 +3,7 @@ class_name Inventory
 
 @export var id: int
 @export var user_id: int
-@export var items: Array[InventoryItem]
+@export var items: Array[InventoryItem] = []
 @export var width: int
 @export var height: int
 
@@ -14,7 +14,7 @@ static func from_dict(dict: Dictionary) -> Inventory:
 	inventory.user_id = dict.get("user_id", 0)
 	
 	var items_array = dict.get("items", [])
-	inventory.items = []
+	inventory.items.clear()
 	for item_dict in items_array:
 		inventory.items.append(InventoryItem.from_dict(item_dict))
 		

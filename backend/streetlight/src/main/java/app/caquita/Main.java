@@ -73,7 +73,6 @@ public class Main {
 
             path("inventory", () -> {
                 get(InventoryApi::getInventory);
-                post(InventoryApi::rotateItem);
                 put(InventoryApi::addItem);
                 delete(InventoryApi::removeItem);
                 patch(InventoryApi::moveItem);

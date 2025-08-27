@@ -3,7 +3,8 @@ package app.caquita.registry;
 
 import app.caquita.content.items.ItemKind;
 import app.caquita.content.items.glass.GlassBottle;
-import app.caquita.content.items.plastic.PlasticBottle;
+import app.caquita.content.items.plastic.Bottle;
+import app.caquita.content.items.plastic.Pipe;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -30,7 +31,8 @@ public class AllItems {
 
     static {
         // PLASTIC
-        register(new PlasticBottle());
+        register(new Bottle());
+        register(new Pipe());
 
         // GLASS
         register(new GlassBottle());

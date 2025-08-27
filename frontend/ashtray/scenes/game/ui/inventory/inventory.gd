@@ -41,7 +41,7 @@ func build_inventory() -> void:
 	populate_items()
 
 func populate_items() -> void:
-	for inventory_item in InventoryStore.inventory.items:
+	for inventory_item in InventoryStore.get_inventory().items:
 		var inventory_item_scene = INVENTORY_ITEM_SCENE.instantiate()
 		
 		var shape = ItemKindStore.get_item_kind(inventory_item.id).shape
@@ -52,7 +52,7 @@ func populate_items() -> void:
 			dims.y * CELL_SIZE.y
 		)
 		
-		inventory_item_scene.item = InventoryItem.from_dict(inventory_item)
+		inventory_item_scene.item = inventory_item
 		
 		var anchor = ShapeUtils.get_anchor(inventory_item_scene.item)
 		inventory_item_scene.position = get_cell_position(anchor.col, anchor.row)
@@ -74,7 +74,7 @@ func update_existing_items():
 		if child.has_method("update_position_from_anchor"):
 			var updated_item = find_updated_item_data(child.item.id, child.item.erre)
 			if updated_item:
-				child.item = InventoryItem.from_dict(updated_item)
+				child.item = updated_item
 				child.anchor = ShapeUtils.get_anchor(child.item)
 				child.update_position_from_anchor()
 

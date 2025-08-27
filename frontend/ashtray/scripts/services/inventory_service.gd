@@ -2,10 +2,6 @@ class_name InventoryService
 
 static var API_URL: String = Static.API_URL + "api/v1/inventory"
 
-static func rotate(anchor: Cell, clockwise: bool, callback: Callable) -> void:
-	var data = {"anchor": anchor.to_dict(), "clockwise": clockwise}
-	_make_request("POST", "", data, callback)
-
 static func add(item_id: String, anchor: Cell, callback: Callable) -> void:
 	var data = {"item_id": item_id, "anchor": anchor.to_dict()}
 	_make_request("PUT", "", data, callback)

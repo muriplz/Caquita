@@ -124,18 +124,18 @@ public class DatabaseUtils {
                 CREATE INDEX IF NOT EXISTS trash_cans_position_idx
                 ON trash_cans USING GIST(position)
             """);
-            handle.execute("""
-                CREATE INDEX IF NOT EXISTS plastic_containers_position_idx
-                ON plastic_containers USING GIST(position)
-            """);
-            handle.execute("""
-                CREATE INDEX IF NOT EXISTS spawning_items_position_idx
-                ON spawning_items USING GIST(position)
-            """);
-            handle.execute("""
-                CREATE INDEX IF NOT EXISTS spawning_items_duration_idx
-                ON spawning_items (duration)
-            """);
+            //handle.execute("""
+            //    CREATE INDEX IF NOT EXISTS plastic_bins_position_idx
+            //    ON plastic_containers USING GIST(position)
+            //""");
+            //handle.execute("""
+            //    CREATE INDEX IF NOT EXISTS spawning_items_position_idx
+            //    ON spawning_items USING GIST(position)
+            //""");
+            //handle.execute("""
+            //    CREATE INDEX IF NOT EXISTS spawning_items_duration_idx
+            //    ON spawning_items (duration)
+            //""");
 
             handle.execute("""
                 CREATE TABLE IF NOT EXISTS global_stats (

@@ -60,8 +60,8 @@ public class InventoryManager {
         int col = placement.col();
         int row = placement.row();
 
-        int shapeHeight = ShapeUtils.getBoundingHeight(shape, InventoryItem.Orientation.UP);
-        int shapeWidth  = ShapeUtils.getBoundingWidth(shape, InventoryItem.Orientation.UP);
+        int shapeHeight = ShapeUtils.getBoundingHeight(shape);
+        int shapeWidth  = ShapeUtils.getBoundingWidth(shape);
 
         if (col < 0 || row < 0
                 || col + shapeWidth  > inventory.width()
@@ -94,8 +94,8 @@ public class InventoryManager {
         int col = placement.col();
         int row = placement.row();
 
-        int shapeHeight = ShapeUtils.getBoundingHeight(shape, InventoryItem.Orientation.UP);
-        int shapeWidth  = ShapeUtils.getBoundingWidth(shape, InventoryItem.Orientation.UP);
+        int shapeHeight = ShapeUtils.getBoundingHeight(shape);
+        int shapeWidth  = ShapeUtils.getBoundingWidth(shape);
 
         if (col < 0 || row < 0
                 || col + shapeWidth  > inventory.width()
@@ -124,7 +124,7 @@ public class InventoryManager {
         float erre = Math.round(new Random().nextFloat() * 100) / 100f;
 
         inventory.items().add(
-                new InventoryItem(itemId, willOccupy, InventoryItem.Orientation.UP, erre)
+                new InventoryItem(itemId, willOccupy, erre)
         );
         InventoryApi.update(user, inventory.items());
         return true;
@@ -146,49 +146,7 @@ public class InventoryManager {
         return true;
     }
 
-    public boolean rotateItem(int anchorCol, int anchorRow, boolean clockwise) {
-        InventoryItem item = inventory.items().stream()
-                .filter(i -> {
-                    InventoryItem.Cell anchor = getItemAnchor(i);
-                    return anchor.col() == anchorCol && anchor.row() == anchorRow;
-                })
-                .findFirst()
-                .orElse(null);
-        if (item == null) {
-            return false;
-        }
-
-        List<int[]> shape = item.toItem().getShape();
-        InventoryItem.Orientation newOrientation = item.orientation().rotate(clockwise);
-        InventoryItem.Cell placement = anchorToPlacement(anchorCol, anchorRow, shape);
-
-        int col = placement.col();
-        int row = placement.row();
-
-        int shapeHeight = ShapeUtils.getBoundingHeight(shape, newOrientation);
-        int shapeWidth  = ShapeUtils.getBoundingWidth(shape, newOrientation);
-
-        if (col < 0 || row < 0
-                || col + shapeWidth  > inventory.width()
-                || row + shapeHeight > inventory.height()) {
-            return false;
-        }
-
-        List<InventoryItem.Cell> willOccupy = ShapeUtils.getOccupied(col, row, shape, newOrientation);
-
-        List<InventoryItem> collisionedItems = inventory.items().stream()
-                .filter(i -> i != item && willOccupy.stream().anyMatch(c -> i.cells().contains(c)))
-                .toList();
-
-        if (!collisionedItems.isEmpty()) return false;
-
-        inventory.items().remove(item);
-        inventory.items().add(new InventoryItem(item.id(), willOccupy, newOrientation, item.erre()));
-        InventoryApi.update(user, inventory.items());
-        return true;
-    }
-
-    public boolean moveItem(int anchorCol, int anchorRow, int newAnchorCol, int newAnchorRow, boolean swap) {
+    public boolean moveItem(int anchorCol, int anchorRow, int newAnchorCol, int newAnchorRow) {
         InventoryItem item = inventory.items().stream()
                 .filter(i -> {
                     InventoryItem.Cell anchor = getItemAnchor(i);
@@ -205,8 +163,8 @@ public class InventoryManager {
         int newCol = placement.col();
         int newRow = placement.row();
 
-        int shapeHeight = ShapeUtils.getBoundingHeight(shape, item.orientation());
-        int shapeWidth  = ShapeUtils.getBoundingWidth(shape, item.orientation());
+        int shapeHeight = ShapeUtils.getBoundingHeight(shape);
+        int shapeWidth  = ShapeUtils.getBoundingWidth(shape);
 
         if (newCol < 0 || newRow < 0
                 || newCol + shapeWidth  > inventory.width()
@@ -214,35 +172,16 @@ public class InventoryManager {
             return false;
         }
 
-        List<InventoryItem.Cell> willOccupy = ShapeUtils.getOccupied(newCol, newRow, shape, item.orientation());
+        List<InventoryItem.Cell> willOccupy = ShapeUtils.getOccupied(newCol, newRow, shape);
 
         List<InventoryItem> collisionedItems = inventory.items().stream()
                 .filter(i -> i != item && willOccupy.stream().anyMatch(c -> i.cells().contains(c)))
                 .toList();
 
-        if (swap && collisionedItems.size() == 1) {
-            InventoryItem otherItem = collisionedItems.getFirst();
-            InventoryItem.Cell otherAnchor = getItemAnchor(otherItem);
-            InventoryItem.Cell otherPlacement = anchorToPlacement(anchorCol, anchorRow, otherItem.toItem().getShape());
-
-            List<InventoryItem.Cell> otherWillOccupy = ShapeUtils.getOccupied(
-                    otherPlacement.col(), otherPlacement.row(),
-                    otherItem.toItem().getShape(), otherItem.orientation()
-            );
-
-            inventory.items().remove(otherItem);
-            inventory.items().remove(item);
-            inventory.items().add(new InventoryItem(otherItem.id(), otherWillOccupy, otherItem.orientation(), otherItem.erre()));
-            inventory.items().add(new InventoryItem(item.id(), willOccupy, item.orientation(), item.erre()));
-
-            InventoryApi.update(user, inventory.items());
-            return true;
-        }
-
         if (!collisionedItems.isEmpty()) return false;
 
         inventory.items().remove(item);
-        inventory.items().add(new InventoryItem(item.id(), willOccupy, item.orientation(), item.erre()));
+        inventory.items().add(new InventoryItem(item.id(), willOccupy, item.erre()));
         InventoryApi.update(user, inventory.items());
         return true;
     }

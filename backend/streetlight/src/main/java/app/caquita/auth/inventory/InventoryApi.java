@@ -41,18 +41,30 @@ public class InventoryApi {
 
     public static void initInventory(long user) {
         List<InventoryItem.Cell> bottlePos = List.of(
+                new InventoryItem.Cell(2, 1),
+                new InventoryItem.Cell(2, 2)
+        );
+
+        List<InventoryItem.Cell> pipePos = List.of(
                 new InventoryItem.Cell(0, 0),
+                new InventoryItem.Cell(1, 0),
+                new InventoryItem.Cell(2, 0),
                 new InventoryItem.Cell(0, 1)
         );
 
         InventoryItem bottle = new InventoryItem(
                 "plastic:bottle",
                 bottlePos,
-                InventoryItem.Orientation.UP,
                 0.5f
         );
 
-        List<InventoryItem> items = List.of(bottle);
+        InventoryItem pipe = new InventoryItem(
+                "plastic:pipe",
+                pipePos,
+                0.5f
+        );
+
+        List<InventoryItem> items = List.of(bottle, pipe);
         try {
             String itemsJson = Database.MAPPER.writeValueAsString(items);
 
@@ -63,8 +75,8 @@ public class InventoryApi {
                         """)
                             .bind("user_id", user)
                             .bind("items",   itemsJson)
-                            .bind("height",  3)
-                            .bind("width",   2)
+                            .bind("height",  4)
+                            .bind("width",   3)
                             .execute()
             );
         } catch (JsonProcessingException ignored) {}
@@ -105,31 +117,15 @@ public class InventoryApi {
     }
 
     public static void moveItem(Context ctx) {
-        System.out.println("heyy");
-
         long user = AuthUtils.getUser(ctx);
         MoveItemPayload payload = ctx.bodyAsClass(MoveItemPayload.class);
-        System.out.println("heyy" + payload);
 
         InventoryManager manager = new InventoryManager(user);
 
-        if (manager.moveItem(payload.anchor.col(), payload.anchor.row(), payload.newAnchor.col(), payload.newAnchor.row(), true)) {
+        if (manager.moveItem(payload.anchor.col(), payload.anchor.row(), payload.newAnchor.col(), payload.newAnchor.row())) {
             ctx.status(200).json(manager.inventory);
         } else {
             ctx.status(400).result("Failed to move item");
-        }
-    }
-
-    public static void rotateItem(Context ctx) {
-        long user = AuthUtils.getUser(ctx);
-        RotateItemRequest payload = ctx.bodyAsClass(RotateItemRequest.class);
-
-        InventoryManager manager = new InventoryManager(user);
-
-        if (manager.rotateItem(payload.anchor.col(), payload.anchor.row(), payload.clockwise())) {
-            ctx.status(200).json(manager.inventory);
-        } else {
-            ctx.status(400).result("Failed to rotate item");
         }
     }
 
@@ -149,6 +145,5 @@ public class InventoryApi {
     record AddItemPayload(String itemId, InventoryItem.Cell anchor) {}
     record RemoveItemPayload(InventoryItem.Cell anchor) {}
     record MoveItemPayload(InventoryItem.Cell anchor, InventoryItem.Cell newAnchor) {}
-    record RotateItemRequest(InventoryItem.Cell anchor, boolean clockwise) {}
     record CanPlaceItemRequest(String itemId, InventoryItem.Cell anchor) {}
 }
