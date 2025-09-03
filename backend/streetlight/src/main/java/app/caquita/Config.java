@@ -8,7 +8,7 @@ public class Config {
             ? "jdbc:postgresql://kryeit.com:5432/caqui"
             : "jdbc:postgresql://localhost:5432/caqui";
 
-    public static final String dbUser = production
+    public static final String DB_USER = production
             ? System.getenv("DB_USER")
             : "postgres";
 

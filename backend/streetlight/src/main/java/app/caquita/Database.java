@@ -22,7 +22,7 @@ public class Database {
 
     static {
         HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setUsername(Config.dbUser);
+        hikariConfig.setUsername(Config.DB_USER);
         hikariConfig.setPassword(Config.DB_PASSWORD);
         hikariConfig.setJdbcUrl(Config.DB_URL);
 

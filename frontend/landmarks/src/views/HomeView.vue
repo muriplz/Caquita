@@ -9,7 +9,7 @@ import HomeFooter from "@/views/home/HomeFooter.vue";
 </script>
 
 <template>
-  <div class="bg-recycle-green-500">
+  <div class="bg-recycle-green-500 w-full">
     <Hero/>
 
     <main class="p-6 flex flex-col gap-4 max-w-200 m-auto items-center">

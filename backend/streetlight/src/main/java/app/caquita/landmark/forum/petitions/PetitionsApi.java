@@ -7,8 +7,10 @@ import app.caquita.auth.User;
 import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.landmark.LandmarkType;
 import app.caquita.landmark.trash_can.TrashCanApi;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
+import org.jdbi.v3.core.generic.GenericType;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -66,6 +68,7 @@ public class PetitionsApi {
 
     public static void createPetition(Context ctx) {
         long user = AuthUtils.getUser(ctx);
+
         CreatePetitionPayload payload = ctx.bodyAsClass(CreatePetitionPayload.class);
 
         // Validate landmark info matches the expected structure for the type TODO
@@ -73,37 +76,19 @@ public class PetitionsApi {
 
         Database.getJdbi().useHandle(handle -> {
             handle.createUpdate("""
-                INSERT INTO petitions (description, user_id, type, position, info, status)
-                VALUES (:description, :userId, :type, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), cast(:info as jsonb), 'PENDING')
-                """)
+                    INSERT INTO petitions (description, user_id, type, position, info, status)
+                    VALUES (:description, :userId, :type, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), cast(:info as jsonb))
+                    """)
                     .bind("description", payload.description())
                     .bind("userId", user)
                     .bind("type", payload.type().name())
                     .bind("lat", payload.lat())
                     .bind("lon", payload.lon())
-                    .bind("info", payload.info())
+                    .bindByType("info", payload.info(), new GenericType<HashMap<String, Boolean>>(){})
                     .execute();
         });
 
         ctx.status(201);
-    }
-
-
-    private static void validateLandmarkInfoStructure(Context ctx, LandmarkType type, JsonNode landmarkInfoJson) {
-        if (!landmarkInfoJson.has("name") || landmarkInfoJson.get("name").isNull()) {
-            throw new BadRequestResponse("Landmark info must include a name");
-        }
-
-        landmarkInfoJson.fields().forEachRemaining(entry -> {
-            String key = entry.getKey();
-            if (!key.equals("name")) {
-                JsonNode valueNode = entry.getValue();
-                String value = valueNode.isBoolean() ? String.valueOf(valueNode.asBoolean()) : valueNode.asText();
-                //if (!LandmarkFeatureDefinitions.isValidFeature(type, key, value)) {
-                //    ctx.status(400).result("Invalid feature for landmark type.");
-                //}
-            }
-        });
     }
 
     public static void getPetition(Context ctx) {
@@ -112,7 +97,7 @@ public class PetitionsApi {
 
         Petition petition = Database.getJdbi().withHandle(handle ->
                 handle.createQuery("""
-                        SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon,
+                        SELECT id, name, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon,
                                info, status, creation, edition
                         FROM petitions
                         WHERE id = :id
@@ -356,7 +341,7 @@ public class PetitionsApi {
 
     public record UpdatePetitionPayload(double lat, double lon, HashMap<String, Boolean> info) {}
 
-    public record CreatePetitionPayload(String description, LandmarkType type, double lat, double lon, HashMap<String, Boolean> info) {}
+    public record CreatePetitionPayload(String name, String description, LandmarkType type, double lat, double lon, HashMap<String, Boolean> info) {}
 
     public static class MessagesApi {
 

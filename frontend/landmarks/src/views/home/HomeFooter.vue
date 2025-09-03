@@ -4,12 +4,12 @@
 
 <template>
   <footer
-      class="flex min-w-screen items-center p-4 mx-auto bg-browm-500 mask-fade-top"
+      class="flex items-center p-4 mx-auto bg-browm-500 mask-fade-top"
   >
     <div class="flex flex-col md:flex-row gap-4 mx-auto my-4">
       <div class="flex flex-col">
         <h2 class="text-xl font-bold">Contact</h2>
-        <a href="mailto:muriplz@kryeit.com">Email</a>
+        <a href="mailto:contact@muriplz.dev">Email</a>
       </div>
 
       <div class="flex flex-col items-left">

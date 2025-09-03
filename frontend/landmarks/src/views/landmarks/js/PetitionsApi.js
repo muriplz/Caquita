@@ -38,7 +38,7 @@ export default class PetitionsApi {
             .then(translations => translations[key] || id)
     }
 
-    static async create(description, type, lat, lon, landmarkInfo) {
+    static async create(name, description, type, lat, lon, landmarkInfo) {
         const response = await fetch(`${API_URL}`, {
             method: 'POST',
             credentials: 'include',
@@ -47,11 +47,12 @@ export default class PetitionsApi {
             },
             body: JSON.stringify(
                 {
+                    name: name,
                     description: description,
                     type: type,
                     lat: lat,
                     lon: lon,
-                    landmarkInfo: landmarkInfo
+                    info: landmarkInfo
                 }
             )
         });

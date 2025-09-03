@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <section class="relative min-h-screen ">
+  <section class="min-h-screen">
     <img
         src="/images/login_background.png"
         class="w-screen h-screen object-cover mask-fade-bottom"
