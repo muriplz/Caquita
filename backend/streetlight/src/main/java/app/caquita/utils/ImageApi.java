@@ -1,7 +1,7 @@
 package app.caquita.utils;
 
-import app.caquita.storage.Database;
 import app.caquita.auth.AuthUtils;
+import app.caquita.storage.Database;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.UploadedFile;

@@ -1,7 +1,7 @@
 package app.caquita.auth;
 
-import app.caquita.storage.Database;
 import app.caquita.Utils;
+import app.caquita.storage.Database;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
 

@@ -1,13 +1,12 @@
 package app.caquita.landmark.forum.petitions;
 
-import app.caquita.storage.Database;
 import app.caquita.auth.AuthUtils;
 import app.caquita.auth.User;
 import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.landmark.LandmarkType;
 import app.caquita.landmark.trash_can.TrashCanApi;
+import app.caquita.storage.Database;
 import io.javalin.http.Context;
-import org.jdbi.v3.core.generic.GenericType;
 import org.json.JSONObject;
 
 import java.util.HashMap;

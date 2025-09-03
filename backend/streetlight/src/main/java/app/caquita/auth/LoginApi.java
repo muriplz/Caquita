@@ -1,9 +1,9 @@
 package app.caquita.auth;
 
-import app.caquita.storage.Database;
 import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.auth.inventory.InventoryApi;
 import app.caquita.stats.GlobalStats;
+import app.caquita.storage.Database;
 import io.javalin.http.Context;
 import io.javalin.http.UnauthorizedResponse;
 import org.json.JSONObject;

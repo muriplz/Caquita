@@ -1,9 +1,9 @@
 package app.caquita.auth.inventory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import app.caquita.storage.Database;
 import app.caquita.auth.AuthUtils;
 import app.caquita.auth.User;
+import app.caquita.storage.Database;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.http.Context;
 
 import java.util.List;

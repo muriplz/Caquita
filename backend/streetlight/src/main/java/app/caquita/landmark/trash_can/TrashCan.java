@@ -1,10 +1,10 @@
 package app.caquita.landmark.trash_can;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import app.caquita.storage.Database;
 import app.caquita.auth.inventory.InventoryItem;
 import app.caquita.landmark.Landmark;
 import app.caquita.landmark.LandmarkType;
+import app.caquita.storage.Database;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.jdbi.v3.json.Json;
 

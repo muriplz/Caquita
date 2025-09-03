@@ -1,7 +1,6 @@
 package app.caquita.storage;
 
 import app.caquita.Config;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import app.caquita.auth.Friendship;
 import app.caquita.auth.User;
 import app.caquita.auth.avatar.UnlockedAvatar;
@@ -10,6 +9,7 @@ import app.caquita.landmark.forum.petitions.PetitionMessage;
 import app.caquita.landmark.forum.petitions.PetitionReply;
 import app.caquita.landmark.trash_can.TrashCan;
 import app.caquita.stats.GlobalStats;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jdbi.v3.core.Jdbi;

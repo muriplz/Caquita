@@ -1,8 +1,8 @@
 package app.caquita.landmark.trash_can;
 
-import app.caquita.storage.Database;
 import app.caquita.landmark.LandmarkApi;
 import app.caquita.landmark.LandmarkType;
+import app.caquita.storage.Database;
 import io.javalin.http.Context;
 import org.json.JSONObject;
 

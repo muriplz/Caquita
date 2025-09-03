@@ -1,7 +1,7 @@
 package app.caquita.auth.avatar;
 
-import app.caquita.storage.Database;
 import app.caquita.auth.AuthUtils;
+import app.caquita.storage.Database;
 import io.javalin.http.Context;
 import org.json.JSONObject;
 

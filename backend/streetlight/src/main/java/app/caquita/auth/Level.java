@@ -1,8 +1,8 @@
 package app.caquita.auth;
 
+import app.caquita.storage.Database;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import app.caquita.storage.Database;
 
 public record Level(
         @JsonProperty("level") int level,
