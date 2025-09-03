@@ -76,9 +76,7 @@ function getStatusColor(status) {
 }
 
 const fetchFeatures = () => {
-  const landmarkInfo = { ...petition.value.landmarkInfo };
-  delete landmarkInfo.name;
-  return landmarkInfo;
+  return petition.value.info
 };
 
 onMounted(async () => {
@@ -95,7 +93,7 @@ onMounted(async () => {
       <div class="petition-header">
         <img :src="PetitionsApi.getImageUrl(petition.id)" alt=""/>
         <div class="petition-header-title">
-          <h2>{{ petition.landmarkInfo.name }}</h2>
+          <h2>{{ petition.name }}</h2>
           <h3 style="color:gray; font-size: 0.9rem;">{{ petition.type }}</h3>
           <h4 style="color:gray; font-size: 0.6rem">{{ formatDate(petition.creation) }}</h4>
           <h4 :style="{color: getStatusColor(petition.status), fontSize: '0.8rem'}">{{ petition.status }}</h4>
@@ -112,7 +110,7 @@ onMounted(async () => {
 
     </div>
 
-    <div v-if="store.getUser().trust === 'ADMINISTRATOR'" class="buttons">
+    <div v-if="store.getUser.trust === 'ADMINISTRATOR'" class="buttons">
       HI
       <button class="reject-button" @click="updateStatus('REJECTED')">Reject</button>
       <button class="accept-button" @click="updateStatus('ACCEPTED')">Accept</button>

@@ -14,7 +14,7 @@ const goToLandmark = () => {
   <div class="container" @click="goToLandmark()">
     <img :src="PetitionsApi.getImageUrl(petition.id)" alt="Landmark image" />
     <div class="title">
-      <h3>{{ petition.landmarkInfo.name }}</h3>
+      <h3>{{ petition.name }}</h3>
       <h3 style="color: gray; font-size: 0.8rem;">{{ petition.type }}</h3>
     </div>
   </div>

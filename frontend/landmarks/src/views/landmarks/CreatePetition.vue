@@ -23,8 +23,8 @@ const submitForm = async (event) => {
   event.preventDefault();
 
   const landmarkInfo = {};
-  selectedFeatures.value.forEach(feature => {
-    landmarkInfo[feature] = true;
+  availableFeatures.value.forEach(feature => {
+    landmarkInfo[feature] = selectedFeatures.value.includes(feature);
   });
 
   const success = await PetitionsApi.create(
