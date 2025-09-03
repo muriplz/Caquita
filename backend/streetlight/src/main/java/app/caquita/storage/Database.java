@@ -1,5 +1,6 @@
-package app.caquita;
+package app.caquita.storage;
 
+import app.caquita.Config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import app.caquita.auth.Friendship;
 import app.caquita.auth.User;

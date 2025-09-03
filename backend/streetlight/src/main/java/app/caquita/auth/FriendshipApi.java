@@ -1,6 +1,6 @@
 package app.caquita.auth;
 
-import app.caquita.Database;
+import app.caquita.storage.Database;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import org.json.JSONObject;

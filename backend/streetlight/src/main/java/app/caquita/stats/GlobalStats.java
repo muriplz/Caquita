@@ -1,7 +1,7 @@
 package app.caquita.stats;
 
 import app.caquita.Config;
-import app.caquita.Database;
+import app.caquita.storage.Database;
 import io.javalin.http.Context;
 import org.json.JSONObject;
 

@@ -11,6 +11,7 @@ import app.caquita.landmark.trash_can.TrashCanApi;
 import app.caquita.map.MapApi;
 import app.caquita.registry.AllItems;
 import app.caquita.stats.GlobalStats;
+import app.caquita.storage.DatabaseUtils;
 import io.javalin.Javalin;
 import io.javalin.community.ssl.SslPlugin;
 import org.json.JSONObject;

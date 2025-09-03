@@ -1,6 +1,6 @@
 package app.caquita.auth.currencies;
 
-import app.caquita.Database;
+import app.caquita.storage.Database;
 
 public class CurrenciesApi {
 

@@ -1,4 +1,4 @@
-package app.caquita;
+package app.caquita.storage;
 
 import app.caquita.stats.GlobalStats;
 import org.jdbi.v3.core.Jdbi;

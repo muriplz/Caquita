@@ -1,6 +1,6 @@
 package app.caquita.auth;
 
-import app.caquita.Database;
+import app.caquita.storage.Database;
 import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.auth.inventory.InventoryApi;
 import app.caquita.stats.GlobalStats;

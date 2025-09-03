@@ -1,14 +1,11 @@
 package app.caquita.landmark.forum.petitions;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import app.caquita.Database;
+import app.caquita.storage.Database;
 import app.caquita.auth.AuthUtils;
 import app.caquita.auth.User;
 import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.landmark.LandmarkType;
 import app.caquita.landmark.trash_can.TrashCanApi;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import org.jdbi.v3.core.generic.GenericType;
 import org.json.JSONObject;
@@ -76,15 +73,16 @@ public class PetitionsApi {
 
         Database.getJdbi().useHandle(handle -> {
             handle.createUpdate("""
-                    INSERT INTO petitions (description, user_id, type, position, info, status)
-                    VALUES (:description, :userId, :type, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), cast(:info as jsonb))
+                    INSERT INTO petitions (name, description, user_id, type, position, info)
+                    VALUES (:name, :description, :userId, :type, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326), cast(:info as jsonb))
                     """)
+                    .bind("name", payload.name())
                     .bind("description", payload.description())
                     .bind("userId", user)
                     .bind("type", payload.type().name())
                     .bind("lat", payload.lat())
                     .bind("lon", payload.lon())
-                    .bindByType("info", payload.info(), new GenericType<HashMap<String, Boolean>>(){})
+                    .bind("info", new JSONObject(payload.info()).toString())
                     .execute();
         });
 
@@ -154,7 +152,7 @@ public class PetitionsApi {
                     """)
                     .bind("lat", payload.lat())
                     .bind("lon", payload.lon())
-                    .bind("info", payload.info())
+                    .bind("info", new JSONObject(payload.info()).toString())
                     .bind("id", id)
                     .execute();
         });

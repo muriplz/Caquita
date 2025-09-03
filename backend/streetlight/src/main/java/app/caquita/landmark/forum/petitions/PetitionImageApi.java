@@ -1,6 +1,6 @@
 package app.caquita.landmark.forum.petitions;
 
-import app.caquita.Database;
+import app.caquita.storage.Database;
 import app.caquita.auth.AuthUtils;
 import com.luciad.imageio.webp.WebPWriteParam;
 import io.javalin.http.Context;
