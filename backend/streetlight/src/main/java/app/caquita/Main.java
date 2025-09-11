@@ -77,7 +77,6 @@ public class Main {
                     get(ToolInventoryApi::get);
                     post(ToolInventoryApi::addTool);
                     delete(ToolInventoryApi::removeTool);
-                    patch("decrease-durability", ToolInventoryApi::decreaseDurability);
                 });
 
                 get(InventoryApi::getInventory);

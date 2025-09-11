@@ -70,7 +70,9 @@ public record Tool(
         );
     }
 
-    public static boolean decreaseDurability(long userId, String toolId, int amount) {
+    public static boolean carve(long userId, String toolId) {
+        int amount = 1;
+
         return Database.getJdbi().withHandle(handle -> {
             int deleted = handle.createUpdate("""
             DELETE FROM tools

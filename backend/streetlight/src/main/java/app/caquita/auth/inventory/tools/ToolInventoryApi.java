@@ -22,11 +22,11 @@ public class ToolInventoryApi {
         if (!(AllItems.getItem(payload.toolId()) instanceof ToolItemKind tool)) {
             return;
         }
-        
+
         boolean hasItem = InventoryApi.hasItem(userId, payload.toolId());
 
         if (!hasItem) {
-            ctx.status(400).json("You don't have this item in your inventory");
+            ctx.status(400);
             return;
         }
         boolean added = Tool.addTool(userId, tool);
@@ -47,12 +47,4 @@ public class ToolInventoryApi {
     }
     record RemoveToolPayload(String toolId) {}
 
-    public static void decreaseDurability(Context ctx) {
-        long userId = AuthUtils.getUser(ctx);
-        DecreaseDurabilityPayload payload = ctx.bodyAsClass(DecreaseDurabilityPayload.class);
-
-        boolean broken = Tool.decreaseDurability(userId, payload.toolId(), payload.amount());
-        ctx.status(200).json(broken);
-    }
-    record DecreaseDurabilityPayload(String toolId, int amount) {}
 }
