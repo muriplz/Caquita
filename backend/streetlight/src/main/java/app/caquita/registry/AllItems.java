@@ -2,9 +2,11 @@ package app.caquita.registry;
 
 
 import app.caquita.content.items.ItemKind;
+import app.caquita.content.items.ToolItemKind;
 import app.caquita.content.items.glass.GlassBottle;
 import app.caquita.content.items.plastic.Bottle;
 import app.caquita.content.items.plastic.Pipe;
+import app.caquita.content.items.plastic.tools.Fork;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +27,11 @@ public class AllItems {
         return ITEMS.values();
     }
 
+    public static boolean isTool(String id) {
+        ItemKind item = getItem(id);
+        return item instanceof ToolItemKind;
+    }
+
     public static boolean isRegistered(String id) {
         return ITEMS.containsKey(id);
     }
@@ -36,6 +43,10 @@ public class AllItems {
 
         // GLASS
         register(new GlassBottle());
+
+
+        // TOOLS
+        register(new Fork());
     }
 
     public static void register() {

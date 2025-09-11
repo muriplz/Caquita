@@ -4,6 +4,7 @@ import app.caquita.Config;
 import app.caquita.auth.Friendship;
 import app.caquita.auth.User;
 import app.caquita.auth.avatar.UnlockedAvatar;
+import app.caquita.auth.inventory.tools.Tool;
 import app.caquita.landmark.forum.petitions.Petition;
 import app.caquita.landmark.forum.petitions.PetitionMessage;
 import app.caquita.landmark.forum.petitions.PetitionReply;
@@ -32,6 +33,8 @@ public class Database {
 
         JDBI.registerRowMapper(ConstructorMapper.factory(User.class));
         JDBI.registerRowMapper(ConstructorMapper.factory(User.Inventory.class));
+        JDBI.registerRowMapper(ConstructorMapper.factory(Tool.class));
+
         JDBI.registerRowMapper(ConstructorMapper.factory(User.Currencies.class));
         JDBI.registerRowMapper(ConstructorMapper.factory(UnlockedAvatar.class));
         JDBI.registerRowMapper(ConstructorMapper.factory(Friendship.class));

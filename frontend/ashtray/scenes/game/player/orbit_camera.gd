@@ -1,6 +1,8 @@
 extends Camera3D
 class_name OrbitCamera
 
+var input_disabled := false
+
 const SENSITIVITY := 1.0
 const GROUND_PLANE := Plane(Vector3.UP, 0.5)
 const MIN_PIVOT_DIST := 0.1
@@ -28,6 +30,9 @@ func _process(_delta) -> void:
 	_update_camera_transform()
 
 func _input(event: InputEvent) -> void:
+	if input_disabled:
+		return
+		
 	if (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT) \
 	or (event is InputEventScreenTouch):
 		if event.pressed:

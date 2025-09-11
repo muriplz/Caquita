@@ -82,7 +82,19 @@ public class DatabaseUtils {
                     items JSONB NOT NULL DEFAULT '[]',
                     width INTEGER NOT NULL,
                     height INTEGER NOT NULL,
+                    tools INTEGER NOT NULL DEFAULT 3,
                     FOREIGN KEY (user_id) REFERENCES users(id)
+                )
+            """);
+
+            // Create tools table
+            handle.execute("""
+                CREATE TABLE IF NOT EXISTS tools (
+                    id SERIAL PRIMARY KEY,
+                    user_id BIGINT NOT NULL,
+                    item VARCHAR(255) NOT NULL,
+                    durability INTEGER NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 )
             """);
 

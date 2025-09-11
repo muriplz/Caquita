@@ -1,24 +1,35 @@
-package app.caquita.content.items.plastic;
+package app.caquita.content.items.plastic.tools;
 
-import app.caquita.content.items.ItemKind;
 import app.caquita.content.items.ResourceType;
+import app.caquita.content.items.ToolItemKind;
 import app.caquita.content.items.classifications.PlasticClassification;
 
-import java.util.List;
+public class Fork implements ToolItemKind {
 
-public class Pipe implements ItemKind {
+    @Override
+    public int getMaxDurability() {
+        return 50;
+    }
+
+    @Override
+    public int[][] getActionShape() {
+        return new int[][]{
+                {0, 1, 0},
+                {1, 2, 1},
+                {0, 1, 0},
+        };
+    }
 
     @Override
     public String getId() {
-        return "plastic:pipe";
+        return "plastic:fork";
     }
 
     @Override
     public int[][] getShape() {
         return new int[][]{
-                {1, 1, 1},
-                {1, 0, 0},
-                {0, 0, 0},
+                {1, 0},
+                {1, 0},
         };
     }
 

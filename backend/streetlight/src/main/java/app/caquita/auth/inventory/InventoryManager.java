@@ -19,12 +19,12 @@ public class InventoryManager {
         this.inventory = InventoryApi.getInventory(user);
     }
 
-    private InventoryItem.Cell getTopLeftOccupied(List<int[]> shape) {
+    private InventoryItem.Cell getTopLeftOccupied(int[][] shape) {
         int minRow = Integer.MAX_VALUE;
         int minCol = Integer.MAX_VALUE;
 
-        for (int i = 0; i < shape.size(); i++) {
-            int[] row = shape.get(i);
+        for (int i = 0; i < shape.length; i++) {
+            int[] row = shape[i];
             for (int j = 0; j < row.length; j++) {
                 if (row[j] == 1) {
                     minRow = Math.min(minRow, i);
@@ -36,7 +36,7 @@ public class InventoryManager {
         return new InventoryItem.Cell(minCol, minRow);
     }
 
-    private InventoryItem.Cell anchorToPlacement(int anchorCol, int anchorRow, List<int[]> shape) {
+    private InventoryItem.Cell anchorToPlacement(int anchorCol, int anchorRow, int[][] shape) {
         InventoryItem.Cell topLeft = getTopLeftOccupied(shape);
         return new InventoryItem.Cell(anchorCol - topLeft.col(), anchorRow - topLeft.row());
     }
@@ -54,7 +54,7 @@ public class InventoryManager {
     }
 
     public boolean canPlaceItem(String itemId, int anchorCol, int anchorRow) {
-        List<int[]> shape = AllItems.getItem(itemId).getShape();
+        int[][] shape = AllItems.getItem(itemId).getShape();
         InventoryItem.Cell placement = anchorToPlacement(anchorCol, anchorRow, shape);
 
         int col = placement.col();
@@ -74,7 +74,7 @@ public class InventoryManager {
                 .collect(Collectors.toSet());
 
         for (int i = 0; i < shapeHeight; i++) {
-            int[] shapeRow = shape.get(i);
+            int[] shapeRow = shape[i];
             for (int j = 0; j < shapeRow.length; j++) {
                 if (shapeRow[j] == 1) {
                     InventoryItem.Cell c = new InventoryItem.Cell(col + j, row + i);
@@ -88,7 +88,7 @@ public class InventoryManager {
     }
 
     public boolean addItem(String itemId, int anchorCol, int anchorRow) {
-        List<int[]> shape = AllItems.getItem(itemId).getShape();
+        int[][] shape = AllItems.getItem(itemId).getShape();
         InventoryItem.Cell placement = anchorToPlacement(anchorCol, anchorRow, shape);
 
         int col = placement.col();
@@ -109,7 +109,7 @@ public class InventoryManager {
 
         List<InventoryItem.Cell> willOccupy = new ArrayList<>();
         for (int i = 0; i < shapeHeight; i++) {
-            int[] shapeRow = shape.get(i);
+            int[] shapeRow = shape[i];
             for (int j = 0; j < shapeRow.length; j++) {
                 if (shapeRow[j] == 1) {
                     InventoryItem.Cell c = new InventoryItem.Cell(col + j, row + i);
@@ -157,7 +157,7 @@ public class InventoryManager {
 
         if (item == null) return false;
 
-        List<int[]> shape = item.toItem().getShape();
+        int[][] shape = item.toItem().getShape();
         InventoryItem.Cell placement = anchorToPlacement(newAnchorCol, newAnchorRow, shape);
 
         int newCol = placement.col();

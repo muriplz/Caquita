@@ -24,6 +24,7 @@ public record User(
 
     public record Inventory(long id, long userId,
                             @ColumnName("items") @Json List<InventoryItem> items,
-                            int width, int height) {
+                            int width, int height,
+                            int tools) {
     }
 }

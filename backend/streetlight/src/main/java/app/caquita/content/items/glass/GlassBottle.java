@@ -14,11 +14,11 @@ public class GlassBottle implements ItemKind {
     }
 
     @Override
-    public List<int[]> getShape() {
-        return List.of(
-                new int[]{1, 0},
-                new int[]{1, 0}
-        );
+    public int[][] getShape() {
+        return new int[][]{
+                {1, 0},
+                {1, 0},
+        };
     }
 
     @Override

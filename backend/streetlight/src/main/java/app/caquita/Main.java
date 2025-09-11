@@ -5,6 +5,7 @@ import app.caquita.auth.FriendshipApi;
 import app.caquita.auth.LoginApi;
 import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.auth.inventory.InventoryApi;
+import app.caquita.auth.inventory.tools.ToolInventoryApi;
 import app.caquita.landmark.forum.petitions.PetitionImageApi;
 import app.caquita.landmark.forum.petitions.PetitionsApi;
 import app.caquita.landmark.trash_can.TrashCanApi;
@@ -27,7 +28,6 @@ public class Main {
 
         DatabaseUtils.createTables();
         AllItems.register();
-
 
         SslPlugin sslPlugin = new SslPlugin(sslConfig -> {
             sslConfig.http2 = true;
@@ -73,6 +73,13 @@ public class Main {
             });
 
             path("inventory", () -> {
+                path("tools", () -> {
+                    get(ToolInventoryApi::get);
+                    post(ToolInventoryApi::addTool);
+                    delete(ToolInventoryApi::removeTool);
+                    patch("decrease-durability", ToolInventoryApi::decreaseDurability);
+                });
+
                 get(InventoryApi::getInventory);
                 put(InventoryApi::addItem);
                 delete(InventoryApi::removeItem);

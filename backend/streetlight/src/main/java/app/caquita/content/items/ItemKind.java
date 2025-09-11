@@ -5,7 +5,7 @@ import java.util.List;
 public interface ItemKind {
     String getId();
 
-    List<int[]> getShape();
+    int[][] getShape();
 
     default Rarity getRarity() {
         return Rarity.COMMON;

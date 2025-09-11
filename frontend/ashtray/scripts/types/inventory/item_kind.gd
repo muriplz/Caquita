@@ -9,6 +9,8 @@ enum ResourceType { PLASTIC, METAL, GLASS, OTHER }
 @export var rarity: int
 @export var resource_type: int
 @export var classification: String
+@export var max_durability: int = -1  # -1 means not a tool
+@export var action_shape: Array = []
 
 static func from_dict(dict: Dictionary) -> ItemKind:
 	var ik = ItemKind.new()
@@ -23,5 +25,16 @@ static func from_dict(dict: Dictionary) -> ItemKind:
 	ik.rarity = Rarity[dict.get("rarity", "COMMON")]
 	ik.resource_type = ResourceType[dict.get("resourceType", "OTHER")]
 	ik.classification = dict.get("classification", "")
+	ik.max_durability = int(dict.get("maxDurability", -1))
+	
+	if dict.has("actionShape"):
+		ik.action_shape = dict.get("actionShape", []).map(func(row):
+			return row.map(func(v):
+				return int(v)
+			)
+		)
 	
 	return ik
+
+func is_tool() -> bool:
+	return max_durability > -1
