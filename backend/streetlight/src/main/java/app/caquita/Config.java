@@ -5,8 +5,8 @@ public class Config {
     public static final boolean production = false;
 
     public static final String DB_URL = production
-            ? "jdbc:postgresql://kryeit.com:5432/caqui"
-            : "jdbc:postgresql://localhost:5432/caqui";
+            ? "jdbc:postgresql://kryeit.com:5432/caquita"
+            : "jdbc:postgresql://localhost:5432/caquita";
 
     public static final String DB_USER = production
             ? System.getenv("DB_USER")

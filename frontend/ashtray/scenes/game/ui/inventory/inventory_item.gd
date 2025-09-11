@@ -12,7 +12,20 @@ func _ready() -> void:
 	set_texture(tex)
 	anchor = ShapeUtils.get_anchor(item)
 	_original_position = position
-
+	
+func _has_point(point: Vector2) -> bool:
+	var inventory = get_parent().get_parent()
+	var inventory_point = position + point
+	
+	var cell_col = int((inventory_point.x - inventory.PADDING) / inventory.CELL_SIZE.x)
+	var cell_row = int((inventory_point.y - inventory.PADDING) / inventory.CELL_SIZE.y)
+	
+	for cell_dict in item.cells:
+		if cell_dict.col == cell_col and cell_dict.row == cell_row:
+			return true
+	
+	return false
+	
 func is_valid_drag_position(event_pos: Vector2) -> bool:
 	var inventory = get_parent().get_parent()
 	
