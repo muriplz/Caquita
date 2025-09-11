@@ -142,6 +142,11 @@ public class InventoryApi {
         }
     }
 
+    public static boolean hasItem(long userId, String item) {
+        User.Inventory inventory = getInventory(userId);
+        return inventory.items().stream().anyMatch(i -> i.id().equals(item));
+    }
+
     record AddItemPayload(String itemId, InventoryItem.Cell anchor) {}
     record RemoveItemPayload(InventoryItem.Cell anchor) {}
     record MoveItemPayload(InventoryItem.Cell anchor, InventoryItem.Cell newAnchor) {}

@@ -1,6 +1,8 @@
 package app.caquita.auth.inventory.tools;
 
 import app.caquita.auth.AuthUtils;
+import app.caquita.auth.inventory.InventoryApi;
+import app.caquita.auth.inventory.InventoryManager;
 import app.caquita.content.items.ToolItemKind;
 import app.caquita.registry.AllItems;
 import io.javalin.http.Context;
@@ -20,9 +22,19 @@ public class ToolInventoryApi {
         if (!(AllItems.getItem(payload.toolId()) instanceof ToolItemKind tool)) {
             return;
         }
+        
+        boolean hasItem = InventoryApi.hasItem(userId, payload.toolId());
 
+        if (!hasItem) {
+            ctx.status(400).json("You don't have this item in your inventory");
+            return;
+        }
         boolean added = Tool.addTool(userId, tool);
-        ctx.status(200).json(added);
+
+        if (added) {
+            ctx.status(200).json(new InventoryManager(userId).removeItem(payload.toolId()));
+        }
+
     }
     record AddToolPayload(String toolId) {}
 

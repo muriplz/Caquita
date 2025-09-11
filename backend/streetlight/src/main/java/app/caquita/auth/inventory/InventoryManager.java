@@ -146,6 +146,19 @@ public class InventoryManager {
         return true;
     }
 
+    public boolean removeItem(String item) {
+        InventoryItem invItem = inventory.items().stream()
+                .filter(i -> i.id().equals(item))
+                .findFirst()
+                .orElse(null);
+        if (invItem == null) {
+            return false;
+        }
+        inventory.items().remove(invItem);
+        InventoryApi.update(user, inventory.items());
+        return true;
+    }
+
     public boolean moveItem(int anchorCol, int anchorRow, int newAnchorCol, int newAnchorRow) {
         InventoryItem item = inventory.items().stream()
                 .filter(i -> {
