@@ -6,6 +6,7 @@ class_name Inventory
 @export var items: Array[InventoryItem] = []
 @export var width: int
 @export var height: int
+@export var tools: int
 
 
 static func from_dict(dict: Dictionary) -> Inventory:
@@ -20,5 +21,6 @@ static func from_dict(dict: Dictionary) -> Inventory:
 		
 	inventory.height = dict.get("height", 3)
 	inventory.width = dict.get("width", 2)
+	inventory.tools = dict.get("tools", 3)
 	
 	return inventory
