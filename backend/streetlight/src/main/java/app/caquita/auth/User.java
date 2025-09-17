@@ -27,4 +27,5 @@ public record User(
                             int width, int height,
                             int tools) {
     }
+
 }

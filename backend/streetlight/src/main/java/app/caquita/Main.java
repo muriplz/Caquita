@@ -3,6 +3,7 @@ package app.caquita;
 import app.caquita.auth.AuthUtils;
 import app.caquita.auth.FriendshipApi;
 import app.caquita.auth.LoginApi;
+import app.caquita.auth.User;
 import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.auth.inventory.InventoryApi;
 import app.caquita.auth.inventory.tools.ToolInventoryApi;
