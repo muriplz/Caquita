@@ -7,6 +7,7 @@ import app.caquita.auth.User;
 import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.auth.inventory.InventoryApi;
 import app.caquita.auth.inventory.tools.ToolInventoryApi;
+import app.caquita.carving.CarvingSiteApi;
 import app.caquita.landmark.forum.petitions.PetitionImageApi;
 import app.caquita.landmark.forum.petitions.PetitionsApi;
 import app.caquita.landmark.trash_can.TrashCanApi;
@@ -66,6 +67,7 @@ public class Main {
 
     public static void apiRoutes() {
         path("api/v1", () -> {
+            post("test", CarvingSiteApi::generate);
             get(ctx -> ctx.result("Hello from Streetlight!"));
 
             path("item-kinds", () -> {
