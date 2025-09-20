@@ -68,6 +68,7 @@ public class Main {
     public static void apiRoutes() {
         path("api/v1", () -> {
             post("test", CarvingSiteApi::generate);
+            post("test2", CarvingSiteApi::carve);
             get(ctx -> ctx.result("Hello from Streetlight!"));
 
             path("item-kinds", () -> {

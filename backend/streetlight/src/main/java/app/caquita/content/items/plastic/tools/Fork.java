@@ -7,12 +7,12 @@ import app.caquita.content.items.classifications.PlasticClassification;
 public class Fork implements ToolItemKind {
 
     @Override
-    public int getMaxDurability() {
+    public int maxDurability() {
         return 50;
     }
 
     @Override
-    public int[][] getActionShape() {
+    public int[][] intensityArea() {
         return new int[][]{
                 {0, 1, 0},
                 {1, 2, 1},
@@ -21,12 +21,12 @@ public class Fork implements ToolItemKind {
     }
 
     @Override
-    public String getId() {
+    public String id() {
         return "plastic:fork";
     }
 
     @Override
-    public int[][] getShape() {
+    public int[][] shape() {
         return new int[][]{
                 {1, 0},
                 {1, 0},
@@ -34,12 +34,12 @@ public class Fork implements ToolItemKind {
     }
 
     @Override
-    public ResourceType getResourceType() {
+    public ResourceType resourceType() {
         return ResourceType.PLASTIC;
     }
 
     @Override
-    public String getClassification() {
+    public String classification() {
         return String.valueOf(PlasticClassification.PET.code);
     }
 }

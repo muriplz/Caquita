@@ -54,7 +54,7 @@ public class InventoryManager {
     }
 
     public boolean canPlaceItem(String itemId, int anchorCol, int anchorRow) {
-        int[][] shape = AllItems.getItem(itemId).getShape();
+        int[][] shape = AllItems.getItem(itemId).shape();
         InventoryItem.Cell placement = anchorToPlacement(anchorCol, anchorRow, shape);
 
         int col = placement.col();
@@ -88,7 +88,7 @@ public class InventoryManager {
     }
 
     public boolean addItem(String itemId, int anchorCol, int anchorRow) {
-        int[][] shape = AllItems.getItem(itemId).getShape();
+        int[][] shape = AllItems.getItem(itemId).shape();
         InventoryItem.Cell placement = anchorToPlacement(anchorCol, anchorRow, shape);
 
         int col = placement.col();
@@ -170,7 +170,7 @@ public class InventoryManager {
 
         if (item == null) return false;
 
-        int[][] shape = item.toItem().getShape();
+        int[][] shape = item.toItem().shape();
         InventoryItem.Cell placement = anchorToPlacement(newAnchorCol, newAnchorRow, shape);
 
         int newCol = placement.col();

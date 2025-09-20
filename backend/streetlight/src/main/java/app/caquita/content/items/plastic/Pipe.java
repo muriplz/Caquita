@@ -9,12 +9,12 @@ import java.util.List;
 public class Pipe implements ItemKind {
 
     @Override
-    public String getId() {
+    public String id() {
         return "plastic:pipe";
     }
 
     @Override
-    public int[][] getShape() {
+    public int[][] shape() {
         return new int[][]{
                 {1, 1, 1},
                 {1, 0, 0},
@@ -23,12 +23,12 @@ public class Pipe implements ItemKind {
     }
 
     @Override
-    public ResourceType getResourceType() {
+    public ResourceType resourceType() {
         return ResourceType.PLASTIC;
     }
 
     @Override
-    public String getClassification() {
+    public String classification() {
         return String.valueOf(PlasticClassification.PET.code);
     }
 }

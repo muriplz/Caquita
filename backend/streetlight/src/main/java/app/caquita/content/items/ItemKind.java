@@ -1,19 +1,17 @@
 package app.caquita.content.items;
 
-import java.util.List;
-
 public interface ItemKind {
-    String getId();
+    String id();
 
-    int[][] getShape();
+    int[][] shape();
 
-    default Rarity getRarity() {
+    default Rarity rarity() {
         return Rarity.COMMON;
     }
 
-    ResourceType getResourceType();
+    ResourceType resourceType();
 
-    String getClassification();
+    String classification();
 
     enum Rarity {
         JUNK,

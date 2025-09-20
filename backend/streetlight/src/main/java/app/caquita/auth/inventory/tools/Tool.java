@@ -51,8 +51,8 @@ public record Tool(
                 INSERT INTO tools (user_id, item, durability) VALUES (:userId, :item, :durability)
                 """)
                     .bind("userId", userId)
-                    .bind("item", tool.getId())
-                    .bind("durability", tool.getMaxDurability())
+                    .bind("item", tool.id())
+                    .bind("durability", tool.maxDurability())
                     .execute();
 
             return true;
