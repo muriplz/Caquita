@@ -9,7 +9,6 @@ import io.javalin.http.Context;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,9 +35,7 @@ public class CarvingSiteApi {
         CarvingSite site = userSites.computeIfAbsent(userId, k ->
                 generateSiteForLocation(payload.lat(), payload.lon()));
 
-        ctx.json(Map.of(
-                "matrix", getEnhancedTerrainMatrix(site)
-        ));
+        ctx.json(getEnhancedTerrainMatrix(site));
     }
 
     public static void carve(Context ctx) {
@@ -52,28 +49,13 @@ public class CarvingSiteApi {
             return;
         }
 
-        ItemKind item = AllItems.getItem(payload.item());
+        ItemKind item = AllItems.getItem(payload.tool());
 
         if (!(item instanceof ToolItemKind tool)) return;
 
         site.carveGroup(tool, payload.x(), payload.y());
 
-        ctx.json(Map.of(
-                "matrix", getEnhancedTerrainMatrix(site)
-        ));
-    }
-
-    public static void getSite(Context ctx) {
-        long userId = AuthUtils.getUser(ctx);
-
-        CarvingSite site = userSites.get(userId);
-
-        if (site == null) {
-            ctx.status(400).result("Site not found");
-            return;
-        }
-
-        ctx.json(site);
+        ctx.json(getEnhancedTerrainMatrix(site));
     }
 
     private static CarvingSite generateSiteForLocation(double lat, double lon) {
@@ -109,18 +91,17 @@ public class CarvingSiteApi {
     }
 
     public static TerrainMatrix getEnhancedTerrainMatrix(CarvingSite site) {
-        List<String> carvables = site.carvables();
         CarvingSite.CarvingCell[][] layout = site.layout();
         int height = site.height();
         int width = site.width();
 
-        int[][] terrain = new int[height][width];
+        String[][] terrain = new String[height][width];
         List<CarvingObstacleInstance> visibleObstacles = new ArrayList<>();
         List<CarvingItem> visibleItems = new ArrayList<>();
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                terrain[y][x] = carvables.indexOf(layout[y][x].carvable());
+                terrain[y][x] = layout[y][x].carvable();
             }
         }
 
@@ -146,8 +127,8 @@ public class CarvingSiteApi {
         for (int sy = 0; sy < shape.length; sy++) {
             for (int sx = 0; sx < shape[sy].length; sx++) {
                 if (shape[sy][sx] == 1) {
-                    int x = obstacle.originX() + sx;
-                    int y = obstacle.originY() + sy;
+                    int x = obstacle.anchorX() + sx;
+                    int y = obstacle.anchorY() + sy;
                     if (x >= 0 && x < site.width() && y >= 0 && y < site.height()) {
                         if (site.layout()[y][x].isFullyCarved()) {
                             return true;
@@ -164,8 +145,8 @@ public class CarvingSiteApi {
         for (int sy = 0; sy < shape.length; sy++) {
             for (int sx = 0; sx < shape[sy].length; sx++) {
                 if (shape[sy][sx] == 1) {
-                    int x = item.originX() + sx;
-                    int y = item.originY() + sy;
+                    int x = item.anchorX() + sx;
+                    int y = item.anchorY() + sy;
                     if (x >= 0 && x < site.width() && y >= 0 && y < site.height()) {
                         if (site.layout()[y][x].isFullyCarved()) {
                             return true;
@@ -177,9 +158,9 @@ public class CarvingSiteApi {
         return false;
     }
 
-    record TerrainMatrix(int[][] terrain, List<CarvingObstacleInstance> obstacles, List<CarvingItem> items) {}
+    public record TerrainMatrix(String[][] carvables, List<CarvingObstacleInstance> obstacles, List<CarvingItem> items) {}
 
     record GenerateCarvingSitePayload(double lat, double lon) {}
 
-    record CarvePayload(String item, int x, int y, int[][] shape) {}
+    record CarvePayload(String tool, int x, int y) {}
 }

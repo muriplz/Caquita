@@ -7,12 +7,12 @@ import app.caquita.content.items.classifications.PlasticClassification;
 public class Pipe implements ItemKind {
 
     @Override
-    public String id() {
+    public String getId() {
         return "plastic:pipe";
     }
 
     @Override
-    public int[][] shape() {
+    public int[][] getShape() {
         return new int[][]{
                 {1, 1, 1},
                 {1, 0, 0},
@@ -21,12 +21,12 @@ public class Pipe implements ItemKind {
     }
 
     @Override
-    public ResourceType resourceType() {
+    public ResourceType getResourceType() {
         return ResourceType.PLASTIC;
     }
 
     @Override
-    public String classification() {
+    public String getClassification() {
         return String.valueOf(PlasticClassification.PET.code);
     }
 }

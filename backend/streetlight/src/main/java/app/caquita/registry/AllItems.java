@@ -16,7 +16,7 @@ public class AllItems {
     private static final Map<String, ItemKind> ITEMS = new HashMap<>();
 
     public static void register(ItemKind item) {
-        ITEMS.put(item.id(), item);
+        ITEMS.put(item.getId(), item);
     }
 
     public static ItemKind getItem(String id) {

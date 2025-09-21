@@ -149,8 +149,8 @@ public class SiteGenerator {
                 int x = random.nextInt(site.width());
                 int y = random.nextInt(site.height());
 
-                if (canPlaceAt(site, item.shape(), x, y)) {
-                    site.placedItems().add(new CarvingItem(item.id(), 0.5f, x, y));
+                if (canPlaceAt(site, item.getShape(), x, y)) {
+                    site.placedItems().add(new CarvingItem(item.getId(), 0.5f, x, y));
                     break;
                 }
             }

@@ -66,8 +66,7 @@ public class Main {
 
     public static void apiRoutes() {
         path("api/v1", () -> {
-            post("test", CarvingSiteApi::generate);
-            post("test2", CarvingSiteApi::carve);
+
             get(ctx -> ctx.result("Hello from Streetlight!"));
 
             path("item-kinds", () -> {
@@ -109,6 +108,13 @@ public class Main {
     private static void mapRoutes() {
         path("map", () -> {
             get("16/{x}/{y}", MapApi::getTile);
+        });
+    }
+
+    private static void carvingRoutes() {
+        path("carving", () -> {
+            post(CarvingSiteApi::generate);
+            post("carve", CarvingSiteApi::carve);
         });
     }
 

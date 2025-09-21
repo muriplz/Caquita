@@ -12,17 +12,17 @@ const path := "user://settings.dat"
 
 func _ready() -> void:
 	all_settings = load_settings()
-	ToastManager.show("Started setting %s" % [all_settings])
 
 func add_setting(id: String, value: String):
 	var setting = Setting.new(id, value)
-	
-	ToastManager.show("Added setting %s" % [all_settings])
 	all_settings.append(setting)
 	save_settings()
 
 func get_setting(id: String) -> Setting:
-	return all_settings.get(all_settings.find(id))
+	for setting in all_settings:
+		if setting.id == id:
+			return setting
+	return null
 
 func save_settings() -> void:
 	if all_settings.is_empty():
@@ -40,4 +40,4 @@ func load_settings() -> Array[Setting]:
 	return settings
 
 func has_settings() -> bool:
-	return FileAccess.file_exists(path) and not load_settings().is_empty()
+	return not all_settings.is_empty()

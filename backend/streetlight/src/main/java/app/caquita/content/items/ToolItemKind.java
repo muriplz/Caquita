@@ -2,11 +2,11 @@ package app.caquita.content.items;
 
 public interface ToolItemKind extends ItemKind {
 
-    int maxDurability();
+    int getMaxDurability();
 
-    int[][] intensityArea();
+    int[][] getIntensityArea();
 
-    default boolean gentle() {
+    default boolean isGentle() {
         return false;
     }
 }

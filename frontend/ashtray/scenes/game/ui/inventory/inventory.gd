@@ -43,7 +43,7 @@ func build_inventory() -> void:
 func populate_items() -> void:
 	for inventory_item in InventoryStore.get_inventory().items:
 		var inventory_item_scene = INVENTORY_ITEM_SCENE.instantiate()
-		
+
 		var shape = ItemKindStore.get_item_kind(inventory_item.id).shape
 		var dims = ShapeUtils.get_dimensions(shape)
 		

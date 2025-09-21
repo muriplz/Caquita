@@ -15,7 +15,6 @@ func store_user(user_data: Dictionary) -> void:
 	if "token" in user_data and not user_data["token"].is_empty():
 		_token_store.save_token(user_data["token"])
 	
-	save_user_data(user_data)
 	user_changed.emit(_current_user)
 
 func get_user() -> User:
@@ -30,31 +29,10 @@ func get_token() -> String:
 func clear_session() -> void:
 	_current_user = null
 	_token_store.clear_token()
-	
-	if FileAccess.file_exists("user://user_data.json"):
-		DirAccess.open("user://").remove("user_data.json")
-	
 	user_logged_out.emit()
 
-func save_user_data(user_data: Dictionary) -> void:
-	var file = FileAccess.open("user://user_data.json", FileAccess.WRITE)
-	var json_string = JSON.stringify(user_data)
-	file.store_string(json_string)
-
 func attempt_restore_session() -> bool:
-	if not _token_store.has_token() or not FileAccess.file_exists("user://user_data.json"):
-		return false
-	
-	var file = FileAccess.open("user://user_data.json", FileAccess.READ)
-	var json_string = file.get_as_text()
-	var data = JSON.parse_string(json_string)
-	
-	if data != null:
-		_current_user = User.from_dict(data)
-		user_changed.emit(_current_user)
-		return true
-	
-	return false
+	return _token_store.has_token()
 
 func get_auth_header():
 	return ["Cookie: auth=" + get_token()]

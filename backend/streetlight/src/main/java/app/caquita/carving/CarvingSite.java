@@ -48,7 +48,7 @@ public interface CarvingSite {
         CarvingItem item = getItemAt(x, y);
 
         if (obstacle != null) {
-            if (!tool.gentle()) {
+            if (!tool.isGentle()) {
                 obstacles().stream()
                         .filter(o -> o.id().equals(obstacle.obstacle()))
                         .findFirst()
@@ -64,7 +64,7 @@ public interface CarvingSite {
                 if (newErre <= 0.0f) {
                     placedItems().remove(item);
                 } else {
-                    CarvingItem updatedItem = new CarvingItem(item.item(), newErre, item.originX(), item.originY());
+                    CarvingItem updatedItem = new CarvingItem(item.item(), newErre, item.anchorX(), item.anchorY());
                     placedItems().set(placedItems().indexOf(item), updatedItem);
                 }
             }
@@ -82,7 +82,7 @@ public interface CarvingSite {
     }
 
     default void carveGroup(ToolItemKind tool, int x, int y) {
-        int[][] intensityArea = tool.intensityArea();
+        int[][] intensityArea = tool.getIntensityArea();
 
         // Calculate center offset
         int centerX = intensityArea[0].length / 2;

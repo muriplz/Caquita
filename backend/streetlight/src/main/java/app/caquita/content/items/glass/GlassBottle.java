@@ -7,12 +7,12 @@ import app.caquita.content.items.classifications.GlassClassification;
 public class GlassBottle implements ItemKind {
 
     @Override
-    public String id() {
+    public String getId() {
         return "glass:bottle";
     }
 
     @Override
-    public int[][] shape() {
+    public int[][] getShape() {
         return new int[][]{
                 {1, 0},
                 {1, 0},
@@ -20,12 +20,12 @@ public class GlassBottle implements ItemKind {
     }
 
     @Override
-    public ResourceType resourceType() {
+    public ResourceType getResourceType() {
         return ResourceType.GLASS;
     }
 
     @Override
-    public String classification() {
+    public String getClassification() {
         return String.valueOf(GlassClassification.TEMPERED);
     }
 }
