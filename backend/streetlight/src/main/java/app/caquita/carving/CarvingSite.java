@@ -1,10 +1,8 @@
-// CarvingSite.java
 package app.caquita.carving;
 
 import app.caquita.carving.obstacles.CarvingObstacle;
-import app.caquita.content.items.ItemKind;
+import app.caquita.carving.obstacles.CarvingObstacleInstance;
 import app.caquita.content.items.ToolItemKind;
-import app.caquita.registry.AllItems;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
@@ -32,6 +30,12 @@ public interface CarvingSite {
     @JsonProperty("layout")
     CarvingCell[][] layout();
 
+    @JsonProperty("placedObstacles")
+    List<CarvingObstacleInstance> placedObstacles();
+
+    @JsonProperty("placedItems")
+    List<CarvingItem> placedItems();
+
     default void carveCell(ToolItemKind tool, int x, int y) {
         if (x < 0 || x >= width() || y < 0 || y >= height()) {
             return;
@@ -40,57 +44,41 @@ public interface CarvingSite {
         CarvingCell current = layout()[y][x];
         String currentCarvable = current.carvable();
 
-        System.out.println("DEBUG: Carving at (" + x + ", " + y + ") - Current: " + currentCarvable +
-                ", Obstacle: " + current.obstacle() + ", Item: " +
-                (current.buriedItem != null ? current.buriedItem.item() : "none"));
+        CarvingObstacleInstance obstacle = getObstacleAt(x, y);
+        CarvingItem item = getItemAt(x, y);
 
-        if (current.hasObstacle()) {
-            CarvingObstacle obstacle = obstacles().stream()
-                    .filter(o -> o.id().equals(current.obstacle()))
-                    .findFirst()
-                    .orElse(null);
-
-            if (!tool.gentle() && obstacle != null) obstacle.trigger();
-            System.out.println("DEBUG: Hit obstacle '" + current.obstacle() + "' at (" + x + ", " + y + ")");
+        if (obstacle != null) {
+            if (!tool.gentle()) {
+                obstacles().stream()
+                        .filter(o -> o.id().equals(obstacle.obstacle()))
+                        .findFirst()
+                        .ifPresent(CarvingObstacle::trigger);
+            }
             return;
         }
 
         if ("empty".equals(currentCarvable)) {
-            System.out.println("DEBUG: Already fully carved at (" + x + ", " + y + ")");
-            if (current.hasBuriedItem()) {
-                CarvingItem item = current.buriedItem;
+            if (item != null) {
                 float newErre = item.erre() - 0.1f;
-                System.out.println("DEBUG: Hit buried item '" + item.item() +
-                        "', erre: " + item.erre() + " -> " + newErre);
 
                 if (newErre <= 0.0f) {
-                    System.out.println("DEBUG: Item fully excavated!");
-                    layout()[y][x] = new CarvingCell(currentCarvable, current.obstacle(), null);
+                    placedItems().remove(item);
                 } else {
-                    CarvingItem updatedItem = new CarvingItem(item.item(), newErre);
-                    layout()[y][x] = new CarvingCell(currentCarvable, current.obstacle(), updatedItem);
+                    CarvingItem updatedItem = new CarvingItem(item.item(), newErre, item.originX(), item.originY());
+                    placedItems().set(placedItems().indexOf(item), updatedItem);
                 }
             }
             return;
         }
 
         if (!carvables().contains(currentCarvable)) {
-            System.out.println("DEBUG: Unknown carvable type '" + currentCarvable + "' at (" + x + ", " + y + ")");
             return;
         }
 
         int index = carvables().indexOf(currentCarvable);
-        String newCarvable = (index > 0)
-                ? carvables().get(index - 1)
-                : "empty";
+        String newCarvable = (index > 0) ? carvables().get(index - 1) : "empty";
 
-        System.out.println("DEBUG: Carving '" + currentCarvable + "' -> '" + newCarvable + "'");
-
-        layout()[y][x] = new CarvingCell(newCarvable, current.obstacle(), current.buriedItem());
-
-        if ("empty".equals(newCarvable) && current.buriedItem() != null) {
-            System.out.println("DEBUG: Revealing buried item '" + current.buriedItem().item() + "' at (" + x + ", " + y + ")");
-        }
+        layout()[y][x] = new CarvingCell(newCarvable);
     }
 
     default void carveGroup(ToolItemKind tool, int x, int y) {
@@ -117,28 +105,26 @@ public interface CarvingSite {
         }
     }
 
+    default CarvingObstacleInstance getObstacleAt(int x, int y) {
+        return placedObstacles().stream()
+                .filter(obs -> obs.coversCell(x, y))
+                .findFirst()
+                .orElse(null);
+    }
+
+    default CarvingItem getItemAt(int x, int y) {
+        return placedItems().stream()
+                .filter(item -> item.coversCell(x, y))
+                .findFirst()
+                .orElse(null);
+    }
+
     enum SiteType {
         DIRT,
         ;
     }
 
-    record CarvingCell(
-            String carvable,
-            String obstacle,
-            CarvingItem buriedItem
-    ) {
-        public CarvingCell(String carvable) {
-            this(carvable, null, null);
-        }
-
-        public boolean hasObstacle() {
-            return obstacle != null;
-        }
-
-        public boolean hasBuriedItem() {
-            return buriedItem != null;
-        }
-
+    record CarvingCell(String carvable) {
         public boolean isFullyCarved() {
             return "empty".equals(carvable);
         }

@@ -1,15 +1,15 @@
 package app.caquita.carving;
 
-import app.caquita.carving.obstacles.CarvingObstacle;
-import app.caquita.carving.obstacles.ManholeCover;
-import app.caquita.carving.obstacles.MetalPole;
-import app.caquita.carving.obstacles.Sprinkler;
+import app.caquita.carving.obstacles.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DirtSite implements CarvingSite {
 
     private final CarvingCell[][] layout;
+    private final List<CarvingObstacleInstance> placedObstacles = new ArrayList<>();
+    private final List<CarvingItem> placedItems = new ArrayList<>();
 
     public DirtSite(long seed, SiteGenerator.GenerationParams params) {
         this.layout = new CarvingCell[height()][width()];
@@ -63,5 +63,15 @@ public class DirtSite implements CarvingSite {
     @Override
     public CarvingCell[][] layout() {
         return layout;
+    }
+
+    @Override
+    public List<CarvingObstacleInstance> placedObstacles() {
+        return placedObstacles;
+    }
+
+    @Override
+    public List<CarvingItem> placedItems() {
+        return placedItems;
     }
 }

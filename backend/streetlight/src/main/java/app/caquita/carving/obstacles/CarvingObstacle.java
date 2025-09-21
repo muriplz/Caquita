@@ -3,7 +3,6 @@ package app.caquita.carving.obstacles;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import app.caquita.carving.CarvingSite;
 
 public interface CarvingObstacle {
 

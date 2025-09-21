@@ -1,15 +1,14 @@
-package app.caquita.carving;
+package app.caquita.carving.obstacles;
 
-import app.caquita.registry.AllItems;
+import app.caquita.registry.AllObstacles;
 
-public record CarvingItem(
-        String item,
-        float erre,
-        int originX,
-        int originY
+public record CarvingObstacleInstance(
+    String obstacle,
+    int originX,
+    int originY
 ) {
     public int[][] shape() {
-        return AllItems.getItem(item).shape();
+        return AllObstacles.getObstacle(obstacle).shape();
     }
 
     public boolean coversCell(int x, int y) {

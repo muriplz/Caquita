@@ -4,8 +4,6 @@ import app.caquita.content.items.ItemKind;
 import app.caquita.content.items.ResourceType;
 import app.caquita.content.items.classifications.PlasticClassification;
 
-import java.util.List;
-
 public class Bottle implements ItemKind {
 
     @Override

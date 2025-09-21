@@ -1,12 +1,13 @@
-// CarvingSiteApi.java
 package app.caquita.carving;
 
 import app.caquita.auth.AuthUtils;
+import app.caquita.carving.obstacles.CarvingObstacleInstance;
 import app.caquita.content.items.ItemKind;
 import app.caquita.content.items.ToolItemKind;
 import app.caquita.registry.AllItems;
 import io.javalin.http.Context;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -36,8 +37,7 @@ public class CarvingSiteApi {
                 generateSiteForLocation(payload.lat(), payload.lon()));
 
         ctx.json(Map.of(
-                "site", site,
-                "matrix", getTerrainMatrixOnlyCarvables(site)
+                "matrix", getEnhancedTerrainMatrix(site)
         ));
     }
 
@@ -59,8 +59,7 @@ public class CarvingSiteApi {
         site.carveGroup(tool, payload.x(), payload.y());
 
         ctx.json(Map.of(
-                "site", site,
-                "matrix", getTerrainMatrixOnlyCarvables(site)
+                "matrix", getEnhancedTerrainMatrix(site)
         ));
     }
 
@@ -109,20 +108,76 @@ public class CarvingSiteApi {
         return baseSeed + System.currentTimeMillis() / 10000; // Adds variation every 10 seconds
     }
 
-    public static int[][] getTerrainMatrixOnlyCarvables(CarvingSite site) {
+    public static TerrainMatrix getEnhancedTerrainMatrix(CarvingSite site) {
         List<String> carvables = site.carvables();
         CarvingSite.CarvingCell[][] layout = site.layout();
-        int[][] matrix = new int[site.height()][site.width()];
+        int height = site.height();
+        int width = site.width();
 
-        for (int y = 0; y < site.height(); y++) {
-            for (int x = 0; x < site.width(); x++) {
-                String carvable = layout[y][x].carvable();
-                matrix[y][x] = carvables.indexOf(carvable);
+        int[][] terrain = new int[height][width];
+        List<CarvingObstacleInstance> visibleObstacles = new ArrayList<>();
+        List<CarvingItem> visibleItems = new ArrayList<>();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                terrain[y][x] = carvables.indexOf(layout[y][x].carvable());
             }
         }
 
-        return matrix;
+        // Only include obstacles with at least one empty cell
+        for (CarvingObstacleInstance obstacle : site.placedObstacles()) {
+            if (hasAtLeastOneEmptyCell(site, obstacle)) {
+                visibleObstacles.add(obstacle);
+            }
+        }
+
+        // Only include items with at least one empty cell
+        for (CarvingItem item : site.placedItems()) {
+            if (hasAtLeastOneEmptyCell(site, item)) {
+                visibleItems.add(item);
+            }
+        }
+
+        return new TerrainMatrix(terrain, visibleObstacles, visibleItems);
     }
+
+    private static boolean hasAtLeastOneEmptyCell(CarvingSite site, CarvingObstacleInstance obstacle) {
+        int[][] shape = obstacle.shape();
+        for (int sy = 0; sy < shape.length; sy++) {
+            for (int sx = 0; sx < shape[sy].length; sx++) {
+                if (shape[sy][sx] == 1) {
+                    int x = obstacle.originX() + sx;
+                    int y = obstacle.originY() + sy;
+                    if (x >= 0 && x < site.width() && y >= 0 && y < site.height()) {
+                        if (site.layout()[y][x].isFullyCarved()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasAtLeastOneEmptyCell(CarvingSite site, CarvingItem item) {
+        int[][] shape = item.shape();
+        for (int sy = 0; sy < shape.length; sy++) {
+            for (int sx = 0; sx < shape[sy].length; sx++) {
+                if (shape[sy][sx] == 1) {
+                    int x = item.originX() + sx;
+                    int y = item.originY() + sy;
+                    if (x >= 0 && x < site.width() && y >= 0 && y < site.height()) {
+                        if (site.layout()[y][x].isFullyCarved()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    record TerrainMatrix(int[][] terrain, List<CarvingObstacleInstance> obstacles, List<CarvingItem> items) {}
 
     record GenerateCarvingSitePayload(double lat, double lon) {}
 
