@@ -2,20 +2,18 @@ class_name CarvingService
 
 static var API_URL: String = Static.API_URL + "api/v1/carving"
 
-static func generate(lat: float, lon: float, callback: Callable) -> void:
+static func generate(lat: float, lon: float) -> void:
 	var data = {"lat": lat, "lon": lon}
 	make_request("POST", "", data, func(response):
 		if response != null:
 			CarvingStore.set_carving_site(response)
-		callback.call(response)
 	)
 
-static func carve(tool: String, x: int, y: int, callback: Callable) -> void:
-	var data = {"item": tool, "x": x, "y": y}
+static func carve(tool: String, x: int, y: int) -> void:
+	var data = {"tool": tool, "x": x, "y": y}
 	make_request("POST", "/carve", data, func(response):
 		if response != null:
 			CarvingStore.update_carving_site(response)
-		callback.call(response)
 	)
 
 static func make_request(method: String, endpoint: String, data: Dictionary, callback: Callable) -> void:

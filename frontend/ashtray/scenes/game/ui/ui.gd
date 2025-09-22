@@ -1,9 +1,10 @@
-extends Control
+extends CanvasLayer
 
 @onready var screens := [
 		$Menu,
 		$Profile,
-		$Inventory
+		$Inventory,
+		$CarvingSite
 	]
 	
 	

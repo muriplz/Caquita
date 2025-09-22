@@ -20,11 +20,13 @@ public class DirtSite implements CarvingSite {
     @Override
     public List<String> carvables() {
         return List.of(
-                "dirt:grown_grass",
-                "dirt:grass",
-                "dirt:dirt",
-                "dirt:coarse_dirt",
-                "dirt:gravel"
+                "dirt:gravel",
+                "dirt:coarse_dirt",    // index 3
+                "dirt:dirt",           // index 2
+                "dirt:grass",          // index 1
+
+                "dirt:grown_grass"    // index 0 (surface)
+                        // index 4 (deepest)
         );
     }
 

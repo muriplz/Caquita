@@ -1,6 +1,7 @@
 extends Control
 
 func _ready() -> void:
+	CarvingService.generate(41.3851, 2.1734)
 	validate()
 		
 func validate() -> void:

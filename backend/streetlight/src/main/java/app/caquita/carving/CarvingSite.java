@@ -47,17 +47,19 @@ public interface CarvingSite {
         CarvingObstacleInstance obstacle = getObstacleAt(x, y);
         CarvingItem item = getItemAt(x, y);
 
-        if (obstacle != null) {
-            if (!tool.isGentle()) {
-                obstacles().stream()
-                        .filter(o -> o.id().equals(obstacle.obstacle()))
-                        .findFirst()
-                        .ifPresent(CarvingObstacle::trigger);
-            }
-            return;
-        }
+
 
         if ("empty".equals(currentCarvable)) {
+            if (obstacle != null) {
+                if (!tool.isGentle()) {
+                    obstacles().stream()
+                            .filter(o -> o.id().equals(obstacle.obstacle()))
+                            .findFirst()
+                            .ifPresent(CarvingObstacle::trigger);
+                }
+                return;
+            }
+            
             if (item != null) {
                 float newErre = item.erre() - 0.1f;
 

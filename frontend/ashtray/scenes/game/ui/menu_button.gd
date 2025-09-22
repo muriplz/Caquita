@@ -1,6 +1,6 @@
 extends Button
 @onready var menu = $"../../Menu"
-@onready var ui: Control = $"../.."
+@onready var ui: CanvasLayer = $"../.."
 
 func _ready():
 	pressed.connect(self._on_button_pressed)

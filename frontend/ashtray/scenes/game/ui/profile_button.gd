@@ -1,7 +1,7 @@
 extends TextureButton
 
 @onready var profile = $"../Profile"
-@onready var ui: Control = $".."
+@onready var ui: CanvasLayer = $".."
 
 func _ready() -> void:
 	texture_normal = load("res://assets/textures/ui/avatar/%s.png" % UserStore.get_user().avatar)

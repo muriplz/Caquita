@@ -88,6 +88,8 @@ public class Main {
                 post("can-place", InventoryApi::canPlaceItem);
             });
 
+            carvingRoutes();
+
             landmarkRoutes();
 
             authRoutes();

@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://b787pcpdoph72"]
+
+[ext_resource type="Script" uid="uid://bxbvegvshy6wl" path="res://scenes/game/ui/carving/carving_site_ui.gd" id="1_tiwfi"]
+[ext_resource type="Script" uid="uid://bwi1gl4k1bhes" path="res://scenes/game/ui/carving/grid.gd" id="2_0qd1u"]
+
+[node name="CarvingSiteUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tiwfi")
+
+[node name="Grid" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_0qd1u")

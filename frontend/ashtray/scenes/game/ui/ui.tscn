@@ -1,35 +1,23 @@
 [gd_scene load_steps=11 format=3 uid="uid://b603gi5y4ktee"]
 
 [ext_resource type="Script" uid="uid://ynpbqaynpr0x" path="res://scenes/game/ui/ui.gd" id="1_eq76c"]
-[ext_resource type="FontFile" uid="uid://xwmelyme2n3p" path="res://assets/fonts/Minecraftia.ttf" id="1_hy4qm"]
 [ext_resource type="Script" uid="uid://d160n6q3lr6c8" path="res://scenes/game/ui/inventory_button.gd" id="3_fcay1"]
+[ext_resource type="Script" uid="uid://cc3aapxwqoahg" path="res://scenes/game/ui/generate_site_button.gd" id="3_fxik1"]
 [ext_resource type="PackedScene" uid="uid://b02ror12y1asc" path="res://scenes/game/ui/inventory/inventory.tscn" id="3_sowjt"]
 [ext_resource type="Script" uid="uid://cr5cv0lo63r7h" path="res://scenes/game/ui/logout_button.gd" id="4_ek8ox"]
 [ext_resource type="Script" uid="uid://ciysbarl7nc2a" path="res://scenes/game/ui/profile_button.gd" id="4_fxik1"]
+[ext_resource type="PackedScene" uid="uid://b787pcpdoph72" path="res://scenes/game/ui/carving/carving_site.tscn" id="6_fcay1"]
 [ext_resource type="Script" uid="uid://csx77oak3ggeb" path="res://scenes/game/ui/menu_button.gd" id="6_fxik1"]
-
-[sub_resource type="Theme" id="Theme_sowjt"]
-default_font = ExtResource("1_hy4qm")
-Button/constants/outline_size = 28
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fxik1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fcay1"]
 
-[node name="UI" type="Control"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme = SubResource("Theme_sowjt")
+[node name="UI" type="CanvasLayer"]
 script = ExtResource("1_eq76c")
 
 [node name="Menu" type="PanelContainer" parent="."]
 visible = false
-layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -50,10 +38,11 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_fxik1")
 text = "Inventory"
 script = ExtResource("3_fcay1")
 
-[node name="Button" type="Button" parent="Menu/VBoxContainer"]
+[node name="GenerateSiteButton" type="Button" parent="Menu/VBoxContainer"]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_fcay1")
-text = "hehe"
+text = "Generate Site"
+script = ExtResource("3_fxik1")
 
 [node name="SettingsButton" type="Button" parent="Menu"]
 layout_mode = 2
@@ -63,7 +52,6 @@ text = "Settings"
 
 [node name="Profile" type="PanelContainer" parent="."]
 visible = false
-layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -157,10 +145,10 @@ script = ExtResource("4_ek8ox")
 
 [node name="Inventory" parent="." instance=ExtResource("3_sowjt")]
 visible = false
-layout_mode = 1
+
+[node name="CarvingSite" parent="." instance=ExtResource("6_fcay1")]
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -186,7 +174,6 @@ script = ExtResource("6_fxik1")
 [node name="ProfileButton" type="TextureButton" parent="."]
 texture_filter = 1
 custom_minimum_size = Vector2(100, 100)
-layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0

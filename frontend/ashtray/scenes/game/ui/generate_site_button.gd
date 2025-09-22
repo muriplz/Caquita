@@ -1,6 +1,6 @@
 extends Button
 
-@onready var inventory = $"../../../Inventory"
+@onready var carving_site: Control = $"../../../CarvingSite"
 @onready var ui: CanvasLayer = $"../../.."
 
 func _ready():
@@ -8,4 +8,5 @@ func _ready():
 
 
 func _on_button_pressed() -> void:
-	ui.toggle_screen(inventory)
+	CarvingService.generate(41.3851, 2.1734)
+	ui.toggle_screen(carving_site)
