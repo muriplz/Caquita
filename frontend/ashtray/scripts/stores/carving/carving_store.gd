@@ -7,7 +7,6 @@ signal carving_site_cleared
 var carving_site: CarvingSite = null
 
 func set_carving_site(new_carving_site: Dictionary):
-	print(new_carving_site)
 	carving_site = CarvingSite.from_dict(new_carving_site)
 	emit_signal("carving_site_ready")
 

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://dy45t8n38u0en"]
+
+[ext_resource type="Script" uid="uid://b0c5yg7xcy8ab" path="res://scenes/game/ui/carving/carving_cell.gd" id="1_1evjw"]
+
+[node name="CarvingCell" type="ColorRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1evjw")

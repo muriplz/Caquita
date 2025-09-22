@@ -1,61 +1,76 @@
 extends Control
 
 @export var cell_size: int = 64
-@export var spacing: int = 2
+@export var spacing: int = 0
 
 var grid_width: int = 6
 var grid_height: int = 10
-var cell_buttons: Array[Array] = []
+var cells: Array[Array] = []
+var cell_scene = preload("res://scenes/game/ui/carving/carving_cell.tscn")
 
-func get_terrain_color(terrain_type: String) -> Color:
-	match terrain_type:
-		"dirt:grown_grass":
-			return Color.FOREST_GREEN
-		"dirt:grass":
-			return Color.GREEN
-		"dirt:dirt":
-			return Color.SADDLE_BROWN
-		"dirt:coarse_dirt":
-			return Color.PERU
-		"dirt:gravel":
-			return Color.GRAY
-		"empty":
-			return Color.BLACK
-		_:
-			return Color.WHITE
+func _ready():
+	pass
 
-func build_grid(site_data: CarvingSite):
+func build_grid():
 	clear_grid()
-	
+	var site_data = CarvingStore.get_carving_site()
+	if not site_data:
+		return
+		
 	var carvables = site_data.carvables
 	
+	var total_width = grid_width * cell_size
+	var total_height = grid_height * cell_size
+	
+	var start_x = -floor(total_width / 2.0) + cell_size / 2
+	var start_y = -floor(total_height / 2.0) + cell_size / 2
+	
 	for y in range(grid_height):
-		var row: Array[ColorRect] = []
+		var row: Array[CarvingCell] = []
 		for x in range(grid_width):
-			var cell = ColorRect.new()
+			var cell = cell_scene.instantiate()
 			cell.custom_minimum_size = Vector2(cell_size, cell_size)
-			cell.position = Vector2(x * (cell_size + spacing), y * (cell_size + spacing))
-			
-			var terrain_type = carvables[y][x] if y < carvables.size() and x < carvables[y].size() else "unknown"
-			cell.color = get_terrain_color(terrain_type)
-			
-			# Make it clickable
-			cell.gui_input.connect(func(event): 
-				if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-					_on_cell_clicked(x, y)
-			)
-			
+			cell.position = Vector2(start_x + x * cell_size, start_y + y * cell_size)
+			cell.grid_x = x
+			cell.grid_y = y
+			cell.terrain_type = carvables[y][x] if y < carvables.size() and x < carvables[y].size() else "unknown"
+			cell.cell_clicked.connect(_on_cell_clicked)
 			add_child(cell)
 			row.append(cell)
-		cell_buttons.append(row)
+		cells.append(row)
+	
+	update_grid()
 
-func update_grid(site_data: CarvingSite):
-	var carvables = site_data.carvables
+func update_grid():
+	var site_data = CarvingStore.get_carving_site()
+	if not site_data or cells.is_empty():
+		return
+		
+	# Update terrain
 	for y in range(grid_height):
 		for x in range(grid_width):
-			if y < cell_buttons.size() and x < cell_buttons[y].size():
-				var terrain_type = carvables[y][x] if y < carvables.size() and x < carvables[y].size() else "unknown"
-				cell_buttons[y][x].color = get_terrain_color(terrain_type)
+			if y < cells.size() and x < cells[y].size():
+				var terrain = site_data.carvables[y][x] if y < site_data.carvables.size() and x < site_data.carvables[y].size() else "unknown"
+				cells[y][x].terrain_type = terrain
+	
+	# Clear all items first
+	for y in range(grid_height):
+		for x in range(grid_width):
+			if y < cells.size() and x < cells[y].size():
+				cells[y][x].clear_item()
+	
+	# Set items that cover cells
+	for item in site_data.items:
+		var item_kind = ItemKindStore.get_item_kind(item.item)
+		if item_kind:
+			var shape = item_kind.shape
+			for sy in range(shape.size()):
+				for sx in range(shape[sy].size()):
+					if shape[sy][sx] == 1:
+						var cell_x = item.anchorX + sx
+						var cell_y = item.anchorY + sy
+						if cell_x < grid_width and cell_y < grid_height and cell_x >= 0 and cell_y >= 0:
+							cells[cell_y][cell_x].set_item(item)
 
 func _on_cell_clicked(x: int, y: int):
 	CarvingService.carve("plastic:fork", x, y)
@@ -63,4 +78,4 @@ func _on_cell_clicked(x: int, y: int):
 func clear_grid():
 	for child in get_children():
 		child.queue_free()
-	cell_buttons.clear()
+	cells.clear()
