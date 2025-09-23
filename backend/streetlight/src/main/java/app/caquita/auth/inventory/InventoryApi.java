@@ -41,15 +41,14 @@ public class InventoryApi {
 
     public static void initInventory(long user) {
         List<InventoryItem.Cell> bottlePos = List.of(
-                new InventoryItem.Cell(2, 1),
-                new InventoryItem.Cell(2, 2)
+                new InventoryItem.Cell(0, 0),
+                new InventoryItem.Cell(0, 1)
         );
 
-        List<InventoryItem.Cell> pipePos = List.of(
-                new InventoryItem.Cell(0, 0),
-                new InventoryItem.Cell(1, 0),
-                new InventoryItem.Cell(2, 0),
-                new InventoryItem.Cell(0, 1)
+        List<InventoryItem.Cell> pizzaBoxPos = List.of(
+                new InventoryItem.Cell(1, 1),
+                new InventoryItem.Cell(0, 2),
+                new InventoryItem.Cell(1, 2)
         );
 
         InventoryItem bottle = new InventoryItem(
@@ -58,13 +57,13 @@ public class InventoryApi {
                 0.5f
         );
 
-        InventoryItem pipe = new InventoryItem(
-                "plastic:pipe",
-                pipePos,
+        InventoryItem pizzaBox = new InventoryItem(
+                "cardboard:pizza_box",
+                pizzaBoxPos,
                 0.5f
         );
 
-        List<InventoryItem> items = List.of(bottle, pipe);
+        List<InventoryItem> items = List.of(bottle, pizzaBox);
         try {
             String itemsJson = Database.MAPPER.writeValueAsString(items);
 
@@ -75,8 +74,8 @@ public class InventoryApi {
                         """)
                             .bind("user_id", user)
                             .bind("items",   itemsJson)
-                            .bind("height",  4)
-                            .bind("width",   3)
+                            .bind("height",  3)
+                            .bind("width",   2)
                             .execute()
             );
         } catch (JsonProcessingException ignored) {}

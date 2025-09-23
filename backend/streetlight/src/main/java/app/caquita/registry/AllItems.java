@@ -3,6 +3,7 @@ package app.caquita.registry;
 
 import app.caquita.content.items.ItemKind;
 import app.caquita.content.items.ToolItemKind;
+import app.caquita.content.items.cardboard.PizzaBox;
 import app.caquita.content.items.glass.GlassBottle;
 import app.caquita.content.items.plastic.Bottle;
 import app.caquita.content.items.plastic.Pipe;
@@ -43,6 +44,9 @@ public class AllItems {
 
         // GLASS
         register(new GlassBottle());
+
+        // CARDBOARD
+        register(new PizzaBox());
 
 
         // TOOLS

@@ -1,5 +1,5 @@
 class_name CarvingCell
-extends ColorRect
+extends TextureRect
 
 @export var grid_x: int = 0
 @export var grid_y: int = 0
@@ -7,12 +7,23 @@ extends ColorRect
 
 var current_item: CarvingItem = null
 var item_visual: TextureRect = null
+var background_texture: TextureRect = null
 
 signal cell_clicked(x: int, y: int)
 
 func _ready():
 	gui_input.connect(_on_gui_input)
+	create_background()
 	set_terrain_type(terrain_type)
+
+func create_background():
+	background_texture = TextureRect.new()
+	var texture = load("res://assets/textures/carving/dirt/rock.png")
+	background_texture.texture = texture
+	background_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	background_texture.size = size
+	background_texture.z_index = -10
+	add_child(background_texture)
 
 func _on_gui_input(event: InputEvent):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -20,8 +31,28 @@ func _on_gui_input(event: InputEvent):
 
 func set_terrain_type(new_terrain: String):
 	terrain_type = new_terrain
-	color = get_terrain_color(terrain_type)
+	texture = get_terrain_texture(terrain_type)
 	update_item_visual()
+
+func get_terrain_texture(terrain: String) -> Texture2D:
+	var texture_path = ""
+	match terrain:
+		"dirt:grown_grass":
+			texture_path = "res://assets/textures/carving/dirt/grown_grass.png"
+		"dirt:grass":
+			texture_path = "res://assets/textures/carving/dirt/grass.png"
+		"dirt:dirt":
+			texture_path = "res://assets/textures/carving/dirt/dirt.png"
+		"dirt:coarse_dirt":
+			texture_path = "res://assets/textures/carving/dirt/coarse_dirt.png"
+		"dirt:gravel":
+			texture_path = "res://assets/textures/carving/dirt/gravel.png"
+		"empty":
+			return null
+		_:
+			texture_path = "res://assets/textures/carving/dirt/unknown.png"
+	
+	return load(texture_path)
 
 func set_item(item: CarvingItem):
 	current_item = item
@@ -38,27 +69,23 @@ func update_item_visual():
 		item_visual.queue_free()
 		item_visual = null
 	
-	# Only show item if terrain is fully carved (empty/black)
 	if current_item and terrain_type == "empty":
 		var item_kind = ItemKindStore.get_item_kind(current_item.item)
 		if item_kind:
 			item_visual = TextureRect.new()
 			
-			# Load item texture
 			var texture_path = get_item_texture_path(current_item.item)
 			var texture = load(texture_path)
 			item_visual.texture = texture
 			
-			# Calculate actual shape dimensions (not matrix size)
 			var shape = item_kind.shape
 			var dims = get_actual_shape_dimensions(shape)
 			item_visual.size = Vector2(dims.x * size.x, dims.y * size.y)
 			
-			# Position relative to this cell within the item
 			var relative_pos = get_relative_position_in_item(shape)
 			item_visual.position = relative_pos
 			
-			item_visual.z_index = -1
+			item_visual.z_index = -5
 			add_child(item_visual)
 
 func get_item_texture_path(item_id: String) -> String:
@@ -80,19 +107,7 @@ func get_relative_position_in_item(shape: Array) -> Vector2:
 	if not current_item:
 		return Vector2.ZERO
 	
-	# This cell's position relative to item anchor
 	var cell_offset_x = grid_x - current_item.anchorX  
 	var cell_offset_y = grid_y - current_item.anchorY
 	
-	# Position texture so it appears correctly across the shape
 	return Vector2(-cell_offset_x * size.x, -cell_offset_y * size.y)
-
-func get_terrain_color(terrain: String) -> Color:
-	match terrain:
-		"dirt:grown_grass": return Color.FOREST_GREEN
-		"dirt:grass": return Color.GREEN
-		"dirt:dirt": return Color.SADDLE_BROWN
-		"dirt:coarse_dirt": return Color.PERU
-		"dirt:gravel": return Color.GRAY
-		"empty": return Color.TRANSPARENT
-		_: return Color.WHITE

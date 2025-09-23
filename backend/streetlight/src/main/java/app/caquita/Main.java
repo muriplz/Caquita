@@ -12,6 +12,7 @@ import app.caquita.landmark.forum.petitions.PetitionsApi;
 import app.caquita.landmark.trash_can.TrashCanApi;
 import app.caquita.map.MapApi;
 import app.caquita.registry.AllItems;
+import app.caquita.registry.AllObstacles;
 import app.caquita.stats.GlobalStats;
 import app.caquita.storage.DatabaseUtils;
 import io.javalin.Javalin;
@@ -72,6 +73,11 @@ public class Main {
             path("item-kinds", () -> {
                 get(ctx -> ctx.status(200).json(AllItems.getAllItems()));
                 get("{id}", ctx -> ctx.status(200).json(AllItems.getItem(ctx.pathParam("id"))));
+            });
+
+            path("obstacle-kinds", () -> {
+                get(ctx -> ctx.status(200).json(AllObstacles.getAllObstacles()));
+                get("{id}", ctx -> ctx.status(200).json(AllObstacles.getObstacle(ctx.pathParam("id"))));
             });
 
             path("inventory", () -> {

@@ -92,7 +92,7 @@ func stop_drag():
 	var mp = get_viewport().get_mouse_position()
 	var inventory = get_parent().get_parent()
 	
-	for child in inventory.get_node("NinePatchRect").get_children():
+	for child in inventory.get_node("Background").get_children():
 		if child.has_method("_process"):  # This identifies cells
 			var rect = Rect2(child.global_position, child.size)
 			if rect.has_point(mp):

@@ -2,7 +2,7 @@ extends Resource
 class_name ItemKind
 
 enum Rarity { JUNK, COMMON, UNCOMMON, RARE, RELIC }
-enum ResourceType { PLASTIC, METAL, GLASS, OTHER }
+enum ResourceType { PLASTIC, METAL, GLASS, CARDBOARD, OTHER }
 
 @export var id: String
 @export var shape: Array
@@ -33,6 +33,8 @@ static func from_dict(dict: Dictionary) -> ItemKind:
 				return int(v)
 			)
 		)
+		
+	print(dict)
 	
 	return ik
 

@@ -2,12 +2,13 @@
 
 [ext_resource type="Script" uid="uid://c01h416oa4gvu" path="res://scenes/game/ui/inventory/cell.gd" id="1_overt"]
 
-[node name="InventorySlot" type="Panel"]
+[node name="InventorySlot" type="Control"]
+layout_mode = 3
+anchors_preset = 0
 offset_right = 24.0
 offset_bottom = 24.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
 script = ExtResource("1_overt")
-
-[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
-[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
+normal_color = Color(1, 1, 1, 0)
+hover_color = Color(0.8, 0.8, 0.8, 0)
