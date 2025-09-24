@@ -3,7 +3,6 @@ package app.caquita.content.items.cardboard;
 import app.caquita.content.items.ItemKind;
 import app.caquita.content.items.ResourceType;
 import app.caquita.content.items.classifications.CardboardClassification;
-import app.caquita.content.items.classifications.PlasticClassification;
 
 public class PizzaBox implements ItemKind {
 

@@ -71,9 +71,22 @@ func update_grid():
 						var cell_y = item.anchorY + sy
 						if cell_x < grid_width and cell_y < grid_height and cell_x >= 0 and cell_y >= 0:
 							cells[cell_y][cell_x].set_item(item)
+							
+	# Set obstacles
+	for obstacle in site_data.obstacles:
+		var obstacle_kind = ObstacleKindsStore.get_obstacle_kind(obstacle.obstacle)
+		if obstacle_kind:
+			var shape = obstacle_kind.shape
+			for sy in range(shape.size()):
+				for sx in range(shape[sy].size()):
+					if shape[sy][sx] == 1:
+						var cell_x = obstacle.anchorX + sx
+						var cell_y = obstacle.anchorY + sy
+						if cell_x < grid_width and cell_y < grid_height and cell_x >= 0 and cell_y >= 0:
+							cells[cell_y][cell_x].set_obstacle(obstacle)
 
 func _on_cell_clicked(x: int, y: int):
-	CarvingService.carve("plastic:fork", x, y)
+	CarvingService.carve("plastic:toothbrush", x, y)
 
 func clear_grid():
 	for child in get_children():

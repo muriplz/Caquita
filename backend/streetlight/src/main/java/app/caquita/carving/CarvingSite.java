@@ -63,6 +63,8 @@ public interface CarvingSite {
             if (item != null) {
                 float newErre = item.erre() - 0.1f;
 
+                System.out.println("Item clicked: " + item.item() + " at (" + x + ", " + y + "), new erre: " + newErre);
+
                 if (newErre <= 0.0f) {
                     placedItems().remove(item);
                 } else {

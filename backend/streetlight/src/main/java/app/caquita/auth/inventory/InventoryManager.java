@@ -146,9 +146,9 @@ public class InventoryManager {
         return true;
     }
 
-    public boolean removeItem(String item) {
+    public boolean removeItem(String item, float erre) {
         InventoryItem invItem = inventory.items().stream()
-                .filter(i -> i.id().equals(item))
+                .filter(i -> i.id().equals(item) && i.erre() == erre)
                 .findFirst()
                 .orElse(null);
         if (invItem == null) {

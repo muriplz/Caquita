@@ -42,7 +42,8 @@ public class InventoryApi {
     public static void initInventory(long user) {
         List<InventoryItem.Cell> bottlePos = List.of(
                 new InventoryItem.Cell(0, 0),
-                new InventoryItem.Cell(0, 1)
+                new InventoryItem.Cell(0, 1),
+                new InventoryItem.Cell(0, 2)
         );
 
         List<InventoryItem.Cell> pizzaBoxPos = List.of(
@@ -52,7 +53,7 @@ public class InventoryApi {
         );
 
         InventoryItem bottle = new InventoryItem(
-                "plastic:bottle",
+                "plastic:toothbrush",
                 bottlePos,
                 0.5f
         );
@@ -63,7 +64,7 @@ public class InventoryApi {
                 0.5f
         );
 
-        List<InventoryItem> items = List.of(bottle, pizzaBox);
+        List<InventoryItem> items = List.of(bottle);
         try {
             String itemsJson = Database.MAPPER.writeValueAsString(items);
 

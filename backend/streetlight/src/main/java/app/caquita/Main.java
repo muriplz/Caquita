@@ -84,7 +84,6 @@ public class Main {
                 path("tools", () -> {
                     get(ToolInventoryApi::get);
                     post(ToolInventoryApi::addTool);
-                    delete(ToolInventoryApi::removeTool);
                 });
 
                 get(InventoryApi::getInventory);

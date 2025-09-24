@@ -21,12 +21,11 @@ public class DirtSite implements CarvingSite {
     public List<String> carvables() {
         return List.of(
                 "dirt:gravel",
-                "dirt:coarse_dirt",    // index 3
-                "dirt:dirt",           // index 2
-                "dirt:grass",          // index 1
+                "dirt:coarse_dirt",
+                "dirt:dirt",
+                "dirt:grass",
+                "dirt:grown_grass"
 
-                "dirt:grown_grass"    // index 0 (surface)
-                        // index 4 (deepest)
         );
     }
 
@@ -43,7 +42,8 @@ public class DirtSite implements CarvingSite {
     public List<String> itemPool() {
         return List.of(
                 "plastic:bottle",
-                "plastic:pipe"
+                "plastic:pipe",
+                "cardboard:pizza_box"
         );
     }
 

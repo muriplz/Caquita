@@ -33,9 +33,7 @@ static func from_dict(dict: Dictionary) -> ItemKind:
 				return int(v)
 			)
 		)
-		
-	print(dict)
-	
+			
 	return ik
 
 func is_tool() -> bool:

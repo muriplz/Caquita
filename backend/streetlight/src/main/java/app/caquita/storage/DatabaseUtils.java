@@ -87,14 +87,14 @@ public class DatabaseUtils {
                 )
             """);
 
-            // Create tools table
+            // Create wardrobe table
             handle.execute("""
-                CREATE TABLE IF NOT EXISTS tools (
+                CREATE TABLE IF NOT EXISTS wardrobes (
                     id SERIAL PRIMARY KEY,
                     user_id BIGINT NOT NULL,
-                    item VARCHAR(255) NOT NULL,
-                    durability INTEGER NOT NULL,
-                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                    duster JSONB NOT NULL DEFAULT '{}',
+                    dusters JSONB NOT NULL DEFAULT '[]',
+                    FOREIGN KEY (user_id) REFERENCES users(id)
                 )
             """);
 
@@ -248,4 +248,6 @@ public class DatabaseUtils {
             return null;
         });
     }
+
+
 }

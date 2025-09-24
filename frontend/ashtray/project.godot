@@ -21,9 +21,10 @@ InventoryStore="*res://scripts/stores/inventory/inventory_store.gd"
 UserStore="*res://scripts/stores/user_store.gd"
 ToastManager="*res://scenes/toast/toasts.gd"
 CoordConversion="*res://scenes/game/terrain/coord_conversion.gd"
-ItemKindStore="*res://scripts/stores/inventory/item_kinds_store.gd"
+ItemKindStore="*res://scripts/stores/registry/item_kinds_store.gd"
 SettingsStore="*res://scripts/stores/settings_store.gd"
 CarvingStore="*res://scripts/stores/carving/carving_store.gd"
+ObstacleKindsStore="*res://scripts/stores/registry/obstacle_kinds_store.gd"
 
 [display]
 

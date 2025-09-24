@@ -10,12 +10,14 @@ import app.caquita.landmark.forum.petitions.PetitionMessage;
 import app.caquita.landmark.forum.petitions.PetitionReply;
 import app.caquita.landmark.trash_can.TrashCan;
 import app.caquita.stats.GlobalStats;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 import org.jdbi.v3.jackson2.Jackson2Plugin;
+import org.json.JSONObject;
 
 
 public class Database {
@@ -53,6 +55,10 @@ public class Database {
         // FORUMS END
 
         JDBI.registerRowMapper(ConstructorMapper.factory(GlobalStats.class));
+    }
+
+    public static <T> T fromJsonObject(JSONObject json, Class<T> clazz) throws JsonProcessingException {
+        return MAPPER.readValue(json.toString(), clazz);
     }
 
     public static Jdbi getJdbi() {

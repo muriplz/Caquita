@@ -28,8 +28,9 @@ public class CarvingSiteApi {
         boolean ongoing = userSites.containsKey(userId);
 
         if (ongoing) {
-            ctx.status(400).result("You already have an ongoing carving site");
-            return;
+            userSites.remove(userId);
+            //ctx.status(400).result("You already have an ongoing carving site");
+            //return;
         }
 
         CarvingSite site = userSites.computeIfAbsent(userId, k ->

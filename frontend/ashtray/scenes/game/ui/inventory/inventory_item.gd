@@ -87,7 +87,6 @@ func start_drag(event_pos: Vector2):
 
 func stop_drag():
 	_dragging = false
-	z_index = 0
 	
 	var mp = get_viewport().get_mouse_position()
 	var inventory = get_parent().get_parent()
@@ -122,6 +121,8 @@ func animate_to_position(target_pos: Vector2):
 		_tween.kill()
 	_tween = create_tween()
 	_tween.tween_property(self, "position", target_pos, 0.2)
+	_tween.tween_callback(func(): z_index = 0)
+
 
 func update_position_from_anchor():
 	var inventory = get_parent().get_parent()

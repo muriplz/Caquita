@@ -12,7 +12,7 @@ public class ToolInventoryApi {
     public static void get(Context ctx) {
         long userId = AuthUtils.getUser(ctx);
 
-        ctx.status(200).json(Tool.getInventory(userId));
+        ctx.status(200).json(Tool.getToolInventory(userId));
     }
 
     public static void addTool(Context ctx) {
@@ -29,22 +29,17 @@ public class ToolInventoryApi {
             ctx.status(400);
             return;
         }
-        boolean added = Tool.addTool(userId, tool);
 
-        if (added) {
-            ctx.status(200).json(new InventoryManager(userId).removeItem(payload.toolId()));
+        if (!new InventoryManager(userId).removeItem(payload.toolId(), payload.erre)) {
+            ctx.status(400);
+            return;
+        }
+
+        if (Tool.addTool(userId, tool, payload.erre)) {
+            ctx.status(200);
         }
 
     }
-    record AddToolPayload(String toolId) {}
-
-    public static void removeTool(Context ctx) {
-        long userId = AuthUtils.getUser(ctx);
-        RemoveToolPayload payload = ctx.bodyAsClass(RemoveToolPayload.class);
-
-        Tool.removeTool(userId, payload.toolId());
-        ctx.status(200);
-    }
-    record RemoveToolPayload(String toolId) {}
+    record AddToolPayload(String toolId, float erre) {}
 
 }
