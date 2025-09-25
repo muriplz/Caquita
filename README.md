@@ -1,5 +1,7 @@
 # Monorepo of [Caquita](https://caquita.app)
 
+[Our Kickstarter](https://www.kickstarter.com/projects/muri/caquita?ref=cj65rw)
+
 <p align="center">
   <img 
     src="https://raw.githubusercontent.com/muriplz/Caquita/main/images/onboarding.png" 
