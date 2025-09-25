@@ -47,7 +47,8 @@ public class InventoryApi {
 
         List<InventoryItem.Cell> pizzaBoxPos = List.of(
                 new InventoryItem.Cell(1, 1),
-                new InventoryItem.Cell(1, 2)
+                new InventoryItem.Cell(1, 2),
+                new InventoryItem.Cell(0, 2)
         );
 
         InventoryItem bottle = new InventoryItem(
@@ -57,7 +58,7 @@ public class InventoryApi {
         );
 
         InventoryItem pizzaBox = new InventoryItem(
-                "plastic:bottle",
+                "cardboard:pizza_box",
                 pizzaBoxPos,
                 0.5f
         );
