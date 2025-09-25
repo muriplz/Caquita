@@ -3,12 +3,12 @@ import PetitionsHeader from "@/views/landmarks/PetitionsHeader.vue";
 import { ref, computed } from "vue";
 import { LANDMARK_TYPES } from "@/views/landmarks/js/LandmarkInfo.js";
 import PetitionsApi from "@/views/landmarks/js/PetitionsApi.js";
+import MapSelector from "@/views/landmarks/create_petition/MapSelector.vue";
 
 const name = ref('');
 const description = ref('');
 const type = ref('');
-const latitude = ref('');
-const longitude = ref('');
+const selectedLocation = ref({ lat: null, lng: null });
 const selectedFeatures = ref([]);
 
 const availableFeatures = computed(() => {
@@ -31,8 +31,8 @@ const submitForm = async (event) => {
       name.value,
       description.value,
       type.value.replace(" ", "_").toUpperCase(),
-      parseFloat(latitude.value),
-      parseFloat(longitude.value),
+      parseFloat(selectedLocation.value.lat),
+      parseFloat(selectedLocation.value.lng),
       landmarkInfo
   );
 
@@ -40,8 +40,7 @@ const submitForm = async (event) => {
     name.value = '';
     description.value = '';
     type.value = '';
-    latitude.value = '';
-    longitude.value = '';
+    selectedLocation.value = { lat: null, lng: null };
     selectedFeatures.value = [];
     alert('Petition created successfully!');
   } else {
@@ -53,8 +52,8 @@ const submitForm = async (event) => {
 <template>
   <PetitionsHeader/>
 
-  <div class="mt-50 flex justify-center">
-    <form class="input-form" @submit="submitForm">
+  <div class="mt-30 flex justify-center">
+    <form class="input-form min-w-md" @submit="submitForm">
       <input type="text" placeholder="Name" v-model="name" required/>
       <input type="text" placeholder="Description" v-model="description" required/>
 
@@ -74,11 +73,9 @@ const submitForm = async (event) => {
           </label>
         </div>
       </div>
+      <MapSelector v-model="selectedLocation" />
 
-      <input placeholder="Latitude" type="number" step="any" v-model="latitude" required/>
-      <input placeholder="Longitude" type="number" step="any" v-model="longitude" required/>
-
-      <input type="submit" value="Submit" class="bg-blue-500 text-white cursor-pointer"/>
+      <input type="submit" value="Submit" class="bg-blue-500 text-white cursor-pointer mt-4"/>
     </form>
   </div>
 </template>

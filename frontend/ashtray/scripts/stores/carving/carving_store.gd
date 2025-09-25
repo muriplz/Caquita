@@ -14,7 +14,6 @@ func get_carving_site() -> CarvingSite:
 	return carving_site
 
 func update_carving_site(updated_carving_site: Dictionary):
-	print(updated_carving_site.items)
 	carving_site = CarvingSite.from_dict(updated_carving_site)
 	emit_signal("carving_site_updated")
 

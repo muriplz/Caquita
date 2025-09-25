@@ -6,6 +6,7 @@ import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.landmark.LandmarkType;
 import app.caquita.landmark.trash_can.TrashCanApi;
 import app.caquita.storage.Database;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.javalin.http.Context;
 import org.json.JSONObject;
 
@@ -198,7 +199,7 @@ public class PetitionsApi {
         ctx.status(204);
     }
 
-    public static void updateStatus(Context ctx) {
+    public static void updateStatus(Context ctx) throws JsonProcessingException {
         long user = AuthUtils.getUser(ctx);
         long id = Long.parseLong(ctx.pathParam("id"));
         String bodyString = ctx.body();
@@ -207,8 +208,8 @@ public class PetitionsApi {
 
         Petition petition = Database.getJdbi().withHandle(handle ->
                 handle.createQuery("""
-                    SELECT id, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon,
-                           info, status, creation, edition, image
+                    SELECT id, name, description, user_id, type, ST_Y(position) as lat, ST_X(position) as lon,
+                           info, status, creation, edition
                     FROM petitions
                     WHERE id = :id
                     """)
@@ -246,38 +247,29 @@ public class PetitionsApi {
         });
 
         if (updated && status.equals("ACCEPTED")) {
-            try {
-                String jsonString = petition.info().toString();
-                JSONObject info = new JSONObject(jsonString);
-                String name = info.getString("name");
+            String jsonString = Database.MAPPER.writeValueAsString(petition.info());
 
-                JSONObject featuresOnly = new JSONObject(jsonString);
-                featuresOnly.remove("name");
+            JSONObject features = new JSONObject(jsonString);
 
-                switch (petition.type()) {
-                    case TRASH_CAN -> TrashCanApi.create(
-                            petition.lat(),
-                            petition.lon(),
-                            name,
-                            petition.description(),
-                            petition.userId(),
-                            featuresOnly
-                            );
-                }
-
-                UnlockedAvatar.grant("bottles", petition.userId());
-
-                //PetitionImageApi.acceptImage(petition.id(), landmarkId);
-
-                ctx.status(200).json(Map.of(
-                        "message", "Petition accepted and landmark created"
-                  //      "landmarkId", landmarkId
-                ));
-                return;
-            } catch (Exception e) {
-                ctx.status(500).result("Error creating landmark: " + e.getMessage());
-                return;
+            switch (petition.type()) {
+                case TRASH_CAN -> TrashCanApi.create(
+                        petition.lat(),
+                        petition.lon(),
+                        petition.name(),
+                        petition.description(),
+                        petition.userId(),
+                        features
+                );
             }
+
+            UnlockedAvatar.grant("bottles", petition.userId());
+
+            //PetitionImageApi.acceptImage(petition.id(), landmarkId);
+
+            ctx.status(200).json(Map.of(
+                    "message", "Petition accepted and landmark created"
+                    //      "landmarkId", landmarkId
+            ));
         }
 
         ctx.status(204);

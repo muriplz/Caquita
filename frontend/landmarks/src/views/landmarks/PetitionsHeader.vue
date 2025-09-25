@@ -4,26 +4,11 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import {useUserStore} from "@/js/Store.js";
 
 const store = useUserStore();
-
-const isVisible = ref(true);
-const scrollThreshold = 30;
-
-const handleScroll = () => {
-  isVisible.value = window.scrollY <= scrollThreshold;
-};
-
-onMounted(() => {
-  window.addEventListener('scroll', handleScroll);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', handleScroll);
-});
 </script>
 
 <template>
   <Transition name="header-slide">
-    <header v-show="isVisible" class="w-full shadow fixed top-0 left-0 z-50 flex justify-between">
+    <header class="w-full shadow fixed top-0 left-0 z-50 flex justify-between">
       <div class="mx-4 z-50">
         <h4 v-if="store.getUser">@{{ store.getUser.username }}</h4>
         <a v-else @click="router.push('/login')" class="cursor-pointer">Login</a>

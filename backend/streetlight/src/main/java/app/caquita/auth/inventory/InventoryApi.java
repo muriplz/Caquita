@@ -42,24 +42,22 @@ public class InventoryApi {
     public static void initInventory(long user) {
         List<InventoryItem.Cell> bottlePos = List.of(
                 new InventoryItem.Cell(0, 0),
-                new InventoryItem.Cell(0, 1),
-                new InventoryItem.Cell(0, 2)
+                new InventoryItem.Cell(0, 1)
         );
 
         List<InventoryItem.Cell> pizzaBoxPos = List.of(
                 new InventoryItem.Cell(1, 1),
-                new InventoryItem.Cell(0, 2),
                 new InventoryItem.Cell(1, 2)
         );
 
         InventoryItem bottle = new InventoryItem(
-                "plastic:toothbrush",
+                "plastic:bottle",
                 bottlePos,
                 0.5f
         );
 
         InventoryItem pizzaBox = new InventoryItem(
-                "cardboard:pizza_box",
+                "plastic:bottle",
                 pizzaBoxPos,
                 0.5f
         );
