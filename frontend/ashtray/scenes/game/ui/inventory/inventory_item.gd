@@ -109,9 +109,16 @@ func stop_drag():
 	animate_to_position(_original_position)
 
 func attempt_move(new_anchor: Cell):
-	InventoryService.move(anchor, new_anchor, func(response):
+	var clicked_cell = Cell.new()
+	clicked_cell.col = int(_drag_start_cell.x)
+	clicked_cell.row = int(_drag_start_cell.y)
+	
+	InventoryService.move(clicked_cell, new_anchor, func(response):
 		if response:
 			InventoryStore.update_inventory(response)
+			anchor = new_anchor
+			var correct_pos = get_parent().get_parent().get_cell_position(new_anchor.col, new_anchor.row)
+			animate_to_position(correct_pos)
 		else:
 			animate_to_position(_original_position)
 	)
@@ -121,7 +128,10 @@ func animate_to_position(target_pos: Vector2):
 		_tween.kill()
 	_tween = create_tween()
 	_tween.tween_property(self, "position", target_pos, 0.2)
-	_tween.tween_callback(func(): z_index = 0)
+	_tween.tween_callback(func(): 
+		z_index = 0
+		get_parent().get_parent().rebuild_after_animation()
+	)
 
 
 func update_position_from_anchor():

@@ -62,7 +62,7 @@ public class InventoryApi {
                 0.5f
         );
 
-        List<InventoryItem> items = List.of(bottle);
+        List<InventoryItem> items = List.of(bottle, pizzaBox);
         try {
             String itemsJson = Database.MAPPER.writeValueAsString(items);
 
@@ -120,7 +120,8 @@ public class InventoryApi {
 
         InventoryManager manager = new InventoryManager(user);
 
-        if (manager.moveItem(payload.anchor.col(), payload.anchor.row(), payload.newAnchor.col(), payload.newAnchor.row())) {
+        if (manager.moveItem(payload.clicked.col(), payload.clicked.row(),
+                payload.newAnchor.col(), payload.newAnchor.row())) {
             ctx.status(200).json(manager.inventory);
         } else {
             ctx.status(400).result("Failed to move item");
@@ -147,6 +148,6 @@ public class InventoryApi {
 
     record AddItemPayload(String itemId, InventoryItem.Cell anchor) {}
     record RemoveItemPayload(InventoryItem.Cell anchor) {}
-    record MoveItemPayload(InventoryItem.Cell anchor, InventoryItem.Cell newAnchor) {}
+    record MoveItemPayload(InventoryItem.Cell clicked, InventoryItem.Cell newAnchor) {}
     record CanPlaceItemRequest(String itemId, InventoryItem.Cell anchor) {}
 }

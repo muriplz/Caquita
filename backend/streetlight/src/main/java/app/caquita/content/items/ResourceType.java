@@ -5,6 +5,7 @@ public enum ResourceType {
     GLASS,
     PAPER,
     CARDBOARD,
+    FABRIC,
     OTHER,
     ;
 }

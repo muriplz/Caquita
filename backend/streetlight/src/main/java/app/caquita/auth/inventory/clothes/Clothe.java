@@ -19,7 +19,7 @@ public interface Clothe {
 
         @Override
         public ResourceType getResourceType() {
-            return null;
+            return ResourceType.FABRIC;
         }
 
         @Override

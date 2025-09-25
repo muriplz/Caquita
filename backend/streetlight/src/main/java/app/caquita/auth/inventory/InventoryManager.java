@@ -159,16 +159,14 @@ public class InventoryManager {
         return true;
     }
 
-    public boolean moveItem(int anchorCol, int anchorRow, int newAnchorCol, int newAnchorRow) {
+    public boolean moveItem(int clickedCol, int clickedRow, int newAnchorCol, int newAnchorRow) {
         InventoryItem item = inventory.items().stream()
-                .filter(i -> {
-                    InventoryItem.Cell anchor = getItemAnchor(i);
-                    return anchor.col() == anchorCol && anchor.row() == anchorRow;
-                })
+                .filter(i -> i.cells().contains(new InventoryItem.Cell(clickedCol, clickedRow)))
                 .findFirst()
                 .orElse(null);
 
         if (item == null) return false;
+
 
         int[][] shape = item.toItem().getShape();
         InventoryItem.Cell placement = anchorToPlacement(newAnchorCol, newAnchorRow, shape);

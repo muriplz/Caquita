@@ -29,8 +29,12 @@ func _on_inventory_ready() -> void:
 	clear_inventory()
 	build_inventory()
 
+func rebuild_after_animation():
+	clear_inventory()
+	build_inventory()
+
 func _on_inventory_updated() -> void:
-	update_existing_items()
+	pass
 
 func clear_inventory() -> void:
 	for child in $Background.get_children():
@@ -77,18 +81,3 @@ func create_cells(cols, rows) -> void:
 			cell.i = x
 			cell.j = y
 			$Background.add_child(cell)
-
-func update_existing_items():
-	for child in $Background.get_children():
-		if child.has_method("update_position_from_anchor"):
-			var updated_item = find_updated_item_data(child.item.id, child.item.erre)
-			if updated_item:
-				child.item = updated_item
-				child.anchor = ShapeUtils.get_anchor(child.item)
-				child.update_position_from_anchor()
-
-func find_updated_item_data(item_id: String, item_erre: float):
-	for inventory_item in InventoryStore.inventory.items:
-		if inventory_item.id == item_id and inventory_item.erre == item_erre:
-			return inventory_item
-	return null

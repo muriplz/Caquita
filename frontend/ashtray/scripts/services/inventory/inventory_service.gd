@@ -10,8 +10,8 @@ static func remove(anchor: Cell, callback: Callable) -> void:
 	var data = {"anchor": anchor.to_dict()}
 	_make_request("DELETE", "", data, callback)
 
-static func move(anchor: Cell, new_anchor: Cell, callback: Callable) -> void:
-	var data = {"anchor": anchor.to_dict(), "newAnchor": new_anchor.to_dict()}
+static func move(clicked: Cell, new_anchor: Cell, callback: Callable) -> void:
+	var data = {"clicked": clicked.to_dict(), "newAnchor": new_anchor.to_dict()}
 	_make_request("PATCH", "", data, callback)
 
 static func can_place(item_id: String, anchor: Cell, callback: Callable) -> void:
