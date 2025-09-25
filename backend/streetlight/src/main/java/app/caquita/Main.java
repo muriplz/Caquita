@@ -5,6 +5,9 @@ import app.caquita.auth.FriendshipApi;
 import app.caquita.auth.LoginApi;
 import app.caquita.auth.avatar.UnlockedAvatar;
 import app.caquita.auth.inventory.InventoryApi;
+import app.caquita.auth.inventory.clothes.Wardrobe;
+import app.caquita.auth.inventory.clothes.WardrobeApi;
+import app.caquita.auth.inventory.clothes.dusters.DusterApi;
 import app.caquita.auth.inventory.tools.ToolInventoryApi;
 import app.caquita.carving.CarvingSiteApi;
 import app.caquita.landmark.forum.petitions.PetitionImageApi;
@@ -93,6 +96,8 @@ public class Main {
                 post("can-place", InventoryApi::canPlaceItem);
             });
 
+            wardrobeRoutes();
+
             carvingRoutes();
 
             landmarkRoutes();
@@ -122,6 +127,16 @@ public class Main {
         path("carving", () -> {
             post(CarvingSiteApi::generate);
             post("carve", CarvingSiteApi::carve);
+        });
+    }
+
+    private static void wardrobeRoutes() {
+        path("wardrobe", () -> {
+            get(WardrobeApi::get);
+            path("duster", () -> {
+                post(DusterApi::equipTool);
+                patch(DusterApi::swapTools);
+            });
         });
     }
 

@@ -25,6 +25,7 @@ ItemKindStore="*res://scripts/stores/registry/item_kinds_store.gd"
 SettingsStore="*res://scripts/stores/settings_store.gd"
 CarvingStore="*res://scripts/stores/carving/carving_store.gd"
 ObstacleKindsStore="*res://scripts/stores/registry/obstacle_kinds_store.gd"
+WardrobeStore="*res://scripts/stores/clothes/wardrobe_store.gd"
 
 [display]
 

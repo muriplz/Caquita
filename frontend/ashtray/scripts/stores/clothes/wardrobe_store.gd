@@ -24,6 +24,6 @@ func _on_response(_result, code, _headers, body):
 func get_wardrobe() -> Wardrobe:
 	return wardrobe
 
-func wardrobe_inventory(response_data):
+func set_wardrobe(response_data):
 	wardrobe = Wardrobe.from_dict(response_data)
 	emit_signal("wardrobe_updated")
