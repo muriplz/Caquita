@@ -7,6 +7,18 @@ import io.javalin.http.Context;
 
 public class DusterApi {
 
+    public static void addTool(Context ctx) {
+        long userId = AuthUtils(ctx);
+
+        AddToolPayload payload = ctx.bodyAsClass(AddTollPayload.class);
+
+        // Take the tool, if none then ctx 400 and return
+        // Add tool with Wardrobe.addTool
+
+        
+    }
+    record AddToolPayload(int col, int row) {}
+
     public static void equipTool(Context ctx) throws JsonProcessingException {
         long userId = AuthUtils.getUser(ctx);
         EquipToolPayload payload = ctx.bodyAsClass(EquipToolPayload.class);
