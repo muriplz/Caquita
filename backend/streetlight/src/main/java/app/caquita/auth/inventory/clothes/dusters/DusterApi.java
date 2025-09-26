@@ -10,7 +10,10 @@ public class DusterApi {
     public static void dropTool(Context ctx) {
         long userId = AuthUtils.getUser(ctx);
 
-        
+        // Delete the tool and remove experience
+        Wardrobe wardrobe = Wardrobe.get(userId);
+
+        ctx.status(200).json(wardrobe);
     }
     record DropToolPayload(int pocketCol, int pocketRow) {}
 
