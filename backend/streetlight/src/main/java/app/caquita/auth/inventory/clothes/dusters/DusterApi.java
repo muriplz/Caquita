@@ -7,17 +7,26 @@ import io.javalin.http.Context;
 
 public class DusterApi {
 
+    public static void dropTool(Context ctx) {
+        long userId = AuthUtils.getUser(ctx);
+
+        
+    }
+    record DropToolPayload(int pocketCol, int pocketRow) {}
+
     public static void addTool(Context ctx) {
-        long userId = AuthUtils(ctx);
+        long userId = AuthUtils.getUser(ctx);
 
         AddToolPayload payload = ctx.bodyAsClass(AddTollPayload.class);
 
         // Take the tool, if none then ctx 400 and return
         // Add tool with Wardrobe.addTool
 
-        
+        Wardrobe wardrobe = null;
+
+        ctx.status(200).json(wardrobe);
     }
-    record AddToolPayload(int col, int row) {}
+    record AddToolPayload(int inventoryCol, int inventoryRow) {}
 
     public static void equipTool(Context ctx) throws JsonProcessingException {
         long userId = AuthUtils.getUser(ctx);
