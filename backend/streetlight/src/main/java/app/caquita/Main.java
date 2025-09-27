@@ -134,8 +134,10 @@ public class Main {
         path("wardrobe", () -> {
             get(WardrobeApi::get);
             path("duster", () -> {
+                put(DusterApi::addTool);
                 post(DusterApi::equipTool);
                 patch(DusterApi::swapTools);
+                delete(DusterApi::dropTool);
             });
         });
     }

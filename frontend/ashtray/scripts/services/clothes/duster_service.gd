@@ -2,6 +2,13 @@ class_name DusterService
 
 static var API_URL: String = Static.API_URL + "api/v1/wardrobe/duster"
 
+static func addTool(inventoryCol: int, inventoryRow: int) -> void:
+	var data = {"inventoryCol": inventoryCol, "inventoryRow": inventoryRow}
+	make_request("PUT", "", data, func(response):
+		if response != null:
+			WardrobeStore.set_wardrobe(response)
+	)
+
 static func equip(col: int, row: int) -> void:
 	var data = {"col": col, "row": row}
 	make_request("POST", "", data, func(response):
@@ -12,6 +19,13 @@ static func equip(col: int, row: int) -> void:
 static func swap(col1: int, row1: int, col2: int, row2: int) -> void:
 	var data = {"col1": col1, "row1": row1, "col2": col2, "row2": row2}
 	make_request("PATCH", "", data, func(response):
+		if response != null:
+			WardrobeStore.set_wardrobe(response)
+	)
+	
+static func dropTool(pocketCol: int, pocketRow: int) -> void:
+	var data = {"pocketCol": pocketCol, "pocketRow": pocketRow}
+	make_request("DELETE", "", data, func(response):
 		if response != null:
 			WardrobeStore.set_wardrobe(response)
 	)

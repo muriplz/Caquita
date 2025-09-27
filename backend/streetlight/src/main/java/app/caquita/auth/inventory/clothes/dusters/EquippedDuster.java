@@ -1,5 +1,7 @@
 package app.caquita.auth.inventory.clothes.dusters;
 
+import javax.annotation.Nullable;
+
 public record EquippedDuster(
         String duster,
         ToolData equippedTool, // null if no tool equipped
@@ -8,6 +10,8 @@ public record EquippedDuster(
 ) {
 
 
-    public record ToolPocket(int col, int row, ToolData tool) {}
+    public record ToolPocket(boolean locked, ToolData tool) {}
+
+    @Nullable
     public record ToolData(String toolId, int durability, float erre) {}
 }

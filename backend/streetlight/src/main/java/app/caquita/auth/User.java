@@ -20,7 +20,7 @@ public record User(
         ;
     }
 
-    public record Currencies(long id, int experience, int beans) {}
+    public record Currencies(long id, long userId, int experience, int beans) {}
 
     public record Inventory(long id, long userId,
                             @ColumnName("items") @Json List<InventoryItem> items,
